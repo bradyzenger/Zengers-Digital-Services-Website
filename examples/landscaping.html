@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fernhill Landscapes · Concept website</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Concept website: a fictional landscaping company, built by ZENGERS Web Design as an example. */
+:root{
+  --moss:#23391F; --fern:#3F6B3A; --leaf:#6E9B5E; --lime:#C3DB7A; --meadow:#EEF3E6; --bark:#5E4A3E; --ink:#1B2419; --muted:#4D5A49; --line:#CFDAC4;
+  --serif:"Young Serif",Georgia,"Times New Roman",serif; --sans:"Figtree",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --g:clamp(16px,4vw,44px);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth} @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--meadow);color:var(--ink);font:17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance} p{margin:0}
+:focus-visible{outline:3px solid var(--lime);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1160px;margin-inline:auto;padding-inline:var(--g)}
+.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:10px var(--g);display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.concept a{color:#F2B544;text-underline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.7em 1.3em;border-radius:10px;font:600 16px/1.2 var(--sans);text-decoration:none;border:2px solid transparent;cursor:pointer}
+.btn-lime{background:var(--lime);color:var(--moss)} .btn-lime:hover{background:#D3E88E}
+.btn-line{border-color:rgba(255,255,255,.6);color:#fff} .btn-line:hover{border-color:#fff}
+.btn-moss{background:var(--moss);color:#fff} .btn-moss:hover{background:var(--fern)}
+header.top{background:var(--moss);color:#fff}
+.top-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;flex-wrap:wrap;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-size:24px}
+.brand svg{width:34px;height:34px}
+.top nav{display:flex;gap:26px;font-weight:500} .top nav a{text-decoration:none;opacity:.9} .top nav a:hover{opacity:1;color:var(--lime)}
+@media (max-width:760px){.top nav{display:none}}
+.hero{position:relative;background:var(--moss);color:#fff;overflow:hidden}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(24,40,21,.9) 0%,rgba(24,40,21,.62) 45%,rgba(24,40,21,0) 75%)}
+@media (max-width:760px){.hero::after{background:linear-gradient(180deg,rgba(24,40,21,.2) 0%,rgba(24,40,21,.88) 55%)}}
+.hero .wrap{position:relative;z-index:1;padding-block:clamp(90px,14vw,170px) clamp(64px,9vw,120px)}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6vw,76px);line-height:1.02;max-width:12em}
+.hero p{margin-top:18px;font-size:clamp(18px,1.8vw,21px);max-width:30em;color:#E6EEDC}
+.hero-cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--fern)}
+section{padding-block:clamp(64px,9vw,110px)}
+.head{display:grid;gap:12px;max-width:40em;margin-bottom:clamp(32px,5vw,52px)}
+.head h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,50px);line-height:1.08}
+.head p{color:var(--muted)}
+.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.svc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;display:grid;gap:10px;align-content:start}
+.svc .ic{width:44px;height:44px;border-radius:12px;background:var(--meadow);display:grid;place-items:center;color:var(--fern)}
+.svc h3{font-size:20px;font-weight:700}
+.svc p{color:var(--muted);font-size:16px}
+@media (max-width:900px){.services{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:600px){.services{grid-template-columns:1fr}}
+.band{background:var(--moss);color:#fff}
+.band .eyebrow{color:var(--lime)} .band .head p{color:#CBD9BF}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;counter-reset:s;list-style:none;margin:0;padding:0}
+.steps li{border-top:2px solid var(--lime);padding-top:18px;display:grid;gap:8px}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:40px;line-height:1;color:var(--lime)}
+.steps h3{font-size:20px} .steps p{color:#CBD9BF}
+@media (max-width:760px){.steps{grid-template-columns:1fr}}
+.area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
+.towns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;padding:0;list-style:none}
+.towns li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:500}
+.quote-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:clamp(22px,3vw,32px);display:grid;gap:16px}
+.quote-card h3{font-family:var(--serif);font-weight:400;font-size:28px}
+.f{display:grid;gap:6px} .f label{font-weight:600;font-size:15px}
+.f input,.f select,.f textarea{font:inherit;font-size:16px;padding:11px 12px;border:1.5px solid #B9C7AE;border-radius:10px;background:#FBFCF8;min-height:48px;width:100%}
+.f textarea{min-height:96px}
+.demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:10px;padding:12px 14px;font-size:15px}
+@media (max-width:860px){.area{grid-template-columns:1fr}}
+footer{background:var(--ink);color:#C6D0C0;padding-block:44px;font-size:15px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
+footer .brand{color:#fff}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:#0E1822;color:#fff;border:1px solid #F2B544;border-radius:12px;padding:12px 16px;font:500 15px/1.4 system-ui,Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<div class="concept" role="note"><span><strong>Concept website</strong> by ZENGERS Web Design. Fernhill Landscapes is a fictional business, not a client. Buttons and forms don’t send anything.</span><a href="../examples.html">← All examples</a></div>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="#"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 36C9 30 6 18 12 6c8 6 14 15 8 30z" fill="#C3DB7A"/><path d="M20 36c6-10 12-14 18-14-2 9-9 14-18 14z" fill="#6E9B5E"/><path d="M20 36V14" stroke="#23391F" stroke-width="2"/></svg>Fernhill Landscapes</a>
+    <nav aria-label="Main"><a href="#services">Services</a><a href="#process">How it works</a><a href="#area">Service area</a></nav>
+    <a class="btn btn-lime" href="#estimate">Free estimate</a>
+  </div>
+</header>
+
+<section class="hero" style="padding:0">
+  <img class="hero-img" src="../media/examples/landscaping.svg" alt="Illustration of a landscaped front yard with a stone path, planting beds and an oak tree">
+  <div class="wrap">
+    <h1>Yards you’ll want to spend time in.</h1>
+    <p>Landscape design, installation, and weekly care for homes across Middle Tennessee.</p>
+    <div class="hero-cta">
+      <a class="btn btn-lime" href="#estimate">Get a free estimate</a>
+      <a class="btn btn-line" href="tel:+16155550142">Call (615) 555-0142</a>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">Services</span><h2>From first sketch to weekly mowing.</h2><p>One crew for the whole yard, so nothing falls between contractors.</p></div>
+    <div class="services">
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg></span><h3>Landscape design</h3><p>A drawn plan for beds, paths, and plantings that suit your house and your soil.</p></article>
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></span><h3>Patios and walkways</h3><p>Natural stone, pavers, and gravel, set on a proper base so they stay level.</p></article>
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V10"/><path d="M12 10C12 6 9 3 5 3c0 4 3 7 7 7zM12 13c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg></span><h3>Planting</h3><p>Trees, shrubs, and perennials chosen to thrive here, not just look good at the nursery.</p></article>
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20M4 20c1-4 1-8 0-12M8 20c1-5 1-9 0-14M12 20c1-4 1-9 0-13M16 20c1-5 1-9 0-14M20 20c1-4 1-8 0-12"/></svg></span><h3>Lawn care</h3><p>Weekly mowing, edging, and seasonal feeding on a set schedule.</p></article>
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 20 4M14 4h6v6"/><path d="M4 14c3 0 6 3 6 6"/></svg></span><h3>Seasonal cleanup</h3><p>Leaves out, beds edged and mulched, perennials cut back.</p></article>
+      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></span><h3>Outdoor lighting</h3><p>Low-voltage path and garden lights on a timer.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="process">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow">How it works</span><h2>Three steps to a finished yard.</h2><p>You’ll know the plan and the price before any work starts.</p></div>
+    <ol class="steps">
+      <li><h3>Walk the yard</h3><p>We visit, measure, and listen to how you want to use the space.</p></li>
+      <li><h3>Plan and price</h3><p>You get a drawing and a written estimate, line by line.</p></li>
+      <li><h3>Build and care</h3><p>Our crew installs it, then keeps it looking right if you want ongoing care.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="area">
+  <div class="wrap area">
+    <div>
+      <span class="eyebrow">Service area</span>
+      <div class="head" style="margin:12px 0 0"><h2>Close to home.</h2><p>We work within about 30 miles of our yard. Not sure if you’re in range? Ask.</p></div>
+      <ul class="towns"><li>Brentwood</li><li>Franklin</li><li>Nolensville</li><li>Spring Hill</li><li>Thompson’s Station</li><li>Arrington</li></ul>
+    </div>
+    <form class="quote-card" id="estimate" novalidate>
+      <h3>Get a free estimate</h3>
+      <div class="f"><label for="l-name">Name</label><input id="l-name" autocomplete="off"></div>
+      <div class="f"><label for="l-phone">Phone</label><input id="l-phone" type="tel" autocomplete="off"></div>
+      <div class="f"><label for="l-need">What do you need?</label><select id="l-need"><option>Landscape design</option><option>Patio or walkway</option><option>Planting</option><option>Lawn care</option><option>Seasonal cleanup</option><option>Outdoor lighting</option></select></div>
+      <div class="f"><label for="l-notes">Tell us about your yard</label><textarea id="l-notes"></textarea></div>
+      <button class="btn btn-moss" type="submit">Request my estimate</button>
+      <p class="demo-note" hidden>Sample form: nothing was sent. On a real site, this request would go straight to the owner.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#">Fernhill Landscapes</a>
+    <span>(615) 555-0142 · hello@example.com · Mon–Sat, 7am–6pm</span>
+    <span>Concept website by ZENGERS Web Design</span>
+  </div>
+</footer>
+
+<p class="toast" id="demo-toast" role="status" aria-live="polite" hidden></p>
+<script>
+(function(){
+  var toast = document.getElementById("demo-toast"), t;
+  function say(m){ toast.textContent = m; toast.hidden = false; clearTimeout(t); t = setTimeout(function(){ toast.hidden = true; }, 4200); }
+  document.querySelectorAll('a[href^="tel:"],a[href^="mailto:"]').forEach(function(a){
+    a.addEventListener("click", function(e){ e.preventDefault(); say("This is a concept website, so this button doesn’t call or email anyone."); });
+  });
+  document.querySelectorAll("form").forEach(function(f){
+    f.addEventListener("submit", function(e){ e.preventDefault(); var n = f.querySelector(".demo-note"); if (n) n.hidden = false; say("Sample form: nothing was sent."); });
+  });
+})();
+</script>
+</body>
+</html>

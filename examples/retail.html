@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marigold &amp; Mill · Concept website</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Concept website: a fictional home goods and gift shop, built by ZENGERS Web Design as an example. */
+:root{
+  --plum:#3E2240; --plum-2:#5A3559; --blush:#EBD3CB; --rose:#F6E9E4; --ochre:#C8902E; --sage:#7C8C6B; --ivory:#FBF6F2; --ink:#2A1A2B; --muted:#6A5667; --line:#E5D2CC;
+  --serif:"Cormorant Garamond",Garamond,Georgia,serif; --sans:"Jost",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --g:clamp(16px,4vw,44px);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth} @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ivory);color:var(--ink);font:17px/1.65 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance;font-weight:500} p{margin:0}
+:focus-visible{outline:3px solid var(--ochre);outline-offset:3px;border-radius:3px}
+.wrap{max-width:1160px;margin-inline:auto;padding-inline:var(--g)}
+.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:10px var(--g);display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.concept a{color:#F2B544;text-underline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.75em 1.5em;border-radius:999px;font:500 15px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1.5px solid transparent;cursor:pointer}
+.btn-plum{background:var(--plum);color:var(--ivory)} .btn-plum:hover{background:var(--plum-2)}
+.btn-line{border-color:var(--plum);color:var(--plum)} .btn-line:hover{background:var(--plum);color:var(--ivory)}
+header.top{border-bottom:1px solid var(--line);background:var(--ivory)}
+.top-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:78px}
+.top nav{display:flex;gap:24px;font-size:14px;letter-spacing:.12em;text-transform:uppercase}
+.top nav a{text-decoration:none} .top nav a:hover{color:var(--ochre)}
+.brand{font:600 30px/1 var(--serif);text-decoration:none;text-align:center;color:var(--plum)}
+.brand em{font-style:italic;color:var(--ochre)}
+.top .right{justify-self:end}
+@media (max-width:760px){.top-inner{grid-template-columns:1fr auto}.top nav{display:none}.brand{text-align:left}}
+.hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);min-height:min(78vh,720px)}
+.hero-copy{display:flex;flex-direction:column;justify-content:center;gap:20px;padding:clamp(40px,6vw,80px) var(--g);background:var(--rose)}
+.hero small{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.hero h1{font:500 clamp(46px,6vw,84px)/1 var(--serif);color:var(--plum)}
+.hero h1 em{color:var(--ochre)}
+.hero p{max-width:26em;color:var(--muted)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero-img{position:relative;min-height:340px}
+.hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+@media (max-width:860px){.hero{grid-template-columns:1fr}.hero-img{order:-1;min-height:300px}}
+section{padding-block:clamp(64px,9vw,110px)}
+.head{text-align:center;display:grid;gap:10px;justify-items:center;margin-bottom:clamp(30px,5vw,52px)}
+.head small{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre)}
+.head h2{font:500 clamp(36px,4.4vw,56px)/1.05 var(--serif);color:var(--plum)}
+.head p{color:var(--muted);max-width:34em}
+.cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.cat{display:grid;gap:12px;text-decoration:none}
+.cat .art{aspect-ratio:4/5;border-radius:200px 200px 12px 12px;display:grid;place-items:end center;padding-bottom:18%;overflow:hidden}
+.cat h3{font:500 26px/1.1 var(--serif);text-align:center}
+.cat p{text-align:center;color:var(--muted);font-size:15px}
+.cat:hover h3{color:var(--ochre)}
+@media (max-width:900px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.visit{background:var(--plum);color:var(--ivory)}
+.visit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,4vw,48px)}
+.visit h2{font:500 clamp(36px,4.4vw,56px)/1.05 var(--serif)}
+.visit h3{font:500 24px var(--serif);color:var(--blush);margin-bottom:8px}
+.visit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;font-variant-numeric:tabular-nums}
+.visit dt{color:var(--blush)} .visit dd{margin:0}
+@media (max-width:860px){.visit-grid{grid-template-columns:1fr}}
+.event{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:center}
+.event .date{font:600 15px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ochre)}
+.event h2{font:500 clamp(34px,4vw,50px)/1.05 var(--serif);color:var(--plum);margin-top:8px}
+.event p{color:var(--muted);margin-top:12px}
+form.signup{background:var(--rose);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,3vw,32px);display:grid;gap:14px}
+.f{display:grid;gap:6px} .f label{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.f input,.f select{font:inherit;font-size:16px;padding:11px 14px;border:1.5px solid #D9BFB7;border-radius:999px;background:#fff;min-height:48px;width:100%}
+.demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:12px;padding:12px 14px;font-size:15px}
+@media (max-width:860px){.event{grid-template-columns:1fr}}
+.gift{border-top:1px solid var(--line);text-align:center}
+.gift .wrap{display:grid;gap:18px;justify-items:center}
+footer{background:var(--ink);color:#CDBFCB;padding-block:40px;font-size:15px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+footer .brand{color:var(--ivory);font-size:24px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:#0E1822;color:#fff;border:1px solid #F2B544;border-radius:12px;padding:12px 16px;font:500 15px/1.4 system-ui,Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<div class="concept" role="note"><span><strong>Concept website</strong> by ZENGERS Web Design. Marigold &amp; Mill is a fictional shop, not a client. Buttons and forms don’t send or sell anything.</span><a href="../examples.html">← All examples</a></div>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <nav aria-label="Main"><a href="#shop">Shop</a><a href="#visit">Visit</a><a href="#events">Events</a></nav>
+    <a class="brand" href="#">Marigold <em>&amp;</em> Mill</a>
+    <a class="btn btn-line right" href="#visit">Visit us</a>
+  </div>
+</header>
+
+<section class="hero" style="padding:0">
+  <div class="hero-copy">
+    <small>Home goods · Gifts · Small-batch makers</small>
+    <h1>Handmade things for <em>everyday</em> rooms.</h1>
+    <p>Ceramics, candles, linen, and gifts from makers across the South. Come in and look around.</p>
+    <div class="hero-cta"><a class="btn btn-plum" href="#shop">Browse the shop</a><a class="btn btn-line" href="#visit">Hours and directions</a></div>
+  </div>
+  <div class="hero-img"><img src="../media/examples/retail.svg" alt="Illustration of a shop wall with an arched window and shelves of vases, mugs, candles, linen and a wrapped gift"></div>
+</section>
+
+<section id="shop">
+  <div class="wrap">
+    <div class="head"><small>In the shop</small><h2>Shop by category</h2><p>New pieces arrive most weeks. What’s on the shelf is what’s in stock.</p></div>
+    <div class="cats">
+      <a class="cat" href="#visit"><span class="art" style="background:#EBD3CB"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><path d="M20 120c-18-30-14-70 10-86h30c24 16 28 56 10 86z" fill="#3E2240"/></svg></span><h3>Ceramics</h3><p>Mugs, vases, and serving bowls</p></a>
+      <a class="cat" href="#visit"><span class="art" style="background:#F2E1C4"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><rect x="22" y="40" width="46" height="80" rx="8" fill="#C8902E"/><path d="M45 38c-7-10 0-22 0-22s7 12 0 22z" fill="#FFB84D"/></svg></span><h3>Candles</h3><p>Soy candles poured in small batches</p></a>
+      <a class="cat" href="#visit"><span class="art" style="background:#DDE3D3"><svg width="110" height="90" viewBox="0 0 110 90" aria-hidden="true"><rect y="10" width="110" height="24" rx="6" fill="#FBF6F2"/><rect x="6" y="36" width="100" height="24" rx="6" fill="#7C8C6B"/><rect y="62" width="110" height="24" rx="6" fill="#EBD3CB"/></svg></span><h3>Linen</h3><p>Tea towels, napkins, and throws</p></a>
+      <a class="cat" href="#visit"><span class="art" style="background:#E8D5E3"><svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true"><rect x="10" y="36" width="80" height="64" rx="4" fill="#C9A77D"/><path d="M50 36v64M10 66h80" stroke="#3E2240" stroke-width="5"/><path d="M50 36c-26-26-34-6-20 0 10 4 20 0 20 0s10 4 20 0c14-6 6-26-20 0z" fill="none" stroke="#3E2240" stroke-width="5"/></svg></span><h3>Gifts</h3><p>Wrapped for free at the counter</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="visit" id="visit">
+  <div class="wrap visit-grid">
+    <h2>Come see us.</h2>
+    <div>
+      <h3>Hours</h3>
+      <dl><dt>Tue–Fri</dt><dd>10am–6pm</dd><dt>Saturday</dt><dd>9am–5pm</dd><dt>Sun–Mon</dt><dd>Closed</dd></dl>
+    </div>
+    <div>
+      <h3>Find us</h3>
+      <p>114 Mill Street<br>Middle Tennessee</p>
+      <p style="margin-top:10px">Street parking out front. <a href="tel:+16155550163">(615) 555-0163</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="events">
+  <div class="wrap event">
+    <div>
+      <p class="date">Thursday evenings</p>
+      <h2>Candle-pouring night</h2>
+      <p>Pour your own soy candle, pick a scent, and take it home the same night. Supplies included. Eight seats per class.</p>
+    </div>
+    <form class="signup" novalidate>
+      <div class="f"><label for="r-name">Name</label><input id="r-name" autocomplete="off"></div>
+      <div class="f"><label for="r-email">Email</label><input id="r-email" type="email" autocomplete="off"></div>
+      <div class="f"><label for="r-date">Class</label><select id="r-date"><option>Next Thursday</option><option>The Thursday after</option></select></div>
+      <button class="btn btn-plum" type="submit">Save my seat</button>
+      <p class="demo-note" hidden>Sample form: nothing was sent. On a real site, this sign-up would go straight to the shop.</p>
+    </form>
+  </div>
+</section>
+
+<section class="gift">
+  <div class="wrap">
+    <div class="head" style="margin:0"><small>Gift cards</small><h2>Not sure what to pick?</h2><p>Gift cards in any amount, good in the shop and at events.</p></div>
+    <button class="btn btn-plum" type="button" data-demo>Buy a gift card</button>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span class="brand">Marigold &amp; Mill</span>
+    <span>(615) 555-0163 · hello@example.com</span>
+    <span>Concept website by ZENGERS Web Design</span>
+  </div>
+</footer>
+
+<p class="toast" id="demo-toast" role="status" aria-live="polite" hidden></p>
+<script>
+(function(){
+  var toast = document.getElementById("demo-toast"), t;
+  function say(m){ toast.textContent = m; toast.hidden = false; clearTimeout(t); t = setTimeout(function(){ toast.hidden = true; }, 4200); }
+  document.querySelectorAll('a[href^="tel:"],a[href^="mailto:"]').forEach(function(a){
+    a.addEventListener("click", function(e){ e.preventDefault(); say("This is a concept website, so this button doesn’t call or email anyone."); });
+  });
+  document.querySelectorAll("[data-demo]").forEach(function(b){
+    b.addEventListener("click", function(){ say("This is a concept website, so nothing is for sale here."); });
+  });
+  document.querySelectorAll("form").forEach(function(f){
+    f.addEventListener("submit", function(e){ e.preventDefault(); var n = f.querySelector(".demo-note"); if (n) n.hidden = false; say("Sample form: nothing was sent."); });
+  });
+})();
+</script>
+</body>
+</html>
