@@ -1,0 +1,1571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZENGERS Web Design</title>
+<meta name="description" content="ZENGERS Web Design builds clear, mobile-ready websites for local businesses, with an easy way for customers to reach you.">
+<!-- REVIEW BUILD: remove the next line when the site is approved for public launch. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#EEF1EE">
+<link rel="icon" type="image/png" href="media/favicon.png">
+<link rel="preload" as="image" href="media/zengers-mark.webp">
+<link rel="preload" as="image" href="media/zengers-wordmark.webp">
+<script>
+/* Opening logo animation gate. Runs before the page paints.
+   Plays once per browser session; never with reduced motion; never when arriving at a section link.
+   Replay for review: add #intro to the address (index.html#intro) and reload. */
+(function(){try{
+  var d=document.documentElement;
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var force = location.hash === "#intro" || /[?&]intro=1(&|$)/.test(location.search);
+  var seen = false; try { seen = sessionStorage.getItem("zwd-intro") === "1"; } catch(e){}
+  if (!force && (seen || location.hash || /[?&]checkout=/.test(location.search) || document.hidden)) return;
+  try { sessionStorage.setItem("zwd-intro","1"); } catch(e){}
+  d.classList.add("intro-on","intro-logo-hidden");
+  // Safety net: if anything below fails, the overlay still goes away on its own.
+  window.__zwdIntroSafe = setTimeout(function(){ d.classList.remove("intro-on","intro-logo-hidden"); }, 4500);
+}catch(e){}})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Archivo:wdth,wght@112..125,700..900&family=Orbitron:wght@800;900&display=swap">
+<style>
+/* ============================================================
+   ZENGERS Web Design — single-page site
+   Colors and type are tokens. Change them here, nowhere else.
+   ============================================================ */
+:root{
+  color-scheme: light;
+  --ink:#0E1822;        /* night navy: film, pricing, footer */
+  --dusk:#1B2B3A;       /* raised surface on dark */
+  --line-dark:#2C3E4E;  /* hairlines on dark */
+  --lamp:#F2B544;       /* window light: the one accent */
+  --lamp-text:#8A5A00;  /* accent as text on paper (AA contrast) */
+  --paper:#EEF1EE;      /* light sections */
+  --card:#F8F9F6;       /* raised surface on paper */
+  --text:#15202A;       /* body text on paper */
+  --muted:#4F5D68;      /* secondary text on paper */
+  --mist:#AEBBC5;       /* secondary text on dark */
+  --line:#CCD4D2;       /* hairlines on paper */
+  --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-pro:"Archivo","Helvetica Neue",Arial,sans-serif;          /* Pro: bold, professional, modern */
+  --font-premier:"Orbitron","Eurostile","Arial Black",sans-serif;   /* Premier: futuristic, luxurious */
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --gutter:clamp(16px,4vw,48px);
+  --maxw:1180px;
+  --header-h:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video,canvas{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--lamp);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.label{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}
+
+/* ---------- skip link ---------- */
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--lamp);color:var(--ink);padding:10px 14px;border-radius:6px;font-weight:600;text-decoration:none}
+.skip:focus{top:calc(env(safe-area-inset-top,0px) + 10px)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.75em 1.35em;border-radius:999px;font:600 16px/1.2 var(--body);text-decoration:none;border:2px solid transparent;cursor:pointer;background:transparent;color:inherit;transition:transform .2s ease,background-color .2s ease,border-color .2s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--lamp);color:var(--ink)}
+.btn-primary:hover{background:#FFC65C}
+.btn-ghost-dark{border-color:rgba(238,241,238,.45);color:#F4F6F3}
+.btn-ghost-dark:hover{border-color:#F4F6F3}
+.btn-ghost{border-color:var(--text);color:var(--text)}
+.btn-ghost:hover{background:var(--text);color:var(--paper)}
+.btn .arrow{transition:transform .2s ease}
+.btn:hover .arrow{transform:translateX(3px)}
+
+/* ---------- header ---------- */
+.site-header{position:fixed;inset:0 0 auto 0;z-index:50;padding-top:env(safe-area-inset-top,0px);background:rgba(238,241,238,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);box-shadow:0 6px 24px rgba(14,24,34,.18);color:var(--text)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;height:var(--header-h)}
+.wordmark{display:inline-flex;align-items:baseline;gap:.55em;text-decoration:none;color:inherit;line-height:1}
+.wordmark .wm-name{font-family:var(--display);font-weight:900;font-size:28px;letter-spacing:.04em}
+.wordmark .wm-sub{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--lamp)}
+.logo-lockup{height:44px;width:auto}
+.logo-full{width:min(280px,70vw);height:auto}
+.nav{display:flex;align-items:center;gap:28px}
+.nav a{text-decoration:none;font-size:15px;font-weight:500;color:var(--text)}
+.nav a:hover{color:var(--lamp-text)}
+.header-cta{min-height:40px;padding:.55em 1.1em;font-size:15px}
+.nav .nav-contact{display:none}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:inherit;border-radius:8px;height:40px;padding:0 12px;font:500 14px var(--body);cursor:pointer}
+@media (max-width:820px){
+  .menu-btn{display:inline-flex;align-items:center}
+  .nav{position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--paper);padding:8px var(--gutter) 16px;border-bottom:1px solid var(--line);display:none}
+  .nav.open{display:flex}
+  .nav a{padding:12px 0;border-bottom:1px solid var(--line);font-size:17px}
+  .header-cta{display:none}
+  .nav .nav-contact{display:block}
+}
+@media (max-width:420px){.logo-lockup{height:36px}}
+
+
+/* ---------- opening logo animation ("Built from the first click") ----------
+   A fixed overlay above the loaded homepage. About 2 seconds, then it removes itself.
+   Timings: frame 0–0.3s · blocks 0.1–0.55s · logo wipe 0.6–1.02s · "Web Design" 1.0–1.28s · hold · exit 1.54–1.98s */
+.intro{display:none}
+html.intro-on .intro{display:grid;place-items:center;position:fixed;inset:0;z-index:200;cursor:pointer;--navy:#16264D;--gold:#E9A823;--in:cubic-bezier(.22,1,.36,1);--sweep:cubic-bezier(.65,0,.35,1)}
+html.intro-logo-hidden .site-header .logo-lockup{opacity:0}
+.intro-bg{position:absolute;inset:0;background:var(--paper)}
+.intro-win{position:relative;width:min(560px,86vw,calc(64vh * 16 / 11));aspect-ratio:16/11}
+.intro-frame{position:absolute;inset:0;border:1.5px solid var(--navy);border-radius:14px;animation:introFrame .3s var(--in) both}
+.intro-frame::before{content:"";position:absolute;left:0;right:0;top:30px;border-top:1.5px solid var(--navy);opacity:.55}
+.intro-frame::after{content:"";position:absolute;left:14px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:14px 0 0 rgba(22,38,77,.35),28px 0 0 rgba(22,38,77,.35)}
+.intro-stage{position:absolute;inset:32px 2px 2px 2px}
+.intro-layer{position:absolute;inset:0}
+.intro-blocks{animation:introErase .42s var(--sweep) .6s both}
+.ib{position:absolute;border-radius:5px;background:rgba(22,38,77,.13);transform-origin:left center;animation:introBlock .34s var(--in) both}
+.ib.b1{left:6%;top:8%;width:18%;height:5%;background:var(--navy);animation-delay:.10s}
+.ib.b2{left:66%;top:8.8%;width:7%;height:3.4%;animation-delay:.14s}
+.ib.b3{left:76%;top:8.8%;width:7%;height:3.4%;animation-delay:.17s}
+.ib.b4{left:86%;top:8.8%;width:8%;height:3.4%;animation-delay:.20s}
+.ib.b5{left:6%;top:22%;width:88%;height:36%;border-radius:8px;animation-delay:.20s}
+.ib.b6{left:11%;top:31%;width:38%;height:6%;background:var(--navy);animation-delay:.28s}
+.ib.b7{left:11%;top:41%;width:26%;height:4%;animation-delay:.32s;background:rgba(22,38,77,.3)}
+.ib.b8{left:11%;top:49%;width:15%;height:5.4%;border-radius:999px;background:var(--gold);animation-delay:.36s}
+.ib.b9{left:6%;top:64%;width:27.5%;height:26%;animation-delay:.36s}
+.ib.b10{left:36.25%;top:64%;width:27.5%;height:26%;animation-delay:.40s}
+.ib.b11{left:66.5%;top:64%;width:27.5%;height:26%;animation-delay:.44s}
+.intro-sweep{animation:introReveal .42s var(--sweep) .6s both}
+.intro-sub{animation:introReveal .28s var(--sweep) 1s both}
+.intro-line{position:absolute;top:7%;bottom:7%;left:0;width:2px;margin-left:-1px;background:var(--gold);animation:introLine .42s var(--sweep) .6s both}
+/* The logo: real pieces of the supplied image, placed exactly as in the original. */
+.intro-logo{position:absolute;left:50%;top:50%;width:62%;aspect-ratio:1260/731;transform:translate(-50%,-50%)}
+.intro-logo img{position:absolute;display:block;max-width:none;will-change:transform}
+.intro-logo .p-z{left:20.87%;top:0;width:54.44%;height:63.34%}
+.intro-logo .p-word{left:0;top:59.23%;width:100%;height:40.77%}
+.intro-logo .p-name{clip-path:inset(0 0 38% 0)}
+.intro-logo .p-sub{clip-path:inset(62% 0 0 0)}
+.intro-skip{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));min-height:40px;padding:0 14px;border:1px solid rgba(22,38,77,.28);border-radius:999px;background:rgba(238,241,238,.7);color:#33415C;font:500 13px/1 var(--body);letter-spacing:.02em;cursor:pointer}
+.intro-skip:hover{border-color:var(--navy);color:var(--navy)}
+@keyframes introFrame{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes introBlock{from{opacity:0;transform:scaleX(.2) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes introErase{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 0 100%)}}
+@keyframes introReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes introLine{0%{left:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{left:100%;opacity:0}}
+
+
+/* ---------- text decode + fade-up (Services, Why it matters) ----------
+   Everything here only applies after the script adds "fx-ready" to <html>.
+   Without JavaScript, or with reduced motion, the text simply shows. */
+html.fx-ready .fx-up{opacity:0;transform:translateY(6px)}
+html.fx-ready .fx-up.fx-in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1);transition-delay:var(--fx-d,0ms)}
+html.fx-ready .fx-dc{opacity:0}
+html.fx-ready .fx-dc.fx-in{opacity:1;transition:opacity .16s ease}
+.fx-dc{position:relative}
+.fx-dc.fx-run{-webkit-text-fill-color:transparent}                 /* real text keeps its space; the layer below draws it */
+.fx-layer{position:absolute;inset:0;pointer-events:none;-webkit-text-fill-color:currentColor;-webkit-user-select:none;user-select:none}
+.fx-layer span{position:absolute;display:block;text-align:center;white-space:pre}
+.fx-layer span.fx-g{opacity:.55}                                    /* a character still decoding */
+
+/* ---------- the film (pinned scroll section) ---------- */
+.film{position:relative;height:460vh;background:var(--ink);color:#F4F6F3}
+@media (max-width:700px){.film{height:400vh}}
+.film-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.film-media{position:absolute;inset:0}
+.film-media canvas,.film-media video,.film-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.web-frame{position:absolute;inset:0;pointer-events:none;border:1px solid rgba(238,241,238,.22);border-radius:14px;opacity:0;box-shadow:0 0 0 100vmax var(--ink)}
+.web-frame::before{content:"";position:absolute;left:0;right:0;top:0;height:34px;background:var(--dusk);border-radius:14px 14px 0 0}
+.web-frame::after{content:"";position:absolute;left:14px;top:13px;width:8px;height:8px;border-radius:50%;background:#E26D5A;box-shadow:14px 0 0 #F2B544,28px 0 0 #5FB37A}
+.film-scrim{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(to top,rgba(14,24,34,.92) 0%,rgba(14,24,34,.55) 30%,rgba(14,24,34,0) 58%),
+  linear-gradient(to right,rgba(14,24,34,.55) 0%,rgba(14,24,34,0) 55%)}
+.film-copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(40px,9vh,96px)}
+.film-copy .wrap{position:relative;min-height:clamp(300px,46vh,440px)}
+.beat{position:absolute;left:var(--gutter);right:var(--gutter);bottom:0;max-width:760px;will-change:opacity,transform}
+.hero-kicker{color:var(--lamp);margin-bottom:18px}
+.hero-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(42px,7vw,100px);line-height:.9;letter-spacing:.005em}
+.hero-sub{margin-top:18px;max-width:22em;font-size:clamp(22px,2.6vw,34px);line-height:1.2;font-weight:600;color:#F4F6F3;text-wrap:balance}
+.hero-actions{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
+.beat-line{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(44px,7.4vw,104px);line-height:.92}
+.beat-line em{font-style:normal;color:var(--lamp)}
+.beat-final .hero-actions{margin-top:26px}
+.film-meter{position:absolute;right:var(--gutter);top:calc(var(--header-h) + env(safe-area-inset-top,0px) + 28px);display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--mist)}
+.meter-ticks{display:flex;gap:6px}
+.meter-ticks i{display:block;width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.2);transition:background-color .3s}
+.meter-ticks i.on{background:var(--lamp)}
+.scroll-hint{display:inline-flex;align-items:center;gap:10px;margin-top:26px;color:var(--mist)}
+.scroll-hint span{display:block;width:1px;height:28px;background:linear-gradient(var(--lamp),transparent);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.skip-film{position:absolute;right:var(--gutter);bottom:18px;color:var(--mist);font-size:13px;opacity:.85}
+.skip-film:hover{color:var(--lamp)}
+
+/* Static version: reduced motion, or when the scroll film is switched off */
+.film.is-static{height:auto}
+.film.is-static .film-stage{position:relative;height:auto;min-height:100vh;overflow:hidden}
+.film.is-static .film-scrim{background:linear-gradient(rgba(14,24,34,.6),rgba(14,24,34,.9))}
+.film.is-static .film-meter,.film.is-static .skip-film,.film.is-static .scroll-hint{display:none}
+.film.is-static .film-copy{position:relative;padding-block:calc(var(--header-h) + env(safe-area-inset-top,0px) + 72px) 80px}
+.film.is-static .film-copy .wrap{min-height:0;display:grid;gap:48px}
+.film.is-static .beats{display:grid;gap:28px}
+.film.is-static .beat{position:relative;left:auto;right:auto;bottom:auto;opacity:1!important;transform:none!important;visibility:visible!important;pointer-events:auto!important}
+.film.is-static .beat-line{font-size:clamp(34px,5vw,60px)}
+
+/* ---------- sections ---------- */
+section.block{padding-block:clamp(72px,11vw,140px)}
+.section-head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,5vw,72px);align-items:end;margin-bottom:clamp(40px,6vw,72px)}
+.section-head .label{color:var(--lamp-text);margin-bottom:14px}
+.section-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(40px,5.6vw,76px);line-height:.95}
+.section-intro{font-size:clamp(17px,1.5vw,19px);color:var(--muted);max-width:36em}
+@media (max-width:760px){.section-head{grid-template-columns:1fr}}
+
+/* services: three numbered cards */
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
+.svc{display:grid;gap:16px;align-content:start;padding:clamp(24px,2.6vw,32px);border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.svc-num{font-family:var(--display);font-weight:900;font-size:56px;line-height:.8;color:var(--lamp-text)}
+.svc h3{font-family:var(--display);font-weight:800;font-size:clamp(30px,3vw,40px);text-transform:uppercase;line-height:1}
+.ticks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ticks li{display:grid;grid-template-columns:18px 1fr;gap:10px;color:var(--muted);line-height:1.45}
+.ticks li::before{content:"";width:9px;height:9px;margin-top:7px;border:2px solid var(--lamp-text);border-radius:2px}
+@media (max-width:860px){.cards3{grid-template-columns:1fr}}
+
+/* benefits */
+.benefits-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,36px)}
+.benefit{padding-top:22px;border-top:3px solid var(--text);display:grid;gap:10px;align-content:start}
+.benefit h3{font-size:21px;font-weight:700;line-height:1.25}
+.benefit p{color:var(--muted)}
+.benefit svg{width:40px;height:40px;margin-bottom:6px}
+.fineprint{margin-top:clamp(36px,5vw,56px);max-width:44em;color:var(--muted);font-size:15.5px;padding-left:16px;border-left:2px solid var(--line)}
+@media (max-width:860px){.benefits-grid{grid-template-columns:1fr}}
+
+/* pricing */
+.pricing{background:var(--ink);color:#EEF1EE}
+.pricing .section-head .label{color:var(--lamp)}
+.pricing .section-intro{color:var(--mist)}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px);align-items:stretch}
+.plan{position:relative;display:flex;flex-direction:column;gap:22px;padding:clamp(24px,2.6vw,34px);border:1px solid var(--line-dark);border-radius:14px;background:var(--dusk)}
+.plan.featured{border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp) inset}
+.plan-top{display:grid;gap:6px;min-height:84px}
+.plan-name{font-family:var(--display);font-weight:800;font-size:38px;text-transform:uppercase;line-height:1}
+.plan-for{color:var(--mist);font-size:15.5px}
+.badge{position:absolute;top:-13px;left:clamp(24px,2.6vw,34px);background:var(--lamp);color:var(--ink);font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:999px;font-weight:500}
+.price{display:grid;gap:6px;padding-block:18px;border-block:1px solid var(--line-dark)}
+.price-main{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.price-amount{font-family:var(--display);font-weight:800;font-size:60px;line-height:1}
+.price-unit{font-size:16px;color:var(--mist)}
+.price-kind{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--lamp)}
+.includes{list-style:none;margin:0;padding:0;display:grid;gap:10px;flex:1;align-content:start}
+.includes li{display:grid;grid-template-columns:18px 1fr;gap:10px;font-size:15.5px;line-height:1.45}
+.includes li::before{content:"";width:9px;height:9px;margin-top:6px;border:2px solid var(--lamp);border-radius:2px}
+.plan .btn{width:100%}
+
+/* ---- tier typography: Starter keeps the house face; Pro and Premier each get their own ---- */
+/* Pro: wide, heavy grotesque. Confident and current, still businesslike. */
+.plan-pro .plan-name,.plan-pro .price-amount{font-family:var(--font-pro);font-weight:800;font-stretch:118%;font-variation-settings:"wdth" 118;letter-spacing:-.01em}
+.plan-pro .plan-name{font-size:36px;text-transform:uppercase}
+.plan-pro .price-amount{font-size:56px;letter-spacing:-.025em}
+
+/* Premier: futuristic display face in brushed gold, extruded for depth. */
+.plan-premier .plan-name,.plan-premier .price-amount{
+  font-family:var(--font-premier);font-weight:900;text-transform:uppercase;
+  background:linear-gradient(180deg,#FFF4D2 0%,#F7CF73 38%,#D9982A 52%,#F2B544 70%,#FFE7A6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 #B27818) drop-shadow(0 1px 0 #93600F) drop-shadow(0 1px 0 #744A09) drop-shadow(0 1px 0 #573705) drop-shadow(0 6px 10px rgba(0,0,0,.55));
+}
+.plan-premier .plan-name{font-size:31px;letter-spacing:.08em;line-height:1.1}
+.plan-premier .price-amount{font-size:48px;letter-spacing:.02em;line-height:1.1}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  .plan-premier .plan-name,.plan-premier .price-amount{color:var(--lamp);-webkit-text-fill-color:currentColor}
+}
+.plan .btn-ghost-dark:hover{background:rgba(255,255,255,.06)}
+.plan-notes{margin-top:clamp(28px,4vw,40px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;padding-top:22px;border-top:1px solid var(--line-dark);color:var(--mist);font-size:16px}
+.plan-notes strong{color:#EEF1EE;font-weight:600}
+.plan-notes a{color:var(--lamp);text-underline-offset:3px}
+@media (max-width:900px){.plans{grid-template-columns:1fr}.plan-top{min-height:0}}
+
+/* forms (question form and onboarding) */
+.contact-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,72px);align-items:start}
+.form{display:grid;gap:18px}
+.form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:620px){.form-row{grid-template-columns:1fr}}
+.field{display:grid;gap:6px;min-width:0}
+.field label,.field legend{font-weight:600;font-size:15px;color:var(--text)}
+.field .opt{font-weight:400;color:var(--muted)}
+.field .hint{font-size:13.5px;color:var(--muted)}
+.field input,.field textarea{width:100%;font:inherit;font-size:16px;color:var(--text);background:#fff;border:1.5px solid #B9C3C1;border-radius:10px;padding:11px 13px;min-height:48px}
+.field textarea{min-height:110px;resize:vertical}
+.field input[type=file]{padding:9px;min-height:0;background:var(--card)}
+.field input:focus-visible,.field textarea:focus-visible{outline:3px solid var(--lamp);outline-offset:1px;border-color:var(--text)}
+.field [aria-invalid=true]{border-color:#B3261E}
+.field-error{color:#B3261E;font-size:14px;font-weight:500}
+.form-status{border-radius:10px;padding:14px 16px;font-size:15.5px}
+.form-status.is-ok{background:#E3F1E7;border:1px solid #2E7D4A;color:#17462A}
+.form-status.is-error{background:#FBE9E7;border:1px solid #B3261E;color:#7A1A14}
+.form-status.is-info{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00}
+.form-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.form-actions .small{font-size:14px;color:var(--muted)}
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+.who{display:grid;gap:14px;padding-top:22px;border-top:3px solid var(--text)}
+.who h3{font-size:21px;font-weight:700}
+.who p{color:var(--muted)}
+@media (max-width:860px){.contact-grid{grid-template-columns:1fr}}
+
+/* purchase dialog */
+.buy-dialog{width:min(760px,calc(100% - 24px));max-height:min(92vh,980px);padding:0;border:0;border-radius:18px;background:var(--paper);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.buy-dialog::backdrop{background:rgba(9,15,22,.72)}
+.buy-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(18px,4vw,32px);background:var(--ink);color:#F4F6F3}
+.buy-head h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(26px,4vw,34px);line-height:1}
+.buy-close{background:none;border:1px solid rgba(255,255,255,.35);color:inherit;border-radius:999px;min-height:40px;padding:0 14px;font:500 14px var(--body);cursor:pointer}
+.buy-body{padding:clamp(18px,4vw,32px);display:grid;gap:22px}
+.summary{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 20px;padding:16px 18px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.summary .s-plan{font-weight:700;font-size:18px}
+.summary .s-price{font-family:var(--display);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.summary .s-terms{flex-basis:100%;color:var(--muted);font-size:14.5px}
+.test-banner{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#5C3D00;background:#FFF3D6;border:1px dashed #C98A1B;border-radius:8px;padding:8px 12px}
+fieldset.group{border:0;margin:0;padding:0;display:grid;gap:14px}
+fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--lamp-text);margin-bottom:4px;padding:0}
+.review{display:grid;gap:14px}
+.review ol{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--muted)}
+
+/* footer */
+.site-footer{background:var(--card);border-top:1px solid var(--line);color:var(--muted);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));font-size:15px}
+.footer-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px}
+.site-footer h2{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);font-weight:500;margin-bottom:12px}
+.site-footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.site-footer a{text-decoration:none}
+.site-footer a:hover{color:var(--lamp-text)}
+.footer-bottom{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13.5px}
+@media (max-width:760px){.footer-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- ============================ OPENING LOGO ANIMATION ============================
+     Shown only when the script in <head> adds "intro-on". The homepage loads underneath.
+     Logo pieces: media/zengers-mark.webp (the Z) and media/zengers-wordmark.webp (ZENGERS / WEB DESIGN). -->
+<div class="intro" id="intro" role="presentation">
+  <div class="intro-bg"></div>
+  <div class="intro-win" aria-hidden="true">
+    <div class="intro-frame"></div>
+    <div class="intro-stage">
+      <div class="intro-layer intro-blocks">
+        <i class="ib b1"></i><i class="ib b2"></i><i class="ib b3"></i><i class="ib b4"></i>
+        <i class="ib b5"></i><i class="ib b6"></i><i class="ib b7"></i><i class="ib b8"></i>
+        <i class="ib b9"></i><i class="ib b10"></i><i class="ib b11"></i>
+      </div>
+      <div class="intro-layer intro-sweep">
+        <div class="intro-logo">
+          <img class="p-z" src="media/zengers-mark.webp" alt="" width="560" height="378">
+          <img class="p-word p-name" src="media/zengers-wordmark.webp" alt="" width="960" height="227">
+        </div>
+      </div>
+      <div class="intro-layer intro-sub">
+        <div class="intro-logo">
+          <img class="p-word p-sub" src="media/zengers-wordmark.webp" alt="" width="960" height="227">
+        </div>
+      </div>
+      <span class="intro-line"></span>
+    </div>
+  </div>
+  <button class="intro-skip" type="button" id="intro-skip">Skip intro</button>
+</div>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<!-- ============================ HEADER ============================ -->
+<header class="site-header">
+  <div class="wrap header-inner">
+    <!-- LOGO: media/zengers-logo-horizontal.webp (the Z mark beside the ZENGERS / WEB DESIGN lettering) -->
+    <a class="wordmark" href="#top">
+      <img class="logo-lockup" src="media/zengers-logo-horizontal.webp" width="561" height="112" alt="ZENGERS Web Design, back to top">
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#benefits">Why it matters</a>
+      <a href="#pricing">Pricing</a>
+      <a href="examples.html">Examples</a>
+      <a class="nav-contact" href="#contact">Contact us</a>
+    </nav>
+    <a class="btn btn-primary header-cta" href="#contact">Contact us</a>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============================ THE FILM ============================
+     Scroll plays the film forward; scrolling up plays it back.
+     VIDEO: set VIDEO_DESKTOP (and optionally VIDEO_MOBILE, POSTER) in the SITE settings below.
+     Until then, a drawn storefront plays the same story. -->
+<section class="film" id="top" aria-label="Introduction">
+  <div class="film-stage">
+    <div class="film-media" id="film-media">
+      <canvas id="film-canvas" aria-hidden="true"></canvas>
+    </div>
+    <div class="web-frame" id="web-frame" aria-hidden="true"></div>
+    <div class="film-scrim"></div>
+
+    <div class="film-meter" aria-hidden="true">
+      <span id="meter-label">01 / 04</span>
+      <span class="meter-ticks"><i class="on"></i><i></i><i></i><i></i></span>
+    </div>
+
+    <div class="film-copy">
+      <div class="wrap">
+        <!-- Opening screen -->
+        <div class="beat hero-block" data-beat="hero">
+          <p class="label hero-kicker">Websites for local businesses</p>
+          <h1 class="hero-title">A better website is where growth begins.</h1>
+          <p class="hero-sub">We build it, host it, and keep it up to date.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#pricing">Let’s build your website <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost-dark" href="examples.html">See examples</a>
+          </div>
+          <p class="scroll-hint label"><span></span>Scroll to watch it grow</p>
+        </div>
+
+        <!-- The four moments, layered over the film as live text -->
+        <ol class="beats" style="list-style:none;margin:0;padding:0">
+          <li class="beat" data-beat="1"><p class="beat-line">Your business has <em>potential.</em></p></li>
+          <li class="beat" data-beat="2"><p class="beat-line">Give it a website <em>built to grow.</em></p></li>
+          <li class="beat" data-beat="3"><p class="beat-line">Turn attention into <em>opportunity.</em></p></li>
+          <li class="beat beat-final" data-beat="4">
+            <p class="beat-line">Build what comes next with <em>ZENGERS.</em></p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#pricing">Let’s build your website <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <a class="skip-film" href="#services">Skip the intro ↓</a>
+  </div>
+</section>
+
+<!-- ============================ SERVICES ============================ -->
+<section class="block" id="services" aria-labelledby="services-title">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="label">Services</p>
+        <h2 class="section-title" id="services-title">What we build</h2>
+      </div>
+      <p class="section-intro">3 things every local business website needs.</p>
+    </div>
+    <div class="cards3">
+      <article class="svc">
+        <span class="svc-num" aria-hidden="true">1</span>
+        <h3>Design</h3>
+        <ul class="ticks">
+          <li>Your name, colors, photos, and services.</li>
+          <li>Show visitors what you do, where you work, and how to reach you.</li>
+        </ul>
+      </article>
+      <article class="svc">
+        <span class="svc-num" aria-hidden="true">2</span>
+        <h3>Mobile</h3>
+        <ul class="ticks">
+          <li>Easy to read on a phone.</li>
+          <li>Comfortable to scroll and tap.</li>
+        </ul>
+      </article>
+      <article class="svc">
+        <span class="svc-num" aria-hidden="true">3</span>
+        <h3>Contact</h3>
+        <ul class="ticks">
+          <li>Tap to call.</li>
+          <li>Tap to email.</li>
+          <li>Make it easy for customers to reach you.</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WHY IT MATTERS ============================ -->
+<section class="block" id="benefits" aria-labelledby="benefits-title" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="label">Why it matters</p>
+        <h2 class="section-title" id="benefits-title">Better design, easier decisions.</h2>
+      </div>
+      <p class="section-intro">Potential customers want to know who you are.</p>
+    </div>
+    <div class="benefits-grid">
+      <article class="benefit">
+        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 4 6 10v9c0 8.5 6 14.5 14 17 8-2.5 14-8.5 14-17v-9L20 4Z"/><path d="m13.5 20 4.5 4.5 8.5-9" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <h3>Credibility</h3>
+        <p>A current, well-made website shows you’re open, established, and serious about your work.</p>
+      </article>
+      <article class="benefit">
+        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 14h30"/><path d="M11 21h12M11 26h8" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <h3>Easier navigation</h3>
+        <p>We make it easy for customers to see exactly what you do.</p>
+      </article>
+      <article class="benefit">
+        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><path d="M25 6a10 10 0 0 1 9 9" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <h3>Call to action</h3>
+        <p>Tell customers what to do next so they know how to get started.</p>
+      </article>
+    </div>
+    <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
+  </div>
+</section>
+
+<!-- ============================ PRICING ============================
+     EDIT PRICING HERE. Each Buy button carries data-plan and data-price;
+     keep them in step with the numbers shown on the card. -->
+<section class="block pricing" id="pricing" aria-labelledby="pricing-title">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="label">Pricing</p>
+        <h2 class="section-title" id="pricing-title">3 plans, done for you.</h2>
+      </div>
+      <p class="section-intro">Every plan is a monthly subscription. We build your site, host it, keep it secure, and handle small updates.</p>
+    </div>
+
+    <div class="plans">
+      <article class="plan">
+        <div class="plan-top">
+          <h3 class="plan-name">Starter</h3>
+          <p class="plan-for">A single strong page that covers the essentials.</p>
+        </div>
+        <div class="price">
+          <span class="price-kind">Monthly subscription</span>
+          <div class="price-main"><span class="price-amount">$49</span><span class="price-unit">per month</span></div>
+        </div>
+        <ul class="includes">
+          <li>One-page website.</li>
+          <li>Branded to your business.</li>
+          <li>Hosting and security.</li>
+          <li>Small text changes when you need them.</li>
+          <li>Tap-to-call and tap-to-email buttons.</li>
+        </ul>
+        <button class="btn btn-ghost-dark" type="button" data-plan="Starter" data-price="49">Buy Starter</button>
+      </article>
+
+      <article class="plan plan-pro featured">
+        <span class="badge">Recommended</span>
+        <div class="plan-top">
+          <h3 class="plan-name">Pro</h3>
+          <p class="plan-for">More pages, plus online booking and payments.</p>
+        </div>
+        <div class="price">
+          <span class="price-kind">Monthly subscription</span>
+          <div class="price-main"><span class="price-amount">$99</span><span class="price-unit">per month</span></div>
+        </div>
+        <ul class="includes">
+          <li>Everything in Starter.</li>
+          <li>Up to 5 pages.</li>
+          <li>Scheduling and service-payment integration.</li>
+        </ul>
+        <button class="btn btn-primary" type="button" data-plan="Pro" data-price="99">Buy Pro</button>
+      </article>
+
+      <article class="plan plan-premier">
+        <div class="plan-top">
+          <h3 class="plan-name">Premier</h3>
+          <p class="plan-for">More pages, faster updates, and something new every month.</p>
+        </div>
+        <div class="price">
+          <span class="price-kind">Monthly subscription</span>
+          <div class="price-main"><span class="price-amount">$199</span><span class="price-unit">per month</span></div>
+        </div>
+        <ul class="includes">
+          <li>Everything in Pro.</li>
+          <li>Up to 10 pages.</li>
+          <li>Next-business-day updates.</li>
+          <li>One new website post per month, such as a project update or blog post.</li>
+        </ul>
+        <button class="btn btn-ghost-dark" type="button" data-plan="Premier" data-price="199">Buy Premier</button>
+      </article>
+    </div>
+
+    <div class="plan-notes">
+      <p><strong>3-month minimum, then month-to-month.</strong></p>
+      <p>Prefer a one-time website build? <a href="#contact" data-quote>Contact us for a custom quote.</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CONTACT ============================
+     The question form posts to SITE.INQUIRY_ENDPOINT (settings at the bottom of this file).
+     No phone number or email address is shown publicly. -->
+<section class="block" id="contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="label">Contact</p>
+        <h2 class="section-title" id="contact-title">Not ready to commit?</h2>
+      </div>
+      <p class="section-intro">Ask us a question. We’ll help you figure out the next step.</p>
+    </div>
+    <div class="contact-grid">
+      <form class="form" id="inquiry-form" novalidate>
+        <div class="form-row">
+          <div class="field">
+            <label for="q-name">Name</label>
+            <input id="q-name" name="name" type="text" autocomplete="name" required>
+            <p class="field-error" id="q-name-err" hidden></p>
+          </div>
+          <div class="field">
+            <label for="q-email">Email</label>
+            <input id="q-email" name="email" type="email" autocomplete="email" required>
+            <p class="field-error" id="q-email-err" hidden></p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="q-business">Business name <span class="opt">(optional)</span></label>
+            <input id="q-business" name="business" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="q-phone">Phone number <span class="opt">(optional)</span></label>
+            <input id="q-phone" name="phone" type="tel" autocomplete="tel">
+            <p class="field-error" id="q-phone-err" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="q-message">Question or message</label>
+          <textarea id="q-message" name="message" required></textarea>
+          <p class="field-error" id="q-message-err" hidden></p>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="q-website">Leave this empty</label><input id="q-website" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" id="q-submit">Send question</button>
+        </div>
+        <div class="form-status" id="q-status" role="status" aria-live="polite" hidden></div>
+      </form>
+      <aside class="who" aria-labelledby="who-title">
+        <h3 id="who-title">Who you’ll work with</h3>
+        <p>ZENGERS Web Design is a father-and-son business and a division of ZENGERS Inc.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============================ PURCHASE ONBOARDING ============================
+     Opens from a Buy button. Collects the customer's details, saves them to
+     SITE.ONBOARDING_ENDPOINT, then sends the customer to SITE.CHECKOUT_LINKS[plan]. -->
+<dialog class="buy-dialog" id="buy-dialog" aria-labelledby="buy-title">
+  <div class="buy-head">
+    <h2 id="buy-title">Get started</h2>
+    <button class="buy-close" type="button" id="buy-close">Close</button>
+  </div>
+  <div class="buy-body">
+    <p class="test-banner" id="buy-test" hidden>Test mode · no real charges</p>
+    <div class="summary" aria-live="polite">
+      <span class="s-plan" id="buy-plan">Pro plan</span>
+      <span class="s-price"><span id="buy-price">$99</span><span class="price-unit" style="font-family:var(--body);font-weight:400"> per month</span></span>
+      <span class="s-terms">Monthly subscription, billed each month. 3-month minimum, then month-to-month.</span>
+    </div>
+
+    <form class="form" id="buy-form" novalidate>
+      <fieldset class="group">
+        <legend>About you</legend>
+        <div class="form-row">
+          <div class="field"><label for="b-name">Your name</label><input id="b-name" name="name" type="text" autocomplete="name" required><p class="field-error" id="b-name-err" hidden></p></div>
+          <div class="field"><label for="b-email">Email</label><input id="b-email" name="email" type="email" autocomplete="email" required><p class="field-error" id="b-email-err" hidden></p></div>
+        </div>
+        <div class="field"><label for="b-phone">Phone number <span class="opt">(optional)</span></label><input id="b-phone" name="phone" type="tel" autocomplete="tel"><p class="field-error" id="b-phone-err" hidden></p></div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Your business</legend>
+        <div class="form-row">
+          <div class="field"><label for="b-business">Business name</label><input id="b-business" name="business" type="text" autocomplete="organization" required><p class="field-error" id="b-business-err" hidden></p></div>
+          <div class="field"><label for="b-type">Type of business</label><input id="b-type" name="business_type" type="text" placeholder="e.g. Landscaping" required><p class="field-error" id="b-type-err" hidden></p></div>
+        </div>
+        <div class="field"><label for="b-about">Short description</label><textarea id="b-about" name="description" required placeholder="A few sentences about what you do."></textarea><p class="field-error" id="b-about-err" hidden></p></div>
+        <div class="form-row">
+          <div class="field"><label for="b-services">Services</label><textarea id="b-services" name="services" required placeholder="List your main services."></textarea><p class="field-error" id="b-services-err" hidden></p></div>
+          <div class="field"><label for="b-area">Service area</label><textarea id="b-area" name="service_area" required placeholder="Towns or counties you serve."></textarea><p class="field-error" id="b-area-err" hidden></p></div>
+        </div>
+        <div class="field"><label for="b-site">Current website <span class="opt">(optional)</span></label><input id="b-site" name="existing_website" type="url" inputmode="url" placeholder="https://"><p class="field-error" id="b-site-err" hidden></p></div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Files and notes</legend>
+        <div class="form-row">
+          <div class="field"><label for="b-logo">Logo <span class="opt">(optional)</span></label><input id="b-logo" name="logo" type="file" accept="image/*,.svg,.pdf"></div>
+          <div class="field"><label for="b-photos">Photos <span class="opt">(optional)</span></label><input id="b-photos" name="photos" type="file" accept="image/*" multiple><span class="hint">Up to 10 files, 25 MB in total.</span><p class="field-error" id="b-photos-err" hidden></p></div>
+        </div>
+        <div class="field"><label for="b-notes">Anything else <span class="opt">(optional)</span></label><textarea id="b-notes" name="notes"></textarea></div>
+      </fieldset>
+      <div class="hp" aria-hidden="true"><label for="b-website">Leave this empty</label><input id="b-website" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" id="b-submit">Continue to checkout <span class="arrow" aria-hidden="true">→</span></button>
+        <span class="small">You’ll see the price again before you pay.</span>
+      </div>
+    </form>
+
+    <div class="review" id="buy-review" hidden>
+      <h3 style="font-size:21px">Review and pay</h3>
+      <p>Your details are saved. Next, you’ll pay on a secure checkout page.</p>
+      <ol>
+        <li><strong id="rv-plan">Pro plan</strong>: <strong id="rv-price">$99</strong> per month, billed monthly.</li>
+        <li>3-month minimum, then month-to-month.</li>
+      </ol>
+      <div class="form-actions">
+        <a class="btn btn-primary" id="rv-pay" href="#">Go to secure checkout <span class="arrow" aria-hidden="true">→</span></a>
+        <button class="btn btn-ghost" type="button" id="rv-back">Back</button>
+      </div>
+    </div>
+
+    <div class="review" id="buy-done" hidden>
+      <h3 style="font-size:21px">Thanks, your plan is set up.</h3>
+      <p>Your payment went through. Here’s what happens next:</p>
+      <ol>
+        <li>Watch for your receipt by email.</li>
+        <li>We’ll review the details you sent.</li>
+        <li>We’ll email you about next steps for your website.</li>
+      </ol>
+      <div class="form-actions"><button class="btn btn-primary" type="button" id="done-close">Done</button></div>
+    </div>
+
+    <div class="form-status" id="b-status" role="status" aria-live="polite" hidden></div>
+  </div>
+</dialog>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="wordmark" href="#top">
+          <img class="logo-full" src="media/zengers-logo.webp" width="760" height="446" alt="ZENGERS Web Design, back to top" loading="lazy">
+        </a>
+        <p style="margin-top:14px;max-width:26em">Websites for local businesses. We build it, host it, and keep it up to date.</p>
+        <p style="margin-top:6px">A division of ZENGERS Inc.</p>
+      </div>
+      <nav aria-label="Footer">
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#benefits">Why it matters</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="examples.html">Examples</a></li>
+          <li><a href="#contact">Ask a question</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> ZENGERS Web Design</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Opening logo animation: exit. The reveal itself is CSS; this moves the logo into the header and cleans up. */
+(function(){
+  var root = document.documentElement, intro = document.getElementById("intro");
+  if (!intro) return;
+  if (!root.classList.contains("intro-on")) { intro.parentNode.removeChild(intro); return; }
+  var EXIT_AT = 1540, FLY = 440;
+  var done = false, leaving = false, tExit = 0;
+  var headerLogo = document.querySelector(".site-header .logo-lockup");
+
+  function finish(){
+    if (done) return; done = true;
+    clearTimeout(tExit); clearTimeout(window.__zwdIntroSafe);
+    root.classList.remove("intro-on","intro-logo-hidden");
+    document.removeEventListener("keydown", onKey, true);
+    if (intro.parentNode) intro.parentNode.removeChild(intro);
+    if (location.hash === "#intro" && history.replaceState) { /* keep #intro so a reload replays it */ }
+  }
+  function fadeOut(el, ms, cb){
+    var called = false, once = function(){ if (!called) { called = true; cb && cb(); } };
+    try { var a = el.animate([{opacity:1},{opacity:0}], {duration:ms, easing:"ease", fill:"forwards"}); a.onfinish = once; a.oncancel = once; } catch(e){ once(); return; }
+    setTimeout(once, ms + 150);
+  }
+  function crossfade(ms){            // plain fade: header logo is already in place underneath
+    if (done || leaving) return; leaving = true;
+    intro.style.pointerEvents = "none";
+    root.classList.remove("intro-logo-hidden");
+    fadeOut(intro, ms, finish);
+  }
+  function skip(){ crossfade(160); }
+  function onKey(e){ if (e.key === "Escape" || e.key === "Esc") skip(); }
+
+  function exit(){
+    if (done || leaving) return;
+    var pieces = Array.prototype.slice.call(intro.querySelectorAll(".intro-logo img"));
+    var ready = headerLogo && pieces.length === 3 && pieces.every(function(p){ return p.complete && p.naturalWidth > 0; });
+    var hr = headerLogo ? headerLogo.getBoundingClientRect() : null;
+    if (!ready || !hr || hr.width < 10 || !intro.animate) { crossfade(260); return; }
+    leaving = true;
+    intro.style.pointerEvents = "none";
+    // Where each piece sits inside the header logo (fractions of its width and height).
+    var slot = { z:[0, 0, 166/561, 1], word:[180/561, 11/112, 381/561, 90/112] };
+    var last = null;
+    try {
+      // Measure first, then release the reveal masks so pieces can travel outside the frame.
+      var moves = pieces.map(function(p){
+        var r = p.getBoundingClientRect(), s = p.classList.contains("p-z") ? slot.z : slot.word;
+        return { el:p, tx: hr.left + hr.width*s[0] - r.left, ty: hr.top + hr.height*s[1] - r.top, sx: hr.width*s[2]/r.width, sy: hr.height*s[3]/r.height };
+      });
+      intro.querySelectorAll(".intro-sweep,.intro-sub").forEach(function(l){ l.style.animation = "none"; l.style.clipPath = "none"; });
+      var ease = "cubic-bezier(.65,0,.35,1)";
+      moves.forEach(function(m){
+        m.el.style.transformOrigin = "0 0";
+        last = m.el.animate([{transform:"translate(0,0) scale(1,1)"},{transform:"translate("+m.tx+"px,"+m.ty+"px) scale("+m.sx+","+m.sy+")"}], {duration:FLY, easing:ease, fill:"forwards"});
+      });
+      [".intro-frame",".intro-blocks",".intro-line",".intro-skip"].forEach(function(sel){
+        var el = intro.querySelector(sel); if (el) { el.style.animation = "none"; el.animate([{opacity: sel === ".intro-blocks" || sel === ".intro-line" ? 0 : 1},{opacity:0}], {duration:200, easing:"ease", fill:"forwards"}); }
+      });
+      intro.querySelector(".intro-bg").animate([{opacity:1},{opacity:1, offset:.3},{opacity:0}], {duration:FLY, easing:"ease-in-out", fill:"forwards"});
+      var end = function(){ finish(); };
+      last.onfinish = end; last.oncancel = end; setTimeout(end, FLY + 200);
+    } catch(e){ leaving = false; crossfade(200); }
+  }
+
+  intro.addEventListener("click", skip);
+  document.addEventListener("keydown", onKey, true);
+  tExit = setTimeout(exit, EXIT_AT);
+})();
+</script>
+
+<script>
+/* Text decode for the Services and Why it matters sections.
+   Headings and card titles: a few characters scramble, then resolve left to right (about 0.6s).
+   Descriptions and bullets: fade up 6px. Each element plays once, when it scrolls into view.
+   The real text never leaves the page; the scrambled characters live in a decorative layer hidden from screen readers. */
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  try {
+    if (!("IntersectionObserver" in window) || !window.requestAnimationFrame || !document.createRange) return;
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    var DECODE_MS = 620, CARD_GAP = 100, TICK_MS = 55;
+    var UPPER = "ABCDEFGHJKLNPRSTUVXYZ0123456789#/+:I", LOWER = "abcdefghjklnoprstuvxyz0123456789#/+:i";
+    var meter = document.createElement("canvas").getContext("2d");
+    var sections = [document.getElementById("services"), document.getElementById("benefits")].filter(Boolean);
+    if (!sections.length) return;
+
+    /* ---- units: each plays once ---- */
+    var units = [];   // {el, section, isHead, played, run()}
+    function up(el, delay){ if (!el) return; el.classList.add("fx-up"); el.style.setProperty("--fx-d", (delay||0) + "ms"); }
+    function show(list){ list.forEach(function(el){ if (el) el.classList.add("fx-in"); }); }
+
+    sections.forEach(function(sec){
+      var head = sec.querySelector(".section-head");
+      if (head) {
+        var label = head.querySelector(".label"), title = head.querySelector(".section-title"), intro = head.querySelector(".section-intro");
+        up(label, 0); up(intro, 160); if (title) title.classList.add("fx-dc");
+        units.push({ el: head, section: sec, isHead: true, played: false, run: function(){ show([label, intro]); decode(title); } });
+      }
+      sec.querySelectorAll(".svc, .benefit").forEach(function(card){
+        var h = card.querySelector("h3"), rest = [];
+        card.querySelectorAll(".svc-num, svg, .ticks li, p").forEach(function(el){ rest.push(el); });
+        if (h) h.classList.add("fx-dc");
+        var n = 0;
+        rest.forEach(function(el){ var first = el.matches(".svc-num, svg"); up(el, first ? 0 : 140 + 60*(n++)); });
+        units.push({ el: card, section: sec, isHead: false, played: false, run: function(){ show(rest); decode(h); } });
+      });
+      var fine = sec.querySelector(".fineprint");
+      if (fine) { up(fine, 0); units.push({ el: fine, section: sec, isHead: false, played: false, run: function(){ show([fine]); } }); }
+    });
+
+    /* ---- decode one heading ---- */
+    function decode(el){
+      if (!el) return;
+      el.classList.add("fx-in");
+      var node = el.firstChild;
+      if (el.childNodes.length !== 1 || !node || node.nodeType !== 3) return;       // only plain-text headings scramble
+      var text = node.nodeValue, box = el.getBoundingClientRect(), range = document.createRange();
+      var cs = getComputedStyle(el), upper = cs.textTransform === "uppercase";
+      // Measure the stand-in characters in this heading's own font, so each slot only uses ones that fit it.
+      var widths = {};
+      if (meter) { meter.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+        (UPPER + LOWER).split("").forEach(function(g){ widths[g] = meter.measureText(g).width; }); }
+      function poolFor(ch, w){
+        var base = (upper || ch === ch.toUpperCase()) ? UPPER : LOWER, fit = "";
+        for (var q = 0; q < base.length; q++) if (!meter || widths[base[q]] <= w * 1.1) fit += base[q];
+        return fit.length >= 3 ? fit : (base === UPPER ? "I1/:" : "i1/:");
+      }
+      var layer = document.createElement("span"); layer.className = "fx-layer"; layer.setAttribute("aria-hidden", "true");
+      var chars = [];
+      for (var i = 0; i < text.length; i++) {
+        if (/\s/.test(text[i])) continue;
+        range.setStart(node, i); range.setEnd(node, i + 1);
+        var r = range.getClientRects()[0]; if (!r || !r.width) continue;
+        var sp = document.createElement("span");
+        sp.style.left = (r.left - box.left) + "px"; sp.style.top = (r.top - box.top) + "px";
+        sp.style.width = r.width + "px"; sp.style.height = r.height + "px"; sp.style.lineHeight = r.height + "px";
+        sp.textContent = text[i];
+        layer.appendChild(sp);
+        var isLetter = /[A-Za-z0-9]/.test(text[i]);
+        chars.push({ sp: sp, real: text[i], letter: isLetter, set: poolFor(text[i], r.width), scr: false, at: 0 });
+      }
+      if (!chars.length) return;
+      // Scramble only some of the letters (about one in three), so the words stay readable.
+      var letters = chars.filter(function(c){ return c.letter; });
+      var want = Math.max(2, Math.min(9, Math.round(letters.length * 0.34)));
+      for (var k = 0; k < letters.length && want > 0; k++) {
+        var left = letters.length - k;
+        if (Math.random() < want / left) { letters[k].scr = true; want--; }
+      }
+      // Resolve left to right: the further right a character is, the later it settles.
+      chars.forEach(function(c, idx){ c.at = DECODE_MS * (0.22 + 0.78 * (idx / Math.max(1, chars.length - 1))); });
+
+      el.appendChild(layer); el.classList.add("fx-run");
+      var t0 = performance.now(), lastTick = -1e9, finished = false;
+      function end(){
+        if (finished) return; finished = true;
+        el.classList.remove("fx-run"); if (layer.parentNode) layer.parentNode.removeChild(layer);
+        window.removeEventListener("resize", end);
+      }
+      window.addEventListener("resize", end);       // measured positions go stale on resize: just show the real text
+      function frame(now){
+        if (finished) return;
+        try {
+          var t = now - t0, tick = now - lastTick >= TICK_MS;
+          if (tick) lastTick = now;
+          for (var j = 0; j < chars.length; j++) {
+            var c = chars[j]; if (!c.scr) continue;
+            if (t >= c.at) { c.scr = false; c.sp.textContent = c.real; c.sp.classList.remove("fx-g"); }
+            else if (tick) { c.sp.textContent = c.set.charAt(Math.floor(Math.random() * c.set.length)); c.sp.classList.add("fx-g"); }
+          }
+          if (t >= DECODE_MS) end(); else requestAnimationFrame(frame);
+        } catch(e){ end(); }
+      }
+      requestAnimationFrame(frame);
+      setTimeout(end, DECODE_MS + 400);              // safety: never leave the layer in place
+    }
+
+    /* ---- trigger on scroll into view; heading first, then cards 100ms apart ---- */
+    var headDone = {};   // section id -> time its heading started
+    function play(batch){
+      batch.sort(function(a, b){ return units.indexOf(a) - units.indexOf(b); });
+      var delay = 0;
+      batch.forEach(function(u){
+        if (u.played) return; u.played = true;
+        var id = u.section.id, start;
+        if (u.isHead) { start = 0; headDone[id] = performance.now(); }
+        else {
+          var since = headDone[id] != null ? performance.now() - headDone[id] : 1e9;
+          start = Math.max(delay, since < 280 ? 280 - since : 0); delay = start + CARD_GAP;
+        }
+        setTimeout(function(){ try { u.run(); } catch(e){ reveal(u.el); } }, start);
+      });
+    }
+    function reveal(scope){ scope.querySelectorAll(".fx-up,.fx-dc").forEach(function(el){ el.classList.add("fx-in"); }); if (scope.classList) scope.classList.add("fx-in"); }
+
+    var io = new IntersectionObserver(function(entries){
+      var batch = [];
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        units.forEach(function(u){ if (u.el === en.target) batch.push(u); });
+      });
+      // A card never plays before its section heading.
+      batch.slice().forEach(function(u){
+        if (!u.isHead && headDone[u.section.id] == null) units.forEach(function(h){ if (h.isHead && h.section === u.section && !h.played && batch.indexOf(h) < 0) { batch.push(h); io.unobserve(h.el); } });
+      });
+      if (batch.length) play(batch);
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.15 });
+
+    root.classList.add("fx-ready");
+    units.forEach(function(u){ io.observe(u.el); });
+  } catch(e){
+    root.classList.remove("fx-ready");   // anything unexpected: show the text as written
+  }
+})();
+</script>
+
+<script>
+/* ==================================================================
+   SITE SETTINGS — the only block most updates need.
+   A value left as "" means that part is not connected yet.
+   ================================================================== */
+var SITE = {
+  // The scroll film (see HIGGSFIELD-VIDEO-BRIEF.md). Leave "" to keep the drawn storefront.
+  VIDEO_DESKTOP: "",       // e.g. "media/zengers-film-1920.mp4"  (16:9)
+  VIDEO_MOBILE: "",        // optional, e.g. "media/zengers-film-720x1280.mp4" (9:16)
+  POSTER: "",              // optional, e.g. "media/zengers-film-end.jpg" (last frame)
+
+  // "Send question" form. A private form service or your own backend that accepts a POST
+  // and emails you (for example Formspree, Basin, or Netlify Forms). "" = not connected.
+  INQUIRY_ENDPOINT: "",
+
+  // Purchase onboarding. The customer's details and uploads POST here before checkout.
+  // Must store them privately and notify you. "" = not connected.
+  ONBOARDING_ENDPOINT: "",
+
+  // Checkout. One Stripe Payment Link (or similar hosted checkout) per plan.
+  // Use TEST-mode links until live charges are approved.
+  CHECKOUT_MODE: "test",   // "test" shows a "Test mode" banner; change to "live" only after approval
+  CHECKOUT_LINKS: {
+    Starter: "",           // e.g. "https://buy.stripe.com/test_..."
+    Pro: "",
+    Premier: ""
+  }
+};
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var doc = document, win = window;
+  var reduceMotion = win.matchMedia && win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var saveData = !!(navigator.connection && navigator.connection.saveData);
+
+  /* ---------- small helpers ---------- */
+  function clamp(v,a,b){return v<a?a:v>b?b:v}
+  function ease(p,a,b){var t=clamp((p-a)/(b-a),0,1);return t*t*(3-2*t)}
+  function mix(a,b,t){return a+(b-a)*t}
+  function hex(c){c=c.replace("#","");return [parseInt(c.slice(0,2),16),parseInt(c.slice(2,4),16),parseInt(c.slice(4,6),16)]}
+  function mixc(c1,c2,t,al){var a=hex(c1),b=hex(c2);return "rgba("+Math.round(mix(a[0],b[0],t))+","+Math.round(mix(a[1],b[1],t))+","+Math.round(mix(a[2],b[2],t))+","+(al==null?1:al)+")"}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]})}
+
+  var yr = doc.getElementById("year"); if (yr) yr.textContent = new Date().getFullYear();
+
+
+  /* ==================================================================
+     FORMS: shared validation
+     ================================================================== */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function setError(input, msg){
+    var err = doc.getElementById(input.id + "-err");
+    if (msg) {
+      input.setAttribute("aria-invalid","true");
+      if (err) { err.textContent = msg; err.hidden = false; input.setAttribute("aria-describedby", err.id); }
+    } else {
+      input.removeAttribute("aria-invalid");
+      if (err) { err.textContent = ""; err.hidden = true; input.removeAttribute("aria-describedby"); }
+    }
+    return !msg;
+  }
+  function checkField(input){
+    var v = (input.value || "").trim(), label = (doc.querySelector('label[for="'+input.id+'"]') || {}).firstChild;
+    var name = label ? String(label.textContent).trim().toLowerCase().replace(/^your /, "") : "details";
+    if (input.required && !v) return setError(input, "Please enter your " + name + ".");
+    if (input.type === "email" && v && !EMAIL_RE.test(v)) return setError(input, "Enter an email address like name@example.com.");
+    if (input.type === "tel" && v && v.replace(/\D/g,"").length < 7) return setError(input, "Enter a full phone number, or leave it blank.");
+    if (input.type === "url" && v && !/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}/i.test(v)) return setError(input, "Enter a web address like example.com, or leave it blank.");
+    return setError(input, "");
+  }
+  function validate(form){
+    var bad = null;
+    form.querySelectorAll("input:not([type=file]):not([tabindex='-1']), textarea").forEach(function(el){
+      if (!checkField(el) && !bad) bad = el;
+    });
+    return bad;
+  }
+  function liveCheck(form){
+    form.addEventListener("blur", function(e){ var t=e.target; if ((t.tagName==="INPUT"||t.tagName==="TEXTAREA") && t.type!=="file" && t.hasAttribute("aria-invalid")) checkField(t); }, true);
+    form.addEventListener("input", function(e){ var t=e.target; if (t.hasAttribute && t.hasAttribute("aria-invalid")) checkField(t); });
+  }
+  function showStatus(el, kind, html){ el.className = "form-status is-" + kind; el.innerHTML = html; el.hidden = false; }
+  function isSpam(form){ var hp = form.querySelector('input[name="company_website"]'); return hp && hp.value; }
+  function postForm(url, data){
+    return fetch(url, { method: "POST", body: data, headers: { "Accept": "application/json" } })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.text().then(function(t){ try { return JSON.parse(t); } catch(e){ return {}; } }); });
+  }
+
+  /* ---------- "Send question" ---------- */
+  var qForm = doc.getElementById("inquiry-form"), qStatus = doc.getElementById("q-status"), qBtn = doc.getElementById("q-submit");
+  liveCheck(qForm);
+  qForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    qStatus.hidden = true;
+    var bad = validate(qForm);
+    if (bad) { bad.focus(); return; }
+    if (isSpam(qForm)) return;
+    if (!SITE.INQUIRY_ENDPOINT) {
+      showStatus(qStatus, "error", "<strong>This form isn’t connected yet.</strong> Your question was not sent. Please try again later.");
+      return;
+    }
+    qBtn.disabled = true; qBtn.textContent = "Sending…";
+    var data = new FormData(qForm); data.append("form", "question"); data.append("page", location.href);
+    postForm(SITE.INQUIRY_ENDPOINT, data).then(function(){
+      qForm.reset();
+      showStatus(qStatus, "ok", "<strong>Thanks, your question was sent.</strong> We’ll reply by email.");
+    }).catch(function(){
+      showStatus(qStatus, "error", "<strong>Your question didn’t send.</strong> Check your connection and try again.");
+    }).then(function(){ qBtn.disabled = false; qBtn.textContent = "Send question"; });
+  });
+  var quote = doc.querySelector("[data-quote]");
+  if (quote) quote.addEventListener("click", function(){
+    var m = doc.getElementById("q-message"); if (!m.value) m.value = "I’d like a quote for a one-time website build.";
+  });
+
+  /* ---------- Buy → onboarding → checkout ---------- */
+  var dlg = doc.getElementById("buy-dialog"), bForm = doc.getElementById("buy-form"), bStatus = doc.getElementById("b-status");
+  var bBtn = doc.getElementById("b-submit"), review = doc.getElementById("buy-review"), done = doc.getElementById("buy-done");
+  var buyState = { plan: "", price: "" };
+  liveCheck(bForm);
+  doc.getElementById("buy-test").hidden = SITE.CHECKOUT_MODE === "live";
+
+  function openDialog(){ if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open",""); }
+  function closeDialog(){ if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+  function showStep(which){
+    bForm.hidden = which !== "form"; review.hidden = which !== "review"; done.hidden = which !== "done";
+    doc.querySelector(".summary").hidden = which === "done";
+  }
+  function openBuy(plan, price){
+    buyState.plan = plan; buyState.price = price;
+    doc.getElementById("buy-title").textContent = "Get started with " + plan;
+    doc.getElementById("buy-plan").textContent = plan + " plan";
+    doc.getElementById("buy-price").textContent = "$" + price;
+    doc.getElementById("rv-plan").textContent = plan + " plan";
+    doc.getElementById("rv-price").textContent = "$" + price;
+    bStatus.hidden = true; showStep("form");
+    openDialog();
+    setTimeout(function(){ doc.getElementById("b-name").focus(); }, 30);
+  }
+  doc.querySelectorAll("[data-plan][data-price]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openBuy(btn.getAttribute("data-plan"), btn.getAttribute("data-price")); });
+  });
+  doc.getElementById("buy-close").addEventListener("click", closeDialog);
+  doc.getElementById("done-close").addEventListener("click", closeDialog);
+  doc.getElementById("rv-back").addEventListener("click", function(){ bStatus.hidden = true; showStep("form"); });
+  dlg.addEventListener("click", function(e){ if (e.target === dlg) closeDialog(); });
+
+  function filesProblem(){
+    var logo = doc.getElementById("b-logo").files, photos = doc.getElementById("b-photos"), total = 0, n = 0;
+    [logo, photos.files].forEach(function(list){ for (var i=0;i<list.length;i++){ total += list[i].size; n++; } });
+    if (n > 11) return setError(photos, "Please send 10 photos or fewer.") ? null : photos;
+    if (total > 25*1024*1024) return setError(photos, "Your files add up to more than 25 MB. Send fewer or smaller photos.") ? null : photos;
+    setError(photos, ""); return null;
+  }
+  function makeRef(){ return "zwd-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7); }
+
+  bForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    bStatus.hidden = true;
+    var bad = validate(bForm) || filesProblem();
+    if (bad) { bad.focus(); return; }
+    if (isSpam(bForm)) return;
+    var link = (SITE.CHECKOUT_LINKS || {})[buyState.plan];
+    if (!SITE.ONBOARDING_ENDPOINT || !link) {
+      showStatus(bStatus, "error", "<strong>Online checkout isn’t connected yet.</strong> Nothing was sent and you have not been charged. " +
+        "<a href=\"#contact\" id=\"b-to-contact\">Ask us a question instead</a> and we’ll help you get started.");
+      var to = doc.getElementById("b-to-contact");
+      if (to) to.addEventListener("click", function(){
+        var m = doc.getElementById("q-message"); if (!m.value) m.value = "I’d like to start the " + buyState.plan + " plan.";
+        var n = doc.getElementById("q-name"), em = doc.getElementById("q-email"), bz = doc.getElementById("q-business");
+        if (!n.value) n.value = doc.getElementById("b-name").value; if (!em.value) em.value = doc.getElementById("b-email").value; if (!bz.value) bz.value = doc.getElementById("b-business").value;
+        closeDialog();
+      });
+      return;
+    }
+    var ref = makeRef();
+    var data = new FormData(bForm);
+    data.append("plan", buyState.plan); data.append("monthly_price_usd", buyState.price);
+    data.append("minimum_term", "3 months, then month-to-month"); data.append("reference", ref);
+    data.append("checkout_mode", SITE.CHECKOUT_MODE);
+    bBtn.disabled = true; bBtn.firstChild.textContent = "Saving… ";
+    postForm(SITE.ONBOARDING_ENDPOINT, data).then(function(){
+      var url = link + (link.indexOf("?") < 0 ? "?" : "&") + "client_reference_id=" + encodeURIComponent(ref) +
+        "&prefilled_email=" + encodeURIComponent(doc.getElementById("b-email").value.trim());
+      doc.getElementById("rv-pay").href = url;
+      showStep("review");
+      doc.getElementById("rv-pay").focus();
+    }).catch(function(){
+      showStatus(bStatus, "error", "<strong>We couldn’t save your details.</strong> Nothing was charged. Check your connection and try again.");
+    }).then(function(){ bBtn.disabled = false; bBtn.firstChild.textContent = "Continue to checkout "; });
+  });
+
+  // Back from checkout. Set each payment link's "after payment" redirect to:
+  //   <your site>/index.html?checkout=success&session_id={CHECKOUT_SESSION_ID}
+  // The checkout provider only sends people here after a completed payment.
+  (function(){
+    var q = new URLSearchParams(location.search);
+    if (q.get("checkout") === "success" && /^cs_(test|live)_[A-Za-z0-9]+$/.test(q.get("session_id") || "")) {
+      doc.getElementById("buy-title").textContent = "You’re all set";
+      showStep("done"); openDialog();
+      if (history.replaceState) history.replaceState(null, "", location.pathname + location.hash);
+    }
+  })();
+
+  /* ---------- mobile menu ---------- */
+  var menuBtn = doc.querySelector(".menu-btn"), nav = doc.getElementById("site-nav");
+  menuBtn.addEventListener("click", function(){
+    var open = nav.classList.toggle("open");
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  nav.addEventListener("click", function(e){
+    if (e.target.tagName === "A") { nav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); }
+  });
+
+  /* ==================================================================
+     THE FILM
+     progress 0 → 1 across the pinned section.
+     Beats: opening screen, then the four lines.
+     ================================================================== */
+  var film = doc.querySelector(".film");
+  var media = doc.getElementById("film-media");
+  var canvas = doc.getElementById("film-canvas");
+  var ctx = canvas.getContext("2d");
+  var tempTag = doc.getElementById("temp-tag");
+  var beats = Array.prototype.slice.call(doc.querySelectorAll(".beat"));
+  var ticks = doc.querySelectorAll(".meter-ticks i");
+  var meterLabel = doc.getElementById("meter-label");
+  var meter = doc.querySelector(".film-meter");
+
+  // [fade in start, fully in, start fade out, fully out]
+  var RANGES = {
+    hero: [-1, -1, 0.07, 0.13],
+    "1":  [0.13, 0.18, 0.31, 0.36],
+    "2":  [0.36, 0.41, 0.53, 0.58],
+    "3":  [0.58, 0.63, 0.73, 0.78],
+    "4":  [0.80, 0.86, 2, 2]
+  };
+
+  var isStatic = reduceMotion;
+  var video = null, videoReady = false;
+  var target = 0, current = 0, rafId = 0, W = 0, H = 0, DPR = 1;
+
+  /* ---- video (only when a source is set) ---- */
+  function pickVideoSrc(){
+    var mobile = win.matchMedia("(max-aspect-ratio: 4/5)").matches;
+    return (mobile && SITE.VIDEO_MOBILE) ? SITE.VIDEO_MOBILE : SITE.VIDEO_DESKTOP;
+  }
+  function useStill(){
+    if (SITE.POSTER) {
+      var img = new Image(); img.src = SITE.POSTER; img.alt = ""; img.decoding = "async";
+      media.innerHTML = ""; media.appendChild(img);
+    } else { drawScene(1); }
+  }
+  function setupVideo(){
+    var src = pickVideoSrc();
+    if (!src) return;
+    if (tempTag) tempTag.hidden = true;
+    if (isStatic || saveData) { useStill(); return; }
+
+    video = doc.createElement("video");
+    video.muted = true; video.playsInline = true; video.preload = "auto";
+    video.setAttribute("muted",""); video.setAttribute("playsinline",""); video.setAttribute("aria-hidden","true");
+    if (SITE.POSTER) video.poster = SITE.POSTER;
+
+    var fail = function(){ // fall back to the drawn scene if the file cannot play
+      if (video && video.parentNode) video.parentNode.removeChild(video);
+      video = null; videoReady = false; canvas.style.display = "";
+      requestFrame();
+    };
+    video.addEventListener("error", fail);
+    video.addEventListener("loadeddata", function(){
+      videoReady = true; canvas.style.display = "none";
+      try { var pr = video.play(); if (pr && pr.then) pr.then(function(){ video.pause(); seekTo(current); }).catch(function(){}); else video.pause(); } catch(e){}
+      seekTo(current);
+    });
+
+    // Load only when the film is near the screen. Fetch the whole file first so seeking is instant.
+    var start = function(){
+      if (win.fetch && win.URL && URL.createObjectURL) {
+        fetch(src).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+          .then(function(b){ video.src = URL.createObjectURL(b); media.appendChild(video); video.load(); })
+          .catch(function(){ video.src = src; media.appendChild(video); video.load(); });
+      } else { video.src = src; media.appendChild(video); video.load(); }
+    };
+    if ("IntersectionObserver" in win) {
+      var io = new IntersectionObserver(function(es){ if (es[0].isIntersecting){ io.disconnect(); start(); } }, {rootMargin:"200px"});
+      io.observe(film);
+    } else start();
+  }
+  function seekTo(p){
+    if (!video || !videoReady || !video.duration) return;
+    var t = clamp(p,0,1) * (video.duration - 0.05);
+    if (Math.abs(video.currentTime - t) > 1/60 && !video.seeking) {
+      try { video.currentTime = t; } catch(e){}
+    }
+  }
+
+  /* ---- drawn storefront (temporary stand-in for the film) ---- */
+  var sky = (function(){ // fixed pseudo-random skyline so every visit looks the same
+    var s = 7, out = [];
+    function r(){ s = (s*16807) % 2147483647; return (s-1)/2147483646; }
+    for (var x = -95; x < 95; x += 6 + r()*5) {
+      out.push({x:x, w:5 + r()*6, h:10 + r()*26, lit:r(), win:Math.floor(2+r()*4)});
+    }
+    return out;
+  })();
+  var people = [
+    {t:0.30, x:-40, v: 38}, {t:0.36, x: 34, v:-30}, {t:0.44, x:-58, v: 44},
+    {t:0.50, x: 52, v:-36}, {t:0.58, x:-30, v: 26}, {t:0.64, x: 22, v:-22},
+    {t:0.70, x:-64, v: 50}, {t:0.76, x: 60, v:-40}
+  ];
+
+  function resize(){
+    DPR = Math.min(win.devicePixelRatio || 1, 2);
+    var r = media.getBoundingClientRect();
+    W = Math.max(1, r.width); H = Math.max(1, r.height);
+    canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR);
+    drawScene(isStatic ? 1 : current);
+  }
+
+  function rrect(x,y,w,h,r,keep){ if(!keep) ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function glow(x,y,r,a){ var g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,"rgba(255,196,92,"+a+")"); g.addColorStop(1,"rgba(255,196,92,0)"); ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2); }
+  function windowPane(x,y,w,h,on){
+    ctx.fillStyle = mixc("#2A3139","#FFCE70",on);
+    ctx.fillRect(x,y,w,h);
+    if (on > 0.02) { ctx.fillStyle = "rgba(255,240,200,"+(0.35*on)+")"; ctx.fillRect(x, y, w, h*0.18); }
+    ctx.strokeStyle = "rgba(10,16,22,.55)"; ctx.lineWidth = 0.35; ctx.strokeRect(x,y,w,h);
+  }
+  function person(x, a){
+    ctx.fillStyle = "rgba(9,14,20,"+(0.9*a)+")";
+    ctx.beginPath(); ctx.arc(x, -6.9, 0.85, 0, Math.PI*2); ctx.fill();
+    rrect(x-0.8, -5.9, 1.6, 3.6, 0.6); ctx.fill();
+    ctx.fillRect(x-0.65, -2.5, 0.5, 2.5); ctx.fillRect(x+0.15, -2.5, 0.5, 2.5);
+  }
+
+  function drawScene(p){
+    if (!W) return;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    var wide = W/H > 1.15;
+    var u = wide ? Math.min(W/110, H/80) : Math.min(W/92, H/95);
+    var cx = wide ? W*0.60 : W*0.5;
+    var gy = wide ? H*0.70 : H*0.38;
+
+    var framed = ease(p, 0.80, 0.97);        // the scene becomes the hero of a website
+    var s = 1 - 0.2*framed;
+    var ox = mix(0, (W/2 - cx) , framed);     // slide to center while framing
+
+    ctx.fillStyle = "#0E1822"; ctx.fillRect(0,0,W,H);
+    ctx.save();
+    ctx.translate(W/2, H/2); ctx.scale(s, s); ctx.translate(-W/2 + ox, -H/2);
+
+    // sky: flat and grey at first, then a warm evening glow
+    var warm = ease(p, 0.05, 0.75);
+    var g = ctx.createLinearGradient(0,0,0,gy);
+    g.addColorStop(0, mixc("#39434D","#122036",warm));
+    g.addColorStop(0.65, mixc("#56606A","#2F3E5A",warm));
+    g.addColorStop(1, mixc("#6C747B","#D7824E",warm));
+    ctx.fillStyle = g; ctx.fillRect(-W, 0, W*3, gy+1);
+
+    ctx.save(); ctx.translate(cx, gy); ctx.scale(u,u);
+
+    // distant town: faint, then filling with lights
+    var town = ease(p, 0.15, 0.85);
+    for (var i=0;i<sky.length;i++){
+      var b = sky[i]; if (Math.abs(b.x) < 30 && b.h > 24) continue;
+      ctx.fillStyle = mixc("#4C555E","#1C2A3E",warm, 0.55 + 0.35*town);
+      ctx.fillRect(b.x, -b.h - 2, b.w, b.h+2);
+      if (b.lit < town) {
+        for (var k=0;k<b.win;k++){
+          ctx.fillStyle = "rgba(255,206,112,"+(0.55*town)+")";
+          ctx.fillRect(b.x + 1.2 + (k%2)*2.4, -b.h + 2 + Math.floor(k/2)*3.2, 1.1, 1.3);
+        }
+      }
+    }
+
+    // street and sidewalk
+    ctx.fillStyle = mixc("#3E454C","#1A232C",warm); ctx.fillRect(-160, 0, 320, 60);
+    ctx.fillStyle = mixc("#5A6168","#2A3540",warm); ctx.fillRect(-160, 0, 320, 3.2);
+    ctx.fillStyle = "rgba(255,255,255,"+(0.06+0.08*warm)+")";
+    for (var d=-150; d<150; d+=12) ctx.fillRect(d, 9, 6, 0.5);
+
+    // building growth
+    var up2 = ease(p, 0.26, 0.48), up3 = ease(p, 0.48, 0.70);
+    var wing = ease(p, 0.40, 0.66);
+    var hBody = 21 + 12*up2 + 11*up3;
+    var facade = mixc("#6D7378","#2D4A5F", ease(p,0.12,0.6));
+    var brick  = mixc("#5F656A","#8A4E3A", ease(p,0.2,0.6));
+
+    // wings (the business expanding sideways)
+    var ww = 17*wing;
+    if (ww > 0.3) {
+      ctx.fillStyle = brick;
+      ctx.fillRect(-17-ww, -16, ww, 16); ctx.fillRect(17, -16, ww, 16);
+      ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.fillRect(-17-ww, -16.8, ww, 0.8); ctx.fillRect(17, -16.8, ww, 0.8);
+      var lw = ease(p, 0.5, 0.72);
+      for (var q=0; q<3; q++){
+        var wx = 2 + q*5.2;
+        if (wx + 3.6 < ww) { windowPane(-17-ww+wx, -12.5, 3.6, 7, lw); windowPane(17+ww-wx-3.6, -12.5, 3.6, 7, lw); }
+      }
+    }
+
+    // main body
+    ctx.fillStyle = facade; ctx.fillRect(-17, -hBody, 34, hBody);
+    ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fillRect(-17, -hBody, 34, 0.9);
+    ctx.fillStyle = mixc("#80868B","#F2B544", ease(p,0.55,0.8), 0.9); ctx.fillRect(-18, -hBody-0.9, 36, 0.9); // cornice
+
+    // upper floors
+    var lit2 = ease(p, 0.40, 0.56), lit3 = ease(p, 0.62, 0.76);
+    if (up2 > 0.02) for (var c=0;c<4;c++) windowPane(-14 + c*7.6, -21 - 12*up2 + 2.4, 5, 7.4*up2, lit2);
+    if (up3 > 0.02) for (var c2=0;c2<4;c2++) windowPane(-14 + c2*7.6, -33 - 11*up3 + 2.2, 5, 6.8*up3, lit3);
+
+    // shopfront
+    var shop = ease(p, 0.02, 0.22);
+    ctx.fillStyle = mixc("#4B5157","#1A2632",shop); ctx.fillRect(-16, -15.5, 32, 15.5);
+    windowPane(-14.5, -12.8, 12, 10.6, shop);
+    windowPane(8.8, -12.8, 5.8, 10.6, shop);
+    ctx.fillStyle = mixc("#3A4046","#FFC766", shop); ctx.fillRect(0.4, -13.2, 6.6, 13.2);        // door
+    ctx.fillStyle = "rgba(10,16,22,.5)"; ctx.fillRect(3.5, -13.2, 0.35, 13.2);
+    if (shop > 0.05) { glow(-8.5, -7, 16, 0.35*shop); glow(3.7, -6, 12, 0.3*shop); }
+
+    // sign band: blank at first, then lit (abstract marks only, no lettering)
+    var sign = ease(p, 0.16, 0.30);
+    ctx.fillStyle = mixc("#3F454B","#0E1822",sign); ctx.fillRect(-12, -19.6, 24, 3.6);
+    if (sign > 0.02){
+      ctx.fillStyle = "rgba(242,181,68,"+sign+")";
+      ctx.fillRect(-7, -18.3, 5.2, 1.0); ctx.fillRect(-1, -18.3, 2.4, 1.0); ctx.fillRect(2.2, -18.3, 4.8, 1.0);
+      glow(0, -17.8, 14, 0.22*sign);
+    }
+
+    // awning unrolls
+    var aw = ease(p, 0.14, 0.34);
+    if (aw > 0.02){
+      var depth = 2.6*aw;
+      for (var st=0; st<8; st++){
+        ctx.fillStyle = st%2 ? "rgba(238,241,238,.92)" : "rgba(242,181,68,.95)";
+        ctx.beginPath(); ctx.moveTo(-15.5 + st*3.1, -15.4); ctx.lineTo(-15.5 + (st+1)*3.1, -15.4);
+        ctx.lineTo(-15.8 + (st+1)*3.15, -15.4 + depth); ctx.lineTo(-15.8 + st*3.15, -15.4 + depth); ctx.closePath(); ctx.fill();
+      }
+    }
+
+    // warm spill on the sidewalk
+    var spill = ease(p, 0.08, 0.5);
+    if (spill > 0.01){
+      var sg = ctx.createLinearGradient(0,0,0,9);
+      sg.addColorStop(0,"rgba(255,196,92,"+(0.45*spill)+")"); sg.addColorStop(1,"rgba(255,196,92,0)");
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(-15,0); ctx.lineTo(15,0); ctx.lineTo(24,9); ctx.lineTo(-24,9); ctx.closePath(); ctx.fill();
+    }
+
+    // street lamps
+    var lamp = ease(p, 0.10, 0.24);
+    [-38, 38].forEach(function(lx){
+      ctx.fillStyle = "#11181F"; ctx.fillRect(lx-0.3, -19, 0.6, 19); ctx.fillRect(lx-1.6, -19.6, 3.2, 0.9);
+      ctx.fillStyle = mixc("#5B6268","#FFD37A",lamp); ctx.fillRect(lx-1.1, -18.8, 2.2, 0.8);
+      if (lamp>0.02){ glow(lx, -18, 11, 0.5*lamp); var cg=ctx.createLinearGradient(0,-18,0,0); cg.addColorStop(0,"rgba(255,206,112,"+(0.16*lamp)+")"); cg.addColorStop(1,"rgba(255,206,112,0)"); ctx.fillStyle=cg; ctx.beginPath(); ctx.moveTo(lx-1,-18); ctx.lineTo(lx+1,-18); ctx.lineTo(lx+7,0); ctx.lineTo(lx-7,0); ctx.closePath(); ctx.fill(); }
+    });
+
+    // trees and planters grow in
+    var tree = ease(p, 0.34, 0.58);
+    if (tree > 0.02){
+      [-27, 27].forEach(function(tx){
+        ctx.fillStyle = "#141C22"; ctx.fillRect(tx-0.35, -7*tree, 0.7, 7*tree);
+        ctx.fillStyle = mixc("#1F3A2E","#2C5A40",warm, 0.95);
+        ctx.beginPath(); ctx.arc(tx, -8.5*tree, 4.2*tree, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.fillStyle = "#1A232C"; ctx.fillRect(-16.4, -2.2*tree, 2.4, 2.2*tree); ctx.fillRect(14, -2.2*tree, 2.4, 2.2*tree);
+      ctx.fillStyle = "#3C7A52"; ctx.beginPath(); ctx.arc(-15.2, -2.4*tree, 1.5*tree, 0, Math.PI*2); ctx.arc(15.2, -2.4*tree, 1.5*tree, 0, Math.PI*2); ctx.fill();
+    }
+
+    // rooftop string lights
+    var roof = ease(p, 0.70, 0.84);
+    if (roof > 0.02){
+      var ry = -hBody - 1;
+      ctx.strokeStyle = "rgba(20,28,36,.9)"; ctx.lineWidth = 0.25;
+      ctx.beginPath(); ctx.moveTo(-17, ry-3); ctx.quadraticCurveTo(0, ry+0.6, 17, ry-3); ctx.stroke();
+      ctx.fillStyle = "#11181F"; ctx.fillRect(-17.2, ry-3.2, 0.4, 3.2); ctx.fillRect(16.8, ry-3.2, 0.4, 3.2);
+      for (var bl=1; bl<12; bl++){
+        var t = bl/12, bx = mix(-17,17,t), by = (1-t)*(1-t)*(ry-3) + 2*(1-t)*t*(ry+0.6) + t*t*(ry-3);
+        if (t < roof*1.05){ ctx.fillStyle = "rgba(255,214,130,.95)"; ctx.beginPath(); ctx.arc(bx, by+0.3, 0.32, 0, Math.PI*2); ctx.fill(); glow(bx, by+0.3, 1.4, 0.5); }
+      }
+    }
+
+    // people arrive and walk as you scroll
+    for (var pi=0; pi<people.length; pi++){
+      var pe = people[pi], a = ease(p, pe.t, pe.t+0.05);
+      if (a > 0.01) person(pe.x + (p - pe.t)*pe.v, a);
+    }
+
+    ctx.restore(); // end world units
+    ctx.restore(); // end framing transform
+
+    // website frame: the storefront becomes the hero of a site
+    if (framed > 0.01){
+      var fw = W*s, fh = H*s, fx = (W-fw)/2, fy = (H-fh)/2;
+      var bar = Math.max(26, 34*s);
+      ctx.save();
+      ctx.globalAlpha = framed;
+      ctx.fillStyle = "#0E1822";
+      ctx.beginPath(); ctx.rect(0,0,W,H); rrect(fx, fy, fw, fh, 14, true); ctx.fill("evenodd");
+      ctx.fillStyle = "#1B2B3A"; rrect(fx, fy, fw, bar, 14); ctx.fill(); ctx.fillRect(fx, fy+bar-14, fw, 14);
+      ["#E26D5A","#F2B544","#5FB37A"].forEach(function(col, n){ ctx.fillStyle = col; ctx.beginPath(); ctx.arc(fx + 18 + n*14, fy + bar/2, 4, 0, Math.PI*2); ctx.fill(); });
+      ctx.fillStyle = "rgba(238,241,238,.1)"; rrect(fx + fw*0.3, fy + bar*0.25, fw*0.4, bar*0.5, bar*0.25); ctx.fill();
+      // the site's own nav and call button, drawn as shapes
+      ctx.fillStyle = "rgba(238,241,238,.18)";
+      for (var nb=0; nb<3; nb++) { rrect(fx + fw - 170 + nb*38, fy + bar + 16, 28, 5, 2.5); ctx.fill(); }
+      ctx.fillStyle = "#F2B544"; rrect(fx + fw - 60, fy + bar + 10, 44, 17, 8.5); ctx.fill();
+      ctx.strokeStyle = "rgba(238,241,238,.22)"; ctx.lineWidth = 1; rrect(fx+0.5, fy+0.5, fw-1, fh-1, 14); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /* ---- over the real film, the page draws the website frame itself ---- */
+  var webFrame = doc.getElementById("web-frame");
+  function frameVideo(p){
+    var f = ease(p, 0.80, 0.97), s = 1 - 0.2*f, inset = ((1-s)/2*100).toFixed(2) + "%";
+    media.style.transform = f > 0 ? "scale(" + s.toFixed(4) + ")" : "";
+    media.style.borderRadius = f > 0 ? "14px" : "";
+    media.style.overflow = "hidden";
+    webFrame.style.inset = inset;
+    webFrame.style.opacity = f.toFixed(3);
+  }
+
+  /* ---- text beats and meter ---- */
+  function beatOpacity(p, r){
+    if (r[0] < 0 && p <= r[2]) return 1;
+    if (p < r[0] || p > r[3]) return 0;
+    if (p < r[1]) return (p - r[0]) / (r[1] - r[0]);
+    if (p <= r[2]) return 1;
+    return 1 - (p - r[2]) / (r[3] - r[2]);
+  }
+  function updateBeats(p){
+    beats.forEach(function(el){
+      var o = clamp(beatOpacity(p, RANGES[el.getAttribute("data-beat")]), 0, 1);
+      el.style.opacity = o.toFixed(3);
+      el.style.transform = "translateY(" + ((1-o)*18).toFixed(1) + "px)";
+      el.style.visibility = o < 0.02 ? "hidden" : "visible";
+      el.style.pointerEvents = o < 0.5 ? "none" : "auto";
+    });
+    meter.style.opacity = (1 - ease(p, 0.80, 0.9)).toFixed(3);
+    var stage = p < 0.36 ? 1 : p < 0.58 ? 2 : p < 0.79 ? 3 : 4;
+    meterLabel.textContent = "0" + stage + " / 04";
+    for (var i=0;i<ticks.length;i++) ticks[i].classList.toggle("on", i < stage);
+  }
+
+  /* ---- scroll → progress, eased so the film glides ---- */
+  function readProgress(){
+    var r = film.getBoundingClientRect();
+    var span = r.height - win.innerHeight;
+    return span > 0 ? clamp(-r.top / span, 0, 1) : 0;
+  }
+  function tick(){
+    rafId = 0;
+    var diff = target - current;
+    current = Math.abs(diff) < 0.0005 ? target : current + diff * 0.14;
+    updateBeats(current);
+    if (videoReady) { seekTo(current); frameVideo(current); } else drawScene(current);
+    if (current !== target) requestFrame();
+  }
+  function requestFrame(){ if (!rafId) rafId = win.requestAnimationFrame(tick); }
+  function onScroll(){ target = readProgress(); requestFrame(); }
+
+  /* ---- start ---- */
+  if (!SITE.SHOW_TEMP_TAG && tempTag) tempTag.hidden = true;
+
+  if (isStatic) {
+    film.classList.add("is-static");
+    resize();
+    setupVideo();
+    win.addEventListener("resize", resize);
+  } else {
+    resize();
+    setupVideo();
+    target = current = readProgress();
+    updateBeats(current); drawScene(current);
+    win.addEventListener("scroll", onScroll, {passive:true});
+    win.addEventListener("resize", function(){ resize(); onScroll(); });
+  }
+
+  // If the viewer switches "reduce motion" on while the page is open, move to the still version.
+  if (win.matchMedia) {
+    var mq = win.matchMedia("(prefers-reduced-motion: reduce)");
+    var onChange = function(e){ if (e.matches && !isStatic) { isStatic = true; film.classList.add("is-static"); win.removeEventListener("scroll", onScroll); if (video) { video.remove(); video = null; videoReady = false; canvas.style.display = ""; } if (SITE.POSTER && pickVideoSrc()) useStill(); resize(); } };
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+  }
+})();
+</script>
+</body>
+</html>
