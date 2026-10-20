@@ -23,9 +23,26 @@
   if (!force && (seen || location.hash || /[?&]checkout=/.test(location.search) || document.hidden)) return;
   try { sessionStorage.setItem("zwd-intro","1"); } catch(e){}
   d.classList.add("intro-on","intro-logo-hidden");
+  // The cinematic 3D version plays when the browser can draw it (WebGL 2) and the page comes from a web address.
+  // Opened straight from the folder (file://), on Data Saver or a slow connection, or if anything in the 3D version
+  // fails: the 2D version.
+  var c = navigator.connection, use3d = location.protocol !== "file:" && "WebGL2RenderingContext" in window && !(c && (c.saveData || /2g|3g/.test(c.effectiveType || "")));
   // Safety net: if anything below fails, the overlay still goes away on its own.
-  window.__zwdIntroSafe = setTimeout(function(){ d.classList.remove("intro-on","intro-logo-hidden"); }, 4500);
+  function hide(){ d.classList.remove("intro-on","intro-logo-hidden","intro-3d","intro-handoff"); }
+  window.__zwdIntroSafe = setTimeout(hide, use3d ? 7000 : 4500);
+  if (use3d) {
+    d.classList.add("intro-3d");
+    // If the 3D scene isn't drawing within 1.5 seconds (slow connection or device), switch to the 2D version.
+    window.__zwdIntroWait = setTimeout(function(){
+      if (window.__zwdIntro2D) window.__zwdIntro2D(); else d.classList.remove("intro-3d");
+      clearTimeout(window.__zwdIntroSafe); window.__zwdIntroSafe = setTimeout(hide, 3000);   // now 2D: the usual 4.5 seconds in all
+    }, 1500);
+  }
 }catch(e){}})();
+</script>
+<script>
+/* Starts loading the 3D library (Three.js r170, MIT license, media/three.module.min.js) only when the 3D opening will play. */
+if (document.documentElement.classList.contains("intro-3d")) { window.__zwdThree = import("./media/three.module.min.js"); window.__zwdThree.catch(function(){}); }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,7 +130,8 @@ p{margin:0}
 
 
 /* ---------- opening logo animation ("Built from the first click") ----------
-   A fixed overlay above the loaded homepage. About 2 seconds, then it removes itself.
+   A fixed overlay above the loaded homepage, then it removes itself. Most visitors get the 3D version (rules further down,
+   scene in the "3D version" script near the end). This 2D version is the fallback: about 2 seconds.
    Timings: frame 0–0.3s · blocks 0.1–0.55s · logo wipe 0.6–1.02s · "Digital Services" 1.0–1.28s · hold · exit 1.54–1.98s */
 .intro{display:none}
 html.intro-on .intro{display:grid;place-items:center;position:fixed;inset:0;z-index:200;cursor:pointer;--navy:#16264D;--gold:#E9A823;--in:cubic-bezier(.22,1,.36,1);--sweep:cubic-bezier(.65,0,.35,1)}
@@ -155,6 +173,16 @@ html.intro-logo-hidden .site-header .logo-lockup{opacity:0}
 @keyframes introErase{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 0 100%)}}
 @keyframes introReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 @keyframes introLine{0%{left:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{left:100%;opacity:0}}
+/* 3D version (html.intro-3d): a WebGL scene on a night-navy stage, about 3.5 seconds.
+   The 2D pieces above stay hidden and still until the hand-off, when they sit exactly over the 3D logo and fly into the header. */
+html.intro-3d .intro-bg{background:radial-gradient(120% 85% at 50% 44%,#1B2D44 0%,#0E1822 55%,#060B11 100%)}
+.intro-3d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+html.intro-3d .intro-win,html.intro-3d .intro-win *{animation:none!important}
+html.intro-3d .intro-frame,html.intro-3d .intro-blocks,html.intro-3d .intro-line{display:none}
+html.intro-3d .intro-logo{opacity:0}
+html.intro-3d.intro-handoff .intro-logo{opacity:1}
+html.intro-3d .intro-skip{border-color:rgba(214,224,236,.3);background:rgba(14,24,34,.55);color:#C9D4E2}
+html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 
 
 /* ---------- text decode + fade-up (Services, Why it matters) ----------
@@ -762,19 +790,329 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 </footer>
 
 <script>
-/* Opening logo animation: exit. The reveal itself is CSS; this moves the logo into the header and cleans up. */
+/* Opening logo animation, 3D version (html.intro-3d): the cinematic take on "Built from the first click".
+   The camera glides toward a glass browser window and layout blocks rise out of it. A gold light sweeps across: the blocks
+   clear and the logo appears behind it, the two interlocking Z pieces slide together and lock, ZENGERS tips up into place,
+   and DIGITAL SERVICES follows. The camera settles face-on, where the 3D logo lines up exactly with the 2D logo pieces;
+   those then fly into the header. About 3.5 seconds in all.
+   Drawn with Three.js r170 (media/three.module.min.js). World units are CSS pixels at the final camera position, measured
+   from the center of the screen, y up. Timings in T are seconds from the first frame. */
+window.__zwdIntro3D = function(THREE, intro, on){
+  var T = {cam:2.75, sweep:[1.2,1.75], sub:[1.62,1.95], zCome:[1.15,2.3], nameCome:[1.25,2.25], subCome:[1.6,2.2], lock:2.3, overlay:[2.35,2.75], flat:[2.4,2.8], handoff:2.95};
+  var FOV = 30, MW = 560, MH = 378, ZD = 80, PZ = -30;   // ZD: thickness of the Z in logo-image pixels; PZ: the glass sits 30px behind the logo
+  // The Z is two interlocking pieces, traced from media/zengers-mark.webp (image pixels, y down).
+  var Z_TOP = [[169,43],[524,40],[325,241],[247,241],[372,109],[102,114]];
+  var Z_BOTTOM = [[214,152],[287,152],[168,282],[487,281],[416,345],[34,345]];
+  // The layout blocks of the 2D version: left, top, width, height (% of the page area), kind, delay (s).
+  var BLOCKS = [[6,8,18,5,"head",.10],[66,8.8,7,3.4,"link",.14],[76,8.8,7,3.4,"link",.17],[86,8.8,8,3.4,"link",.20],
+    [6,22,88,36,"hero",.20],[11,31,38,6,"head",.28],[11,41,26,4,"text",.32],[11,49,15,5.4,"button",.36],
+    [6,64,27.5,26,"card",.36],[36.25,64,27.5,26,"card",.40],[66.5,64,27.5,26,"card",.44]];
+  var KIND = {head:[0xDCE6F2,9], link:[0x5C7899,6], hero:[0x253C5E,4], text:[0x8BA3C1,6], button:[0xF2B544,10], card:[0x2C4670,10]};
+
+  var V3 = THREE.Vector3, root = document.documentElement;
+  var markImg = intro.querySelector(".p-z"), wordImg = intro.querySelector(".p-name");
+  var canvas = document.createElement("canvas"), renderer;
+  var stopped = false, compiling = false, raf = 0, clock = 0, last = 0, handed = false, pending = 2;
+  var W, H, D, cam, scene, envRT, textures = [], logo = [], a = {};
+  canvas.className = "intro-3d-canvas"; canvas.setAttribute("aria-hidden", "true");
+  try {
+    var gl = canvas.getContext("webgl2", {antialias:true, alpha:true, powerPreference:"high-performance"});
+    var info = gl && gl.getExtension("WEBGL_debug_renderer_info");
+    // No graphics chip (software drawing) would stutter: the 2D version plays instead.
+    if (!gl || (info && /swiftshader|llvmpipe|software/i.test(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { on.fail(); return null; }
+    renderer = new THREE.WebGLRenderer({canvas:canvas, context:gl, antialias:true, alpha:true});
+  } catch(e){ on.fail(); return null; }
+  [markImg, wordImg].forEach(function(img){
+    if (img.complete && img.naturalWidth) { if (!--pending) build(); return; }
+    img.addEventListener("load", function(){ if (!--pending) build(); });
+    img.addEventListener("error", function(){ if (!stopped) { stop(); on.fail(); } });
+  });
+  return {stop:stop};
+
+  function build(){
+    if (stopped) return;
+    try { setup(); intro.insertBefore(canvas, intro.querySelector(".intro-win")); }
+    catch(e){ stop(); on.fail(); return; }
+    window.addEventListener("resize", onResize);
+    // Prepare the shaders and images first (in parallel where the browser can), so the first frames don't stutter.
+    compiling = renderer.extensions.has("KHR_parallel_shader_compile");
+    var ready = compiling ? renderer.compileAsync(scene, cam) : Promise.resolve(renderer.compile(scene, cam));
+    ready.then(function(){
+      compiling = false;
+      if (stopped) { release(); return; }
+      textures.forEach(function(x){ renderer.initTexture(x); });
+      raf = requestAnimationFrame(frame);
+    });
+  }
+
+  function frame(now){
+    if (stopped) return;
+    if (!root.classList.contains("intro-on")) { stop(); return; }
+    raf = requestAnimationFrame(frame);
+    if (!last) { last = now; on.ready(); }
+    clock += Math.min(now - last, 50); last = now;   // a stalled frame pauses the scene instead of skipping part of it
+    var t = clock / 1000;
+    if (!handed && t >= T.handoff) {
+      // Face-on: swap the 3D logo for the 2D pieces in the same frame, so nothing jumps.
+      handed = true; update(T.handoff);
+      logo.forEach(function(o){ o.visible = false; });
+      renderer.render(scene, cam); on.handoff(); return;
+    }
+    update(t); renderer.render(scene, cam);
+  }
+
+  function measure(){
+    var r = intro.getBoundingClientRect(); W = r.width; H = r.height;
+    D = H / 2 / Math.tan(FOV * Math.PI / 360);   // at this distance one world unit is one CSS pixel
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(W, H, false);
+    cam.aspect = W / H; cam.near = D / 20; cam.far = D * 6; cam.updateProjectionMatrix();
+    return r;
+  }
+  function onResize(){
+    var r = intro.getBoundingClientRect();
+    if (Math.abs(r.width - W) > 2 || Math.abs(r.height - H) > 160) on.skip(); else measure();
+  }
+
+  function setup(){
+    cam = new THREE.PerspectiveCamera(FOV, 1, 1, 10);
+    var ir = measure();
+    function box(el){ var r = el.getBoundingClientRect(); return {x:r.left - ir.left - W / 2, y:H / 2 - (r.top - ir.top), w:r.width, h:r.height}; }
+    var win = box(intro.querySelector(".intro-win")), zb = box(markImg), wb = box(wordImg);
+    var page = {x:win.x + 2, y:win.y - 32, w:win.w - 4, h:win.h - 34};
+    a.win = win; a.page = page; a.zb = zb; a.wb = wb; a.s = zb.w / MW;
+
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.35;
+    renderer.localClippingEnabled = true;
+    scene = new THREE.Scene();
+    var pmrem = new THREE.PMREMGenerator(renderer), studioScene = studio();
+    envRT = pmrem.fromScene(studioScene, .03); pmrem.dispose(); dispose(studioScene);
+    scene.environment = envRT.texture;
+    scene.add(new THREE.HemisphereLight(0xA8C4FF, 0x0B1320, 1.4));
+    var key = new THREE.DirectionalLight(0xFFE0B0, 3.5); key.position.set(.6, .8, .9); scene.add(key);
+    var rim = new THREE.DirectionalLight(0x6AA6FF, 3); rim.position.set(-.9, .3, -.6); scene.add(rim);
+    a.light = new THREE.PointLight(0xFFC552, 0, 0, 1.2); scene.add(a.light);
+
+    var dot = canvasTex(128, 128, function(g){
+      var r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+      r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.22, "rgba(255,255,255,.55)"); r.addColorStop(.55, "rgba(255,255,255,.12)"); r.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+    });
+    function glow(color, w, h){
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({map:dot, color:color, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
+      scene.add(m); return m;
+    }
+
+    // Atmosphere: two soft beams far behind, a blue haze behind the logo, and dust in the light.
+    a.beams = [glow(0x4D7FC4, W * .38, H * 3), glow(0xFFC66B, W * .22, H * 2.6)];
+    a.beams[0].position.set(W * .32, H * .35, -900); a.beams[1].position.set(W * .55, H * .25, -1000);
+    a.haze = glow(0x2F5F9E, wb.w * 2.8, wb.w * 1.9); a.haze.position.set(wb.x + wb.w / 2, (zb.y + wb.y - wb.h) / 2, -220);
+    var n = W < 600 ? 140 : 260, dust = new THREE.BufferGeometry();
+    a.dustSeed = [];
+    for (var i = 0; i < n; i++) a.dustSeed.push([(Math.random() - .5) * W * 1.7, (Math.random() - .5) * H * 1.4, -900 + Math.random() * 1300, 8 + Math.random() * 18]);
+    dust.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    a.dust = new THREE.Points(dust, new THREE.PointsMaterial({map:dot, color:0xFFD9A0, size:9, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
+    a.dust.frustumCulled = false; scene.add(a.dust);
+
+    // The browser window: a smoked-glass page in a steel frame, 30px behind the logo.
+    var wg = new THREE.Group(), bottom = win.y - win.h; a.winGroup = wg; scene.add(wg);
+    a.steel = new THREE.MeshStandardMaterial({color:0xC9D6E8, emissive:0x2A3D57, emissiveIntensity:.6, metalness:.9, roughness:.25, transparent:true, opacity:0});
+    a.glass = new THREE.MeshStandardMaterial({color:0x1B3150, emissive:0x0C1A2C, metalness:.3, roughness:.18, transparent:true, opacity:0});
+    a.goldDot = new THREE.MeshStandardMaterial({color:0xF2B544, emissive:0xE9A823, emissiveIntensity:.8, metalness:.6, roughness:.3, transparent:true, opacity:0});
+    a.dimDot = new THREE.MeshStandardMaterial({color:0x8FA3BF, metalness:.8, roughness:.35, transparent:true, opacity:0});
+    add(wg, slab(rrect(win.x + 1, bottom + 1, win.w - 2, win.h - 2, 13), 4), a.glass, PZ);
+    var ring = rrect(win.x, bottom, win.w, win.h, 14); ring.holes.push(rrect(win.x + 2, bottom + 2, win.w - 4, win.h - 4, 12, new THREE.Path()));
+    add(wg, slab(ring, 12), a.steel, PZ + 3);
+    add(wg, new THREE.BoxGeometry(win.w - 4, 1.4, 1.4), a.steel, PZ + .8).position.set(win.x + win.w / 2, win.y - 30, PZ + .8);
+    [18, 32, 46].forEach(function(dx, j){
+      var c = add(wg, new THREE.CylinderGeometry(4, 4, 2, 24).rotateX(Math.PI / 2), j ? a.dimDot : a.goldDot, PZ + 1);
+      c.position.x = win.x + dx; c.position.y = win.y - 15;
+    });
+
+    // Layout blocks, rising out of the glass like a page taking shape. Blocks 6–8 sit on the hero panel (block 5).
+    a.clipBlocks = new THREE.Plane(new V3(1, 0, 0), 1e6);
+    a.blocks = BLOCKS.map(function(b, j){
+      var k = KIND[b[4]], w = b[2] / 100 * page.w, h = b[3] / 100 * page.h;
+      var mat = new THREE.MeshStandardMaterial({color:k[0], emissive:k[0], emissiveIntensity:.18, metalness:.3, roughness:.42, transparent:true, opacity:0, clippingPlanes:[a.clipBlocks]});
+      if (b[4] === "button") { mat.emissive.setHex(0xE9A823); mat.emissiveIntensity = .45; }
+      var m = add(scene, slab(rrect(0, -h / 2, w, h, b[4] === "button" ? h / 2 : b[4] === "hero" ? 8 : 5), k[1]), mat, 0);
+      m.position.set(page.x + b[0] / 100 * page.w, page.y - b[1] / 100 * page.h - h / 2, 0);
+      return {m:m, z:PZ + (j >= 5 && j <= 7 ? KIND.hero[1] : 0) + k[1], depth:k[1], delay:b[5]};
+    });
+
+    // The Z: two solid pieces with the logo on the face and gold on the bevels and sides.
+    a.clipLogo = new THREE.Plane(new V3(-1, 0, 0), -1e6);
+    a.clipSub = new THREE.Plane(new V3(-1, 0, 0), -1e6);
+    var markTex = imageTex(markImg), wordTex = imageTex(wordImg);
+    var face = new THREE.MeshStandardMaterial({map:markTex, emissive:0xFFFFFF, emissiveMap:markTex, emissiveIntensity:.7, metalness:.5, roughness:.3, clippingPlanes:[a.clipLogo]});
+    a.edge = new THREE.MeshStandardMaterial({color:0xF2B544, emissive:0xB36B00, emissiveIntensity:.6, metalness:1, roughness:.22, clippingPlanes:[a.clipLogo]});
+    var uv = {   // the face shows the logo image exactly where it is in media/zengers-mark.webp
+      generateTopUV:function(g, v, i1, i2, i3){ return [i1, i2, i3].map(function(i){ return new THREE.Vector2(v[i * 3] / MW, v[i * 3 + 1] / MH); }); },
+      generateSideWallUV:function(){ return [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()]; }
+    };
+    a.pieces = [[Z_TOP, 1], [Z_BOTTOM, -1]].map(function(p){
+      var pts = p[0].map(function(q){ return new THREE.Vector2(q[0], MH - q[1]); }), cx = 0, cy = 0;
+      pts.forEach(function(q){ cx += q.x / pts.length; cy += q.y / pts.length; });
+      var g = new THREE.ExtrudeGeometry(new THREE.Shape(pts), {depth:ZD, bevelEnabled:true, bevelThickness:6, bevelSize:4, bevelSegments:3, UVGenerator:uv});
+      g.translate(-cx, -cy, -ZD - 6);   // pivot at the piece's center, face at z = 0
+      var piv = new THREE.Group(); piv.add(new THREE.Mesh(g, [face, a.edge])); piv.scale.setScalar(a.s);
+      scene.add(piv); logo.push(piv);
+      return {g:piv, home:new V3(zb.x + cx * a.s, zb.y - zb.h + cy * a.s, 0), dir:p[1]};
+    });
+    var zGeo = new THREE.PlaneGeometry(zb.w, zb.h);
+    a.halo = plane(zGeo, markTex, zb.x + zb.w / 2, zb.y - zb.h / 2, -(ZD + 14) * a.s, {blending:THREE.AdditiveBlending, opacity:0, clippingPlanes:[a.clipLogo]});
+    a.overlay = plane(zGeo, markTex, zb.x + zb.w / 2, zb.y - zb.h / 2, .5, {opacity:0});
+    a.flare = glow(0xCFE4FF, win.w * 2.2, 5); a.flare.position.set(zb.x + zb.w / 2, zb.y - zb.h * .45, 8); logo.push(a.flare);
+
+    // ZENGERS and DIGITAL SERVICES: the real lettering, given thickness by cut-outs stacked behind it.
+    function word(v0, v1, top, h, depth, layers, clip){
+      var geo = new THREE.PlaneGeometry(wb.w, h), uvs = geo.attributes.uv, grp = new THREE.Group();
+      for (var j = 0; j < uvs.count; j++) uvs.setY(j, v0 + uvs.getY(j) * (v1 - v0));
+      grp.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:wordTex, transparent:true, toneMapped:false, depthWrite:false, clippingPlanes:[clip]})));
+      for (j = 1; j <= layers; j++) {
+        var m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:wordTex, alphaTest:.55, color:new THREE.Color(0x9A7430).lerp(new THREE.Color(0x14100A), j / layers), clippingPlanes:[clip]}));
+        m.position.z = -depth * j / layers; grp.add(m);
+      }
+      scene.add(grp); logo.push(grp);
+      return {g:grp, home:new V3(wb.x + wb.w / 2, top - h / 2, 0)};
+    }
+    var nameH = wb.h * .62, subH = wb.h * .38;
+    a.name = word(.38, 1, wb.y, nameH, Math.max(8, nameH * .3), 12, a.clipLogo);
+    a.sub = word(0, .38, wb.y - nameH, subH, Math.max(4, subH * .25), 4, a.clipSub);
+
+    // The gold sweep: a hot line, its glow, a sheet of light through the scene, and a lens streak.
+    var sw = new THREE.Group(), lineH = page.h * .86; a.sweep = sw; scene.add(sw);
+    sw.position.set(0, page.y - page.h / 2, 6);
+    a.sweepParts = [[glow(0xFFF3D6, 7, lineH * 1.1), 1], [glow(0xFFC24D, 150, lineH * 1.25), .7], [glow(0xFFC24D, 320, lineH * .95), .35], [glow(0xBFDCFF, win.w * 1.9, 7), .5]];
+    a.sweepParts[2][0].rotation.y = Math.PI / 2;   // the sheet runs through the scene, front to back
+    a.sweepParts.forEach(function(p){ sw.add(p[0]); });
+  }
+
+  function update(t){
+    var i, k, x;
+    canvas.style.opacity = out3(seg(t, 0, .5));
+    // Camera: a slow arc from high on the left to face-on; the dolly-in leads the turn.
+    k = inOut(seg(t, 0, T.cam));
+    var kd = out3(seg(t, 0, T.cam)), az = lerp(-.55, 0, k), el = lerp(.22, 0, k), dist = D * lerp(1.45, 1, kd), roll = lerp(-.05, 0, k);
+    var tx = lerp(W > H ? a.win.w * .1 : 0, 0, k), ty = lerp(a.win.h * .06, 0, k);   // on tall screens the window stays centered
+    cam.position.set(tx + dist * Math.sin(az) * Math.cos(el), ty + dist * Math.sin(el), dist * Math.cos(az) * Math.cos(el));
+    cam.up.set(Math.sin(roll), Math.cos(roll), 0); cam.lookAt(tx, ty, 0);
+
+    // Window and atmosphere.
+    k = out3(seg(t, .05, .6));
+    a.winGroup.position.z = -70 * (1 - k);
+    a.steel.opacity = k; a.glass.opacity = .7 * k; a.goldDot.opacity = k; a.dimDot.opacity = .5 * k;
+    a.dust.material.opacity = .8 * out3(seg(t, 0, 1));
+    a.beams[0].material.opacity = .16 * out3(seg(t, 0, 1.2)); a.beams[1].material.opacity = .08 * out3(seg(t, .2, 1.4));
+    a.beams[0].rotation.z = .42 + t * .02; a.beams[1].rotation.z = .5 - t * .015;
+    a.haze.material.opacity = .5 * out3(seg(t, 1.1, 2));
+    var pos = a.dust.geometry.attributes.position;
+    for (i = 0; i < a.dustSeed.length; i++) { var d = a.dustSeed[i]; pos.setXYZ(i, d[0] + Math.sin(t * .6 + i) * 6, d[1] + t * d[3], d[2]); }
+    pos.needsUpdate = true;
+
+    // Blocks rise, then the sweep clears them.
+    a.blocks.forEach(function(b){
+      var kb = seg(t, .3 + b.delay * 1.4, .8 + b.delay * 1.4);
+      b.m.scale.x = lerp(.2, 1, back(kb)); b.m.position.z = b.z - (1 - out3(kb)) * (b.depth + 18);
+      b.m.material.opacity = seg(kb, 0, .4); b.m.visible = t < T.sweep[1];
+    });
+    k = seg(t, T.sweep[0], T.sweep[1]); x = lerp(a.page.x - 10, a.page.x + a.page.w + 10, inOut(k));
+    var lit = k > 0 && k < 1, env = Math.min(1, k / .12, (1 - k) / .12);
+    a.sweep.visible = lit; a.sweep.position.x = x;
+    a.sweepParts.forEach(function(p){ p[0].material.opacity = p[1] * env; });
+    a.light.position.set(x, a.sweep.position.y, 80); a.light.intensity = lit ? 2600 * env : 0;
+    a.clipBlocks.constant = k <= 0 ? 1e6 : k >= 1 ? -1e6 : -x;   // blocks: keep what is right of the line
+    a.clipLogo.constant = k <= 0 ? -1e6 : k >= 1 ? 1e6 : x;     // logo: keep what is left of it
+    k = seg(t, T.sub[0], T.sub[1]);
+    a.clipSub.constant = k <= 0 ? -1e6 : k >= 1 ? 1e6 : lerp(a.wb.x - 4, a.wb.x + a.wb.w + 4, inOut(k));
+
+    // The Z pieces start apart along the diagonal, turned and floating in front of the glass, then slide together and
+    // lock; ZENGERS tips up into place. Then all depth flattens into the face-on logo.
+    var kz = inOut(seg(t, T.zCome[0], T.zCome[1])), kf = inOut(seg(t, T.flat[0], T.flat[1])), u = 1 - kz;
+    a.pieces.forEach(function(p){
+      p.g.position.set(p.home.x + p.dir * a.zb.w * .16 * u, p.home.y + p.dir * a.zb.h * .16 * u, 45 * u);
+      p.g.rotation.set(p.dir * .15 * u, -p.dir * .5 * u, 0);
+      p.g.scale.z = a.s * lerp(1, .04, kf);
+    });
+    k = inOut(seg(t, T.nameCome[0], T.nameCome[1]));
+    a.name.g.position.set(a.name.home.x, a.name.home.y - 14 * (1 - k), -18 * (1 - k));
+    a.name.g.rotation.x = -.45 * (1 - k); a.name.g.scale.z = lerp(1, .04, kf);
+    k = inOut(seg(t, T.subCome[0], T.subCome[1]));
+    a.sub.g.position.set(a.sub.home.x, a.sub.home.y - 8 * (1 - k), -12 * (1 - k)); a.sub.g.scale.z = lerp(1, .04, kf);
+    k = seg(t, T.lock - .02, T.lock + .45);
+    var flash = k > 0 && k < 1 ? Math.pow(1 - k, 2) * Math.min(1, k / .08) : 0;
+    a.edge.emissiveIntensity = .6 + 2.2 * flash;
+    a.flare.material.opacity = .75 * flash;
+    a.halo.material.opacity = (.9 * kz * kz + .9 * flash) * (1 - seg(t, 2.6, 2.9));
+    a.overlay.material.opacity = out3(seg(t, T.overlay[0], T.overlay[1]));
+  }
+
+  function stop(){
+    if (stopped) return; stopped = true;
+    cancelAnimationFrame(raf); window.removeEventListener("resize", onResize);
+    if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    if (!compiling) release();   // otherwise once the shaders finish compiling
+  }
+  function release(){
+    if (scene) dispose(scene);
+    textures.forEach(function(x){ x.dispose(); }); if (envRT) envRT.dispose();
+    renderer.dispose();
+  }
+
+  function studio(){   // a small light studio, used only for the reflections on the metal
+    var s = new THREE.Scene(), geo = new THREE.SphereGeometry(100, 32, 16), p = geo.attributes.position, col = [], c = new THREE.Color();
+    var top = new THREE.Color(0x24426B), mid = new THREE.Color(0x0E1822), low = new THREE.Color(0x05080C);
+    for (var i = 0; i < p.count; i++) { var y = p.getY(i) / 100; c.copy(mid).lerp(y > 0 ? top : low, Math.abs(y)); col.push(c.r, c.g, c.b); }
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    s.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({side:THREE.BackSide, vertexColors:true})));
+    [[0xFFD49A, 8, 60, 45, 50, 50, 30], [0x8FBAFF, 5, -70, 10, 20, 30, 60], [0xFFFFFF, 3, 0, 80, -10, 90, 10]].forEach(function(b){
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(b[5], b[6]), new THREE.MeshBasicMaterial({color:new THREE.Color(b[0]).multiplyScalar(b[1]), side:THREE.DoubleSide}));
+      m.position.set(b[2], b[3], b[4]); m.lookAt(0, 0, 0); s.add(m);
+    });
+    return s;
+  }
+  function dispose(obj){ obj.traverse(function(o){ if (o.geometry) o.geometry.dispose(); if (o.material) [].concat(o.material).forEach(function(m){ m.dispose(); }); }); }
+  function rrect(x, y, w, h, r, path){
+    path = path || new THREE.Shape(); r = Math.min(r, w / 2, h / 2);
+    path.moveTo(x + r, y); path.lineTo(x + w - r, y); path.quadraticCurveTo(x + w, y, x + w, y + r);
+    path.lineTo(x + w, y + h - r); path.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    path.lineTo(x + r, y + h); path.quadraticCurveTo(x, y + h, x, y + h - r);
+    path.lineTo(x, y + r); path.quadraticCurveTo(x, y, x + r, y);
+    return path;
+  }
+  function slab(shape, depth){ var g = new THREE.ExtrudeGeometry(shape, {depth:depth, bevelEnabled:false, curveSegments:6}); g.translate(0, 0, -depth); return g; }   // front face at z = 0
+  function add(parent, geo, mat, z){ var m = new THREE.Mesh(geo, mat); m.position.z = z; parent.add(m); return m; }
+  function plane(geo, tex, x, y, z, opts){
+    var o = {map:tex, transparent:true, toneMapped:false, depthWrite:false}; for (var k in opts) o[k] = opts[k];
+    var m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial(o)); m.position.set(x, y, z); scene.add(m); logo.push(m); return m;
+  }
+  function canvasTex(w, h, paint){ var c = document.createElement("canvas"); c.width = w; c.height = h; paint(c.getContext("2d")); var x = new THREE.CanvasTexture(c); textures.push(x); return x; }
+  function imageTex(img){ var x = new THREE.Texture(img); x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 4; x.needsUpdate = true; textures.push(x); return x; }
+  function seg(t, t0, t1){ return Math.min(1, Math.max(0, (t - t0) / (t1 - t0))); }
+  function lerp(p, q, k){ return p + (q - p) * k; }
+  function inOut(x){ return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+  function out3(x){ return 1 - Math.pow(1 - x, 3); }
+  function back(x){ return 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2); }
+};
+</script>
+
+<script>
+/* Opening logo animation: controller. Starts the 3D version when the <head> gate chose it, and plays the 2D version (CSS)
+   instead if the 3D one can't start. Either way it ends by moving the logo into the header and cleaning up. */
 (function(){
   var root = document.documentElement, intro = document.getElementById("intro");
   if (!intro) return;
   if (!root.classList.contains("intro-on")) { intro.parentNode.removeChild(intro); return; }
-  var EXIT_AT = 1540, FLY = 440;
-  var done = false, leaving = false, tExit = 0;
+  var EXIT_AT = 1540, FLY = 440;    // 2D version
+  var FLY_3D = 560;                 // 3D version; the scene's own timings are in T in the script above
+  var done = false, leaving = false, tExit = 0, scene3d = null;
   var headerLogo = document.querySelector(".site-header .logo-lockup");
 
   function finish(){
     if (done) return; done = true;
-    clearTimeout(tExit); clearTimeout(window.__zwdIntroSafe);
-    root.classList.remove("intro-on","intro-logo-hidden");
+    clearTimeout(tExit); clearTimeout(window.__zwdIntroWait); clearTimeout(window.__zwdIntroSafe);
+    if (scene3d) scene3d.stop();
+    root.classList.remove("intro-on","intro-logo-hidden","intro-3d","intro-handoff");
     document.removeEventListener("keydown", onKey, true);
     if (intro.parentNode) intro.parentNode.removeChild(intro);
     if (location.hash === "#intro" && history.replaceState) { /* keep #intro so a reload replays it */ }
@@ -793,8 +1131,28 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
   function skip(){ crossfade(160); }
   function onKey(e){ if (e.key === "Escape" || e.key === "Esc") skip(); }
 
+  function start3D(){
+    window.__zwdIntro2D = to2D;       // the <head> gate calls this if the scene isn't drawing within 1.5 seconds
+    var lib = window.__zwdThree;
+    if (!lib || !window.__zwdIntro3D) { to2D(); return; }
+    lib.then(function(THREE){
+      if (done || leaving || !root.classList.contains("intro-3d")) return;
+      try { scene3d = window.__zwdIntro3D(THREE, intro, {ready:function(){ clearTimeout(window.__zwdIntroWait); }, handoff:handoff, fail:to2D, skip:skip}); }
+      catch(e){ to2D(); }
+    }, to2D);
+  }
+  function to2D(){                    // the 3D version couldn't start in time: play the 2D one instead
+    if (done || leaving || !root.classList.contains("intro-3d")) return;
+    clearTimeout(window.__zwdIntroWait);
+    if (scene3d) { scene3d.stop(); scene3d = null; }
+    root.classList.remove("intro-3d");
+    tExit = setTimeout(exit, EXIT_AT);
+  }
+  function handoff(){ if (done || leaving) return; root.classList.add("intro-handoff"); exit(); }
+
   function exit(){
     if (done || leaving) return;
+    var fly = root.classList.contains("intro-3d") ? FLY_3D : FLY;
     var pieces = Array.prototype.slice.call(intro.querySelectorAll(".intro-logo img"));
     var ready = headerLogo && pieces.length === 3 && pieces.every(function(p){ return p.complete && p.naturalWidth > 0; });
     var hr = headerLogo ? headerLogo.getBoundingClientRect() : null;
@@ -814,20 +1172,20 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       var ease = "cubic-bezier(.65,0,.35,1)";
       moves.forEach(function(m){
         m.el.style.transformOrigin = "0 0";
-        last = m.el.animate([{transform:"translate(0,0) scale(1,1)"},{transform:"translate("+m.tx+"px,"+m.ty+"px) scale("+m.sx+","+m.sy+")"}], {duration:FLY, easing:ease, fill:"forwards"});
+        last = m.el.animate([{transform:"translate(0,0) scale(1,1)"},{transform:"translate("+m.tx+"px,"+m.ty+"px) scale("+m.sx+","+m.sy+")"}], {duration:fly, easing:ease, fill:"forwards"});
       });
-      [".intro-frame",".intro-blocks",".intro-line",".intro-skip"].forEach(function(sel){
+      [".intro-frame",".intro-blocks",".intro-line",".intro-skip",".intro-3d-canvas"].forEach(function(sel){
         var el = intro.querySelector(sel); if (el) { el.style.animation = "none"; el.animate([{opacity: sel === ".intro-blocks" || sel === ".intro-line" ? 0 : 1},{opacity:0}], {duration:200, easing:"ease", fill:"forwards"}); }
       });
-      intro.querySelector(".intro-bg").animate([{opacity:1},{opacity:1, offset:.3},{opacity:0}], {duration:FLY, easing:"ease-in-out", fill:"forwards"});
+      intro.querySelector(".intro-bg").animate([{opacity:1},{opacity:1, offset:.3},{opacity:0}], {duration:fly, easing:"ease-in-out", fill:"forwards"});
       var end = function(){ finish(); };
-      last.onfinish = end; last.oncancel = end; setTimeout(end, FLY + 200);
+      last.onfinish = end; last.oncancel = end; setTimeout(end, fly + 200);
     } catch(e){ leaving = false; crossfade(200); }
   }
 
   intro.addEventListener("click", skip);
   document.addEventListener("keydown", onKey, true);
-  tExit = setTimeout(exit, EXIT_AT);
+  if (root.classList.contains("intro-3d")) start3D(); else tExit = setTimeout(exit, EXIT_AT);
 })();
 </script>
 
