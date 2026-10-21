@@ -896,10 +896,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       scene.add(m); return m;
     }
 
-    // Atmosphere: two soft beams far behind, a blue haze behind the logo, and dust in the light.
-    a.beams = [glow(0x4D7FC4, W * .38, H * 3), glow(0xFFC66B, W * .22, H * 2.6)];
-    a.beams[0].position.set(W * .32, H * .35, -900); a.beams[1].position.set(W * .55, H * .25, -1000);
-    a.haze = glow(0x2F5F9E, wb.w * 2.8, wb.w * 1.9); a.haze.position.set(wb.x + wb.w / 2, (zb.y + wb.y - wb.h) / 2, -220);
+    // Atmosphere: dust in the light. (The background light beams and the haze behind the logo were removed
+    // on 2026-10-20: Safari drew them as speckled ovals.)
     var n = W < 600 ? 140 : 260, dust = new THREE.BufferGeometry();
     a.dustSeed = [];
     for (var i = 0; i < n; i++) a.dustSeed.push([(Math.random() - .5) * W * 1.7, (Math.random() - .5) * H * 1.4, -900 + Math.random() * 1300, 8 + Math.random() * 18]);
@@ -996,9 +994,6 @@ window.__zwdIntro3D = function(THREE, intro, on){
     a.winGroup.position.z = -70 * (1 - k);
     a.steel.opacity = k; a.glass.opacity = .7 * k; a.goldDot.opacity = k; a.dimDot.opacity = .5 * k;
     a.dust.material.opacity = .8 * out3(seg(t, 0, 1));
-    a.beams[0].material.opacity = .16 * out3(seg(t, 0, 1.2)); a.beams[1].material.opacity = .08 * out3(seg(t, .2, 1.4));
-    a.beams[0].rotation.z = .42 + t * .02; a.beams[1].rotation.z = .5 - t * .015;
-    a.haze.material.opacity = .5 * out3(seg(t, 1.1, 2));
     var pos = a.dust.geometry.attributes.position;
     for (i = 0; i < a.dustSeed.length; i++) { var d = a.dustSeed[i]; pos.setXYZ(i, d[0] + Math.sin(t * .6 + i) * 6, d[1] + t * d[3], d[2]); }
     pos.needsUpdate = true;
