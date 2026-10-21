@@ -433,23 +433,16 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     <div class="web-frame" id="web-frame" aria-hidden="true"></div>
     <div class="film-scrim"></div>
 
-    <div class="film-meter" aria-hidden="true">
-      <span id="meter-label">01 / 04</span>
-      <span class="meter-ticks"><i class="on"></i><i></i><i></i><i></i></span>
-    </div>
-
     <div class="film-copy">
       <div class="wrap">
         <!-- Opening screen -->
         <div class="beat hero-block" data-beat="hero">
           <p class="label hero-kicker">Websites for local businesses</p>
-          <h1 class="hero-title">A better website is where growth begins.</h1>
-          <p class="hero-sub">We build it, host it, and keep it up to date.</p>
+          <h1 class="hero-title">We build it. We manage it. You and your website get the clients.</h1>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#pricing">Let’s build your website <span class="arrow" aria-hidden="true">→</span></a>
             <a class="btn btn-ghost-dark" href="examples.html">See examples</a>
           </div>
-          <p class="scroll-hint label"><span></span>Scroll to watch it grow</p>
         </div>
 
         <!-- The four moments, layered over the film as live text -->
@@ -517,7 +510,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     <div class="section-head">
       <div>
         <p class="label">Why it matters</p>
-        <h2 class="section-title" id="benefits-title">Better design, easier decisions.</h2>
+        <h2 class="section-title" id="benefits-title">A great website turns visitors into loyal customers in seconds.</h2>
       </div>
       <p class="section-intro">Potential customers want to know who you are.</p>
     </div>
@@ -525,17 +518,17 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       <article class="benefit">
         <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 4 6 10v9c0 8.5 6 14.5 14 17 8-2.5 14-8.5 14-17v-9L20 4Z"/><path d="m13.5 20 4.5 4.5 8.5-9" stroke="#C98A1B" stroke-width="2.5"/></svg>
         <h3>Credibility</h3>
-        <p>A current, well-made website shows you’re open, established, and serious about your work.</p>
+        <p>A bad website, or no website, makes you look like you’re out of business. We keep yours looking sharp.</p>
       </article>
       <article class="benefit">
         <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 14h30"/><path d="M11 21h12M11 26h8" stroke="#C98A1B" stroke-width="2.5"/></svg>
         <h3>Easier navigation</h3>
-        <p>We make it easy for customers to see exactly what you do.</p>
+        <p>If a user can’t find your phone number or services in 5 seconds, they leave.</p>
       </article>
       <article class="benefit">
         <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><path d="M25 6a10 10 0 0 1 9 9" stroke="#C98A1B" stroke-width="2.5"/></svg>
         <h3>Call to action</h3>
-        <p>Tell customers what to do next so they know how to get started.</p>
+        <p>Good contact buttons make it really easy for customers to know how to contact you.</p>
       </article>
     </div>
     <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
@@ -1877,6 +1870,7 @@ var SITE = {
       el.style.visibility = o < 0.02 ? "hidden" : "visible";
       el.style.pointerEvents = o < 0.5 ? "none" : "auto";
     });
+    if (!meter) return;                // the stage meter was removed from the hero on 2026-10-20
     meter.style.opacity = (1 - ease(p, 0.80, 0.9)).toFixed(3);
     var stage = p < 0.36 ? 1 : p < 0.58 ? 2 : p < 0.79 ? 3 : 4;
     meterLabel.textContent = "0" + stage + " / 04";
