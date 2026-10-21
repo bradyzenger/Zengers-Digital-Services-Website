@@ -248,9 +248,9 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .section-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(40px,5.6vw,76px);line-height:.95}
 .section-intro{font-size:clamp(17px,1.5vw,19px);color:var(--muted);max-width:36em}
 @media (max-width:760px){.section-head{grid-template-columns:1fr}}
-/* Why it matters: the long headline runs full width, with the intro line under it. */
-#benefits .section-head{grid-template-columns:1fr;gap:18px}
-#benefits .section-title{font-size:clamp(36px,4.8vw,66px)}
+/* Services and Why it matters: the long headlines run full width, with the intro line under them. */
+#services .section-head,#benefits .section-head{grid-template-columns:1fr;gap:18px}
+#services .section-title,#benefits .section-title{font-size:clamp(36px,4.8vw,66px)}
 
 /* services: three numbered cards */
 .cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
@@ -473,34 +473,36 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     <div class="section-head">
       <div>
         <p class="label">Services</p>
-        <h2 class="section-title" id="services-title">What we build</h2>
+        <h2 class="section-title" id="services-title">We build it, host it, and keep it up to date.</h2>
       </div>
       <p class="section-intro">3 things every local business website needs.</p>
     </div>
     <div class="cards3">
       <article class="svc">
         <span class="svc-num" aria-hidden="true">1</span>
-        <h3>Design</h3>
+        <h3>We build it</h3>
         <ul class="ticks">
           <li>Your name, colors, photos, and services.</li>
           <li>Show visitors what you do, where you work, and how to reach you.</li>
+          <li>Easy to read on a phone.</li>
         </ul>
       </article>
       <article class="svc">
         <span class="svc-num" aria-hidden="true">2</span>
-        <h3>Mobile</h3>
+        <h3>We host it</h3>
         <ul class="ticks">
-          <li>Easy to read on a phone.</li>
-          <li>Comfortable to scroll and tap.</li>
+          <li>Hosting and security.</li>
+          <li>You don’t have to worry about tech.</li>
+          <li>No extra hosting fees.</li>
         </ul>
       </article>
       <article class="svc">
         <span class="svc-num" aria-hidden="true">3</span>
-        <h3>Contact</h3>
+        <h3>We keep it up to date</h3>
         <ul class="ticks">
-          <li>Tap to call.</li>
-          <li>Tap to email.</li>
-          <li>Make it easy for customers to reach you.</li>
+          <li>Your website will always look fresh.</li>
+          <li>Changes based on your subscription tier.</li>
+          <li>Cancel anytime after the 3&#8209;month minimum.</li>
         </ul>
       </article>
     </div>
