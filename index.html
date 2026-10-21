@@ -248,6 +248,9 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .section-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(40px,5.6vw,76px);line-height:.95}
 .section-intro{font-size:clamp(17px,1.5vw,19px);color:var(--muted);max-width:36em}
 @media (max-width:760px){.section-head{grid-template-columns:1fr}}
+/* Why it matters: the long headline runs full width, with the intro line under it. */
+#benefits .section-head{grid-template-columns:1fr;gap:18px}
+#benefits .section-title{font-size:clamp(36px,4.8vw,66px)}
 
 /* services: three numbered cards */
 .cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
@@ -528,7 +531,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       <article class="benefit">
         <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><path d="M25 6a10 10 0 0 1 9 9" stroke="#C98A1B" stroke-width="2.5"/></svg>
         <h3>Call to action</h3>
-        <p>Good contact buttons make it really easy for customers to know how to contact you.</p>
+        <p>A useful directory makes a client press BUY NOW.</p>
       </article>
     </div>
     <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
@@ -565,7 +568,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>Small text changes when you need them.</li>
           <li>Tap-to-call and tap-to-email buttons.</li>
         </ul>
-        <button class="btn btn-ghost-dark" type="button" data-plan="Starter" data-price="49">Buy Starter</button>
+        <button class="btn btn-ghost-dark" type="button" data-plan="Starter" data-price="49" aria-label="Buy now: Starter plan">Buy now</button>
       </article>
 
       <article class="plan plan-pro featured">
@@ -583,7 +586,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>Up to 5 pages.</li>
           <li>Scheduling and service-payment integration.</li>
         </ul>
-        <button class="btn btn-primary" type="button" data-plan="Pro" data-price="99">Buy Pro</button>
+        <button class="btn btn-primary" type="button" data-plan="Pro" data-price="99" aria-label="Buy now: Pro plan">Buy now</button>
       </article>
 
       <article class="plan plan-premier">
@@ -601,7 +604,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>Next-business-day updates.</li>
           <li>One new website post per month, such as a project update or blog post.</li>
         </ul>
-        <button class="btn btn-ghost-dark" type="button" data-plan="Premier" data-price="199">Buy Premier</button>
+        <button class="btn btn-ghost-dark" type="button" data-plan="Premier" data-price="199" aria-label="Buy now: Premier plan">Buy now</button>
       </article>
     </div>
 
