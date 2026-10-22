@@ -903,11 +903,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var rim = new THREE.DirectionalLight(0x6AA6FF, 3); rim.position.set(-.9, .3, -.6); scene.add(rim);
     a.light = new THREE.PointLight(0xFFC552, 0, 0, 1.2); scene.add(a.light);
 
-    var dot = canvasTex(128, 128, function(g){
-      var r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-      r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.22, "rgba(255,255,255,.55)"); r.addColorStop(.55, "rgba(255,255,255,.12)"); r.addColorStop(1, "rgba(255,255,255,0)");
-      g.fillStyle = r; g.fillRect(0, 0, 128, 128);
-    });
+    var dot = glowTex(128, function(u, v){ return ramp(Math.sqrt(u * u + v * v), [[0, 1], [.22, .55], [.55, .12], [1, 0]]); });
     function glow(color, w, h){
       var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({map:dot, color:color, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
       scene.add(m); return m;
@@ -1091,7 +1087,19 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var o = {map:tex, transparent:true, toneMapped:false, depthWrite:false}; for (var k in opts) o[k] = opts[k];
     var m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial(o)); m.position.set(x, y, z); scene.add(m); logo.push(m); return m;
   }
-  function canvasTex(w, h, paint){ var c = document.createElement("canvas"); c.width = w; c.height = h; paint(c.getContext("2d")); var x = new THREE.CanvasTexture(c); textures.push(x); return x; }
+  // Soft glows are computed pixel by pixel. Drawn as canvas gradients they come out dithered in Safari (tiny noise
+  // that turns into visible speckles once a glow is enlarged and added over the picture).
+  function glowTex(size, alpha){
+    var d = new Uint8Array(size * size * 4);
+    for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) {
+      var i = (y * size + x) * 4; d[i] = d[i + 1] = d[i + 2] = 255;
+      d[i + 3] = Math.round(255 * Math.max(0, Math.min(1, alpha((x + .5) / size * 2 - 1, (y + .5) / size * 2 - 1))));
+    }
+    var t = new THREE.DataTexture(d, size, size);
+    t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.needsUpdate = true;
+    textures.push(t); return t;
+  }
+  function ramp(r, stops){ for (var i = 1; i < stops.length; i++) if (r <= stops[i][0]) { var A = stops[i - 1], B = stops[i]; return A[1] + (B[1] - A[1]) * (r - A[0]) / (B[0] - A[0]); } return 0; }
   function imageTex(img){ var x = new THREE.Texture(img); x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 4; x.needsUpdate = true; textures.push(x); return x; }
   function seg(t, t0, t1){ return Math.min(1, Math.max(0, (t - t0) / (t1 - t0))); }
   function lerp(p, q, k){ return p + (q - p) * k; }
@@ -1499,7 +1507,8 @@ window.__zwdFilm3D = function(THREE, host, on){
     function rnd(){ seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; }
 
     // mist lying in the valleys (it thins out where the ground comes up to it)
-    var cloud = canvasTex(256, function(g){ var img = g.createImageData(256, 256); img.data.set(a.cloudPx); g.putImageData(img, 0, 0); });
+    var cloud = new THREE.DataTexture(new Uint8Array(a.cloudPx.buffer), 256, 256); textures.push(cloud);
+    cloud.magFilter = THREE.LinearFilter; cloud.minFilter = THREE.LinearMipmapLinearFilter; cloud.generateMipmaps = true; cloud.needsUpdate = true;
     cloud.wrapS = cloud.wrapT = THREE.RepeatWrapping; cloud.repeat.set(3, 3);
     a.mist = [mist(30, .4), mist(58, .2)];
     a.mistGeo = a.mistH = a.cloudPx = null;   // only needed while building
@@ -1527,12 +1536,9 @@ window.__zwdFilm3D = function(THREE, host, on){
       fragmentShader:"uniform vec3 uColor;varying float vF;void main(){gl_FragColor=vec4(uColor*pow(vF,2.4),1.0);}"}));
     a.core.frustumCulled = a.glow.frustumCulled = false;
     scene.add(a.core, a.glow);
-    var dot = canvasTex(128, function(g){ var r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-      r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.2, "rgba(255,255,255,.6)"); r.addColorStop(.5, "rgba(255,255,255,.14)"); r.addColorStop(1, "rgba(255,255,255,0)");
-      g.fillStyle = r; g.fillRect(0, 0, 128, 128); });
-    var star = canvasTex(128, function(g){ g.globalCompositeOperation = "lighter";
-      [[128, 6], [6, 128]].forEach(function(s){ var r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(1, "rgba(255,255,255,0)");
-        g.save(); g.translate(64, 64); g.scale(s[0] / 128, s[1] / 128); g.translate(-64, -64); g.fillStyle = r; g.fillRect(0, 0, 128, 128); g.restore(); }); });
+    var dot = glowTex(128, function(u, v){ return ramp(Math.sqrt(u * u + v * v), [[0, 1], [.2, .6], [.5, .14], [1, 0]]); });
+    var star = glowTex(128, function(u, v){ var k = 128 / 6;   // a thin horizontal and a thin vertical ray
+      return (1 - Math.min(1, Math.sqrt(u * u + v * v * k * k))) + (1 - Math.min(1, Math.sqrt(u * u * k * k + v * v))); });
     var dotGeo = new THREE.SphereGeometry(1.7, 12, 8), dotMat = new THREE.MeshBasicMaterial({color:0xFFE6AE, toneMapped:false, fog:false});
     a.dots = pts.map(function(p, n){
       var m = new THREE.Mesh(dotGeo, dotMat); m.position.copy(p);
@@ -1727,7 +1733,19 @@ window.__zwdFilm3D = function(THREE, host, on){
   function keys(p, K){ var i = 1; while (i < K.length - 1 && K[i][0] < p) i++; var A = K[i - 1], B = K[i]; return A[1] + (B[1] - A[1]) * seg(p, A[0], B[0]); }
   function pal(target, p, K){ var i = 1; while (i < K.length - 1 && K[i][0] < p) i++; var A = K[i - 1], B = K[i];
     return target.copy(tmpA.setHex(A[1])).lerp(tmpB.setHex(B[1]), seg(p, A[0], B[0])); }
-  function canvasTex(size, paint){ var c = document.createElement("canvas"); c.width = c.height = size; paint(c.getContext("2d")); var t = new THREE.CanvasTexture(c); textures.push(t); return t; }
+  // Soft glows are computed pixel by pixel. Drawn as canvas gradients they come out dithered in Safari (tiny noise
+  // that turns into visible speckles once a glow is enlarged and added over the picture).
+  function glowTex(size, alpha){
+    var d = new Uint8Array(size * size * 4);
+    for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) {
+      var i = (y * size + x) * 4; d[i] = d[i + 1] = d[i + 2] = 255;
+      d[i + 3] = Math.round(255 * Math.max(0, Math.min(1, alpha((x + .5) / size * 2 - 1, (y + .5) / size * 2 - 1))));
+    }
+    var t = new THREE.DataTexture(d, size, size);
+    t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.needsUpdate = true;
+    textures.push(t); return t;
+  }
+  function ramp(r, stops){ for (var i = 1; i < stops.length; i++) if (r <= stops[i][0]) { var A = stops[i - 1], B = stops[i]; return A[1] + (B[1] - A[1]) * (r - A[0]) / (B[0] - A[0]); } return 0; }
   function sprite(tex, color, op){ var s = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, color:color, transparent:true, opacity:op, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false, fog:false})); s.frustumCulled = false; return s; }
 };
 </script>
