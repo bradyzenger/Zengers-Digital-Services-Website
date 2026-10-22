@@ -276,13 +276,17 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 @media (max-width:860px){.cards3{grid-template-columns:1fr}}
 
 /* benefits */
-.benefits-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,36px)}
+.benefits-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,3vw,36px)}
 .benefit{padding-top:22px;border-top:3px solid var(--text);display:grid;gap:10px;align-content:start}
 .benefit h3{font-size:21px;font-weight:700;line-height:1.25}
 .benefit p{color:var(--muted)}
 .benefit svg{width:40px;height:40px;margin-bottom:6px}
 .fineprint{margin-top:clamp(36px,5vw,56px);max-width:44em;color:var(--muted);font-size:15.5px;padding-left:16px;border-left:2px solid var(--line)}
-@media (max-width:860px){.benefits-grid{grid-template-columns:1fr}}
+.benefits-notes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px 48px;margin-top:clamp(36px,5vw,56px)}
+.benefits-notes .fineprint{margin-top:0;flex:1 1 22em}
+.benefits-notes .fineprint-ai{max-width:32em;margin-left:auto}   /* the AI note sits at the bottom right */
+@media (max-width:1100px){.benefits-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.benefits-grid{grid-template-columns:1fr}}
 
 /* pricing */
 .pricing{background:var(--ink);color:#EEF1EE}
@@ -547,8 +551,16 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
         <h3>Call to action</h3>
         <p>A useful directory makes a client press BUY NOW.</p>
       </article>
+      <article class="benefit">
+        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="12" width="24" height="20" rx="4"/><path d="M20 12V7M5 19v7M35 19v7M15 27h10"/><circle cx="20" cy="5.5" r="1.5"/><circle cx="15" cy="20" r="2" stroke="#C98A1B" stroke-width="2.5"/><circle cx="25" cy="20" r="2" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <h3>No AI slop</h3>
+        <p>*Every design, page and idea is chosen, checked and approved by a real person.</p>
+      </article>
     </div>
-    <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
+    <div class="benefits-notes">
+      <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
+      <p class="fineprint fineprint-ai">*We use AI tools to speed up coding and first drafts. A person reviews and approves everything before it goes live.</p>
+    </div>
   </div>
 </section>
 
@@ -1240,8 +1252,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         rest.forEach(function(el){ var first = el.matches(".svc-num, svg"); up(el, first ? 0 : 140 + 60*(n++)); });
         units.push({ el: card, section: sec, isHead: false, played: false, run: function(){ show(rest); decode(h); } });
       });
-      var fine = sec.querySelector(".fineprint");
-      if (fine) { up(fine, 0); units.push({ el: fine, section: sec, isHead: false, played: false, run: function(){ show([fine]); } }); }
+      sec.querySelectorAll(".fineprint").forEach(function(fine){ up(fine, 0); units.push({ el: fine, section: sec, isHead: false, played: false, run: function(){ show([fine]); } }); });
     });
 
     /* ---- decode one heading ---- */
