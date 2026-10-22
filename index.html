@@ -1372,6 +1372,9 @@ window.__zwdFilm3D = function(THREE, host, on){
     [-1150,-800,300,360],[1050,-800,310,360],[170,400,78,170],[440,330,92,200],[-760,400,52,220],[-1050,620,72,300],[900,640,64,300]];   // the range around: x, z, height, spread
   var fine = Math.min(screen.width, screen.height) >= 700;   // computers and tablets get more detail than phones
   var GRID = fine ? 300 : 180, SEG = fine ? 1400 : 900, RS = 6;
+  // Sharpness: up to 4K (and a phone's full pixel ratio) first. If frames can't keep up, step down to 1440p, then 1080p,
+  // and stay there. Each step: [most pixels drawn, highest pixel ratio].
+  var SIZES = [[3840 * 2160, 3], [2560 * 1440, 2], [1920 * 1080, 1.5]], size = 0;
 
   var canvas = document.createElement("canvas"), renderer;
   canvas.className = "film-3d"; canvas.setAttribute("aria-hidden", "true");
@@ -1383,7 +1386,8 @@ window.__zwdFilm3D = function(THREE, host, on){
   } catch(e){ on.fail(); return null; }
 
   var api = {ready:false, render:render, resize:resize, stop:stop};
-  var stopped = false, shown = false, timer = 0, textures = [];
+  var stopped = false, shown = false, timer = 0, textures = [], gaps = [], lastDraw = 0, lastP = 0, steady = false;
+  var MAXD = Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE), gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
   var scene, cam, flareScene, flareCam, a = {}, lastD = 0, lastCrest = 0, tmpA = new THREE.Color(), tmpB = new THREE.Color();
   var perm = new Uint8Array(512);
   (function(){ var s = 20261021, i, j, t; for (i = 0; i < 256; i++) perm[i] = i;
@@ -1395,29 +1399,42 @@ window.__zwdFilm3D = function(THREE, host, on){
 
   /* ---- building, a few milliseconds at a time so the page (and the opening) never stalls ---- */
   function build(){
-    var N = GRID + 1, pos = new Float32Array(N * N * 3), row = 0, step = 0;
+    var N = GRID + 1, pos = new Float32Array(N * N * 3), tone = new Float32Array(N * N * 2), row = 0, cy = 0, q = 0, step = 0;
+    a.cloudPx = new Uint8ClampedArray(256 * 256 * 4);
+    a.mistGeo = new THREE.PlaneGeometry(2600, 2600, 48, 48); a.mistGeo.rotateX(-Math.PI / 2); a.mistGeo.translate(-150, 0, 150);
+    a.mistH = new Float32Array(a.mistGeo.attributes.position.count);
     var steps = [
-      function(){ var end = performance.now() + 6;
+      function(){ var end = performance.now() + 6;   // the ground, and the noise its colours use
         while (row < N && performance.now() < end) {
           var z = warp(row / GRID, -1300, 40, 1900);
-          for (var c = 0; c < N; c++) { var x = warp(c / GRID, -1350, -150, 1050), k = (row * N + c) * 3; pos[k] = x; pos[k + 1] = height(x, z); pos[k + 2] = z; }
+          for (var c = 0; c < N; c++) { var x = warp(c / GRID, -1350, -150, 1050), v = row * N + c, k = v * 3;
+            pos[k] = x; pos[k + 1] = height(x, z); pos[k + 2] = z; tone[v * 2] = fbm(x / 22, z / 22, 2); tone[v * 2 + 1] = fbm(x / 60, z / 60, 2); }
           row++;
         }
         return row >= N; },
-      function(){ landGeometry(N, pos); return true; },
+      function(){ var end = performance.now() + 6, d = a.cloudPx;   // the mist's cloud texture
+        for (; cy < 256 && performance.now() < end; cy++) for (var x = 0; x < 256; x++) {
+          var i = (cy * 256 + x) * 4; d[i] = d[i + 1] = d[i + 2] = 255; d[i + 3] = 255 * smooth(.38, .78, fbm(x / 64, cy / 64, 4, 4) * .5 + .5); }
+        return cy >= 256; },
+      function(){ var end = performance.now() + 6, mp = a.mistGeo.attributes.position;   // the ground under the mist
+        for (; q < mp.count && performance.now() < end; q++) a.mistH[q] = height(mp.getX(q), mp.getZ(q));
+        return q >= mp.count; },
+      function(){ landGeometry(N, pos, tone); return true; },
       function(){ setup(); return true; }
     ];
     (function next(){
       if (stopped) return;
       try { if (steps[step]()) step++; } catch(e){ fail(); return; }
       if (step < steps.length) { timer = setTimeout(next, 0); return; }
-      var go = function(){ if (stopped) return; textures.forEach(function(x){ renderer.initTexture(x); }); api.ready = true; resize(); on.ready(); };
+      var go = function(){ if (stopped) return; textures.forEach(function(x){ renderer.initTexture(x); }); api.ready = true;
+        if (covered()) size = SIZES.length - 1;   // hidden under the opening: draw small until it's gone, so the opening stays smooth
+        resize(); on.ready(); probe(); };
       if (renderer.extensions.has("KHR_parallel_shader_compile")) renderer.compileAsync(scene, cam).then(go); else { renderer.compile(scene, cam); go(); }
     })();
   }
   function fail(){ stop(); on.fail(); }
 
-  function landGeometry(N, pos){
+  function landGeometry(N, pos, tone){
     var idx = new Uint32Array(GRID * GRID * 6), k = 0;
     for (var r = 0; r < GRID; r++) for (var c = 0; c < GRID; c++) {
       var i = r * N + c;
@@ -1433,9 +1450,9 @@ window.__zwdFilm3D = function(THREE, host, on){
     var ROCK_A = new THREE.Color(0x262E3B), ROCK_B = new THREE.Color(0x48526A), LOW = new THREE.Color(0x161E22), SNOW = new THREE.Color(0xE2EAF4);
     for (var v = 0; v < N * N; v++) {
       var x = pos[v * 3], y = pos[v * 3 + 1], z = pos[v * 3 + 2], ny = nrm[v * 3 + 1];
-      c1.copy(ROCK_A).lerp(ROCK_B, fbm(x / 22, z / 22, 2) * .5 + .5);
+      c1.copy(ROCK_A).lerp(ROCK_B, tone[v * 2] * .5 + .5);
       c1.lerp(LOW, smooth(55, 15, y) * smooth(.6, .85, ny) * .8);
-      c1.lerp(SNOW, smooth(148, 185, y + fbm(x / 60, z / 60, 2) * 34) * smooth(.42, .66, ny));
+      c1.lerp(SNOW, smooth(148, 185, y + tone[v * 2 + 1] * 34) * smooth(.42, .66, ny));
       col[v * 3] = c1.r; col[v * 3 + 1] = c1.g; col[v * 3 + 2] = c1.b;
     }
     geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
@@ -1482,20 +1499,16 @@ window.__zwdFilm3D = function(THREE, host, on){
     function rnd(){ seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; }
 
     // mist lying in the valleys (it thins out where the ground comes up to it)
-    var cloud = canvasTex(256, function(g){
-      var img = g.createImageData(256, 256), d = img.data;
-      for (var q = 0; q < 256 * 256; q++) { var x = q % 256, y = (q / 256) | 0, n = fbm(x / 64, y / 64, 4, 4) * .5 + .5;
-        d[q * 4] = d[q * 4 + 1] = d[q * 4 + 2] = 255; d[q * 4 + 3] = 255 * smooth(.38, .78, n); }
-      g.putImageData(img, 0, 0);
-    });
+    var cloud = canvasTex(256, function(g){ var img = g.createImageData(256, 256); img.data.set(a.cloudPx); g.putImageData(img, 0, 0); });
     cloud.wrapS = cloud.wrapT = THREE.RepeatWrapping; cloud.repeat.set(3, 3);
     a.mist = [mist(30, .4), mist(58, .2)];
+    a.mistGeo = a.mistH = a.cloudPx = null;   // only needed while building
     function mist(y, op){
-      var M = 48, geo = new THREE.PlaneGeometry(2600, 2600, M, M); geo.rotateX(-Math.PI / 2); geo.translate(-150, y, 150);
+      var geo = a.mistGeo.clone(); geo.translate(0, y, 0);
       var p = geo.attributes.position, cols = new Float32Array(p.count * 4);
       for (var j = 0; j < p.count; j++) { var x = p.getX(j), z = p.getZ(j);
         cols[j * 4] = cols[j * 4 + 1] = cols[j * 4 + 2] = 1;
-        cols[j * 4 + 3] = clamp01((y - height(x, z) - 3) / 30) * smooth(1300, 900, Math.max(Math.abs(x + 150), Math.abs(z - 150))); }
+        cols[j * 4 + 3] = clamp01((y - a.mistH[j] - 3) / 30) * smooth(1300, 900, Math.max(Math.abs(x + 150), Math.abs(z - 150))); }
       geo.setAttribute("color", new THREE.BufferAttribute(cols, 4));
       var m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:cloud, transparent:true, opacity:op, depthWrite:false, vertexColors:true}));
       m.userData.op = op; scene.add(m); return m;
@@ -1610,16 +1623,44 @@ window.__zwdFilm3D = function(THREE, host, on){
 
   function render(p){
     if (!api.ready || stopped) return;
+    lastP = p;
     update(p);
     renderer.clear(); renderer.render(scene, cam);
     if (a.flareVis > .004) { renderer.clearDepth(); renderer.render(flareScene, flareCam); }
     if (!shown) { shown = true; canvas.classList.add("is-on"); }
+    pace();
   }
   function resize(){
     if (!api.ready) return;
-    var w = host.clientWidth || 1, h = host.clientHeight || 1;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(2.6e6 / (w * h))));
-    renderer.setSize(w, h, false);
+    var w = host.clientWidth || 1, h = host.clientHeight || 1, S = SIZES[size];
+    var pr = Math.min(window.devicePixelRatio || 1, S[1], Math.sqrt(S[0] / (w * h)), MAXD / w, MAXD / h);
+    renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
+    if (gl.drawingBufferWidth < canvas.width - 1) {   // the browser made a smaller picture than asked for: match it
+      renderer.setPixelRatio(pr * gl.drawingBufferWidth / canvas.width); renderer.setSize(w, h, false);
+    }
+  }
+  // Frames drawn back to back should come at least ~48 times a second. If the middle of 24 gaps is slower than that,
+  // this size is too much for the device: step down one size. Gaps over 100 ms are pauses in scrolling, not slow frames.
+  function pace(){
+    var t = performance.now(), gap = t - lastDraw;
+    lastDraw = t;
+    if (gap > 100 || size >= SIZES.length - 1) return;
+    gaps.push(gap);
+    if (gaps.length < 24) return;
+    gaps.sort(function(x, y){ return x - y; });
+    var slow = gaps[12] > 21;
+    gaps.length = 0;
+    if (!slow) { steady = true; return; }
+    size++; lastDraw = 0; steady = size >= SIZES.length - 1;   // at the smallest size there's nothing left to decide
+    resize(); render(lastP);
+  }
+  function covered(){ return document.documentElement.classList.contains("intro-on"); }
+  function probe(){   // once the picture shows: a short burst of frames to find a size this device keeps up with
+    if (stopped) return;
+    if (covered()) { timer = setTimeout(probe, 300); return; }
+    if (size && !steady) { size = 0; lastDraw = 0; resize(); }   // the opening is gone: back to the sharpest size, then check it
+    var n = 0;
+    (function step(){ if (stopped || steady || n++ > 90) return; render(lastP); requestAnimationFrame(step); })();
   }
   function stop(){
     if (stopped) return; stopped = true; clearTimeout(timer);
@@ -1918,7 +1959,7 @@ var SITE = {
   var ticks = doc.querySelectorAll(".meter-ticks i");
   var meterLabel = doc.getElementById("meter-label");
   var meter = doc.querySelector(".film-meter");
-  var STILL_WIDE = "media/film-summit-wide.webp", STILL_TALL = "media/film-summit-tall.webp";   // the 3D film's last shot
+  var STILL_WIDE = "media/film-summit-wide.webp", STILL_WIDE_4K = "media/film-summit-wide-4k.webp", STILL_TALL = "media/film-summit-tall.webp";   // the 3D film's last shot
 
   // [fade in start, fully in, start fade out, fully out]
   var RANGES = {
@@ -1938,7 +1979,9 @@ var SITE = {
   function useStill(){
     if (still) return;
     still = new Image(); still.alt = ""; still.decoding = "async";
-    still.src = (SITE.POSTER && pickVideoSrc()) ? SITE.POSTER : (tall() ? STILL_TALL : STILL_WIDE);
+    if (SITE.POSTER && pickVideoSrc()) still.src = SITE.POSTER;
+    else if (tall()) still.src = STILL_TALL;
+    else { still.sizes = "100vw"; still.srcset = STILL_WIDE + " 1920w, " + STILL_WIDE_4K + " 3840w"; still.src = STILL_WIDE; }   // big, sharp screens get the 4K one
     media.appendChild(still);
   }
 
