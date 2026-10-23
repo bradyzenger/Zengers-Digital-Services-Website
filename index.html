@@ -82,7 +82,7 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
   --header-h:64px;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--header-h) + 24px)}   /* menu links land below the sticky header */
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--paper);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img,video,canvas{max-width:100%;display:block}
@@ -264,6 +264,28 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 /* Services and Why it matters: the long headlines run full width, with the intro line under them. */
 #services .section-head,#benefits .section-head{grid-template-columns:1fr;gap:18px}
 #services .section-title,#benefits .section-title{font-size:clamp(36px,4.8vw,66px)}
+/* Why choose us: the two other ways on the outside, ours in the middle as a dark, gold-edged card (like the
+   recommended plan). On phones ours comes first. */
+#why-us .section-head{grid-template-columns:1fr;gap:18px}
+#why-us .section-title{font-size:clamp(36px,4.8vw,66px)}
+.compare{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:clamp(16px,2vw,24px);align-items:start;padding-top:14px}
+.cmp{display:grid;gap:18px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(24px,2.6vw,34px)}
+.cmp .label{color:var(--muted)}
+.cmp h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(30px,2.8vw,38px);line-height:1}
+.cmp-us{background:var(--ink);color:#EEF1EE;border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp) inset,0 24px 60px rgba(14,24,34,.22);margin-top:-14px}
+.cmp-us .label{color:var(--lamp)}
+.cmp-us .btn{justify-self:start;margin-top:6px}
+.cmp-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.cmp-list li{display:grid;grid-template-columns:22px 1fr;gap:12px;line-height:1.45}
+.cmp-list li::before{content:"";width:22px;height:22px;margin-top:1px;border-radius:50%;background:center/12px 12px no-repeat}
+.cmp-cons li{color:var(--muted)}
+.cmp-cons li::before{background-color:#E2E7E5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3.5 3.5l5 5M8.5 3.5l-5 5' fill='none' stroke='%235B6872' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.cmp-pros li{color:#E3E9EE}
+.cmp-pros li::before{background-color:rgba(242,181,68,.16);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.3l2.3 2.3 4.7-5' fill='none' stroke='%23F2B544' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.cmp-pros strong{color:#fff;font-weight:600}
+.cmp-notes{display:grid;gap:10px;margin-top:clamp(32px,4vw,48px)}
+.cmp-notes .fineprint{margin-top:0}
+@media (max-width:980px){.compare{grid-template-columns:1fr}.cmp-us{order:-1;margin-top:0}}
 
 /* services: three numbered cards */
 .cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
@@ -432,7 +454,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     <nav class="nav" id="site-nav" aria-label="Main">
       <a href="#services">Services</a>
       <a href="#benefits">Why it matters</a>
-      <a href="why-choose-us.html">Why choose us?</a>
+      <a href="#why-us">Why choose us?</a>
       <a href="#pricing">Pricing</a>
       <a href="examples.html">Examples</a>
       <a class="nav-contact" href="#contact">Contact us</a>
@@ -561,6 +583,67 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     <div class="benefits-notes">
       <p class="fineprint">No website can promise new business. A good one removes the reasons a customer would give up and call someone else.</p>
       <p class="fineprint fineprint-ai">*We use AI tools to speed up coding and first drafts. A person reviews and improves everything before it goes live.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WHY CHOOSE US ============================ -->
+<section class="block" id="why-us" aria-labelledby="why-us-title" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <p class="label">Why choose us</p>
+        <h2 class="section-title" id="why-us-title">Why choose us?</h2>
+      </div>
+      <p class="section-intro">How we compare with building your own site on GoDaddy, or hiring a typical web designer.</p>
+    </div>
+    <div class="compare">
+  <article class="cmp" aria-labelledby="c-godaddy">
+        <p class="label">Do it yourself</p>
+        <h3 id="c-godaddy">GoDaddy Website Builder</h3>
+        <ul class="cmp-list cmp-cons">
+          <li>Templates are basic and harder to customize deeply.</li>
+          <li>Websites aren’t fully custom, and many GoDaddy websites can look similar.</li>
+          <li>Potential AI slop: AI-written text and designs that can feel generic.</li>
+          <li>You have to manage the tech, even though GoDaddy hosts it.</li>
+          <li>Your website gets neglected if you don’t manage it.</li>
+          <li>Users and industry reviews say its SEO tools, for showing up on Google, are limited.</li>
+          <li>You can’t easily move your site’s code or structure to another hosting provider if you outgrow it.</li>
+        </ul>
+      </article>
+
+      <article class="cmp cmp-us" aria-labelledby="c-us">
+        <p class="label">Done for you</p>
+        <h3 id="c-us">ZENGERS Digital Services</h3>
+        <ul class="cmp-list cmp-pros">
+          <li><span><strong>Branded to you.</strong> Your name, colors, photos and services, so your site looks like your business.</span></li>
+          <li><span><strong>We build it, host it and keep it up to date.</strong> You don’t have to worry about tech.</span></li>
+          <li><span><strong>Your site stays fresh.</strong> We handle updates based on your plan, with next‑business‑day updates on Premier.</span></li>
+          <li><span><strong>Made by people.*</strong> Every design, page and idea is chosen, checked and approved by a real person.</span></li>
+          <li><span><strong>Easy to use on a phone,</strong> with tap‑to‑call and tap‑to‑email buttons.</span></li>
+          <li><span><strong>For local businesses in the Nashville area.</strong></span></li>
+          <li><span><strong>A father-and-son business.</strong> You deal directly with the family that builds your site, and you can ask us a question anytime.</span></li>
+          <li><span><strong>Clear monthly plans from $49,</strong> with no extra hosting fees. 3‑month minimum, then month‑to‑month. One-time builds by custom quote.</span></li>
+        </ul>
+        <a class="btn btn-primary" href="#pricing">See plans and pricing <span aria-hidden="true">→</span></a>
+      </article>
+
+      <article class="cmp" aria-labelledby="c-designers">
+        <p class="label">Hire it out</p>
+        <h3 id="c-designers">Many other web designers</h3>
+        <ul class="cmp-list cmp-cons">
+          <li>High costs and no flexible estimates.</li>
+          <li>Not fast.</li>
+          <li>Not specifically for local businesses in the Nashville area.</li>
+          <li>Usually not focused only on you.</li>
+          <li>You get less attention.</li>
+          <li>Less hands-on collaboration.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="cmp-notes">
+      <p class="fineprint">*We use AI tools to speed up coding and first drafts. A person reviews and improves everything before it goes live.</p>
+      <p class="fineprint">GoDaddy is a trademark of its owner. ZENGERS Digital Services isn’t affiliated with GoDaddy. The GoDaddy column is about its do-it-yourself Website Builder, based on published reviews as of October 2026.</p>
     </div>
   </div>
 </section>
@@ -799,7 +882,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
         <ul>
           <li><a href="#services">Services</a></li>
           <li><a href="#benefits">Why it matters</a></li>
-          <li><a href="why-choose-us.html">Why choose us?</a></li>
+          <li><a href="#why-us">Why choose us?</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="examples.html">Examples</a></li>
           <li><a href="#contact">Ask a question</a></li>
