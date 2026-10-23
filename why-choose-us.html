@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why Choose Us? · ZENGERS Digital Services</title>
+<meta name="description" content="How ZENGERS Digital Services compares with building your own site on GoDaddy, or hiring a typical web designer.">
+<!-- REVIEW BUILD: remove the next line when the site is approved for public launch. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#EEF1EE">
+<link rel="icon" type="image/png" href="media/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#0E1822; --dusk:#1B2B3A; --lamp:#F2B544; --lamp-text:#8A5A00; --paper:#EEF1EE; --card:#F8F9F6; --text:#15202A; --muted:#4F5D68; --mist:#AEBBC5; --line:#CCD4D2;
+  --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --gutter:clamp(16px,4vw,48px); --header-h:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth} @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--text);font:17px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance} p{margin:0}
+:focus-visible{outline:3px solid var(--lamp);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:var(--gutter)}
+.label{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--lamp);color:var(--ink);padding:10px 14px;border-radius:6px;font-weight:600;text-decoration:none}
+.skip:focus{top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.75em 1.35em;border-radius:999px;font:600 16px/1.2 var(--body);text-decoration:none;border:2px solid transparent;cursor:pointer}
+.btn-primary{background:var(--lamp);color:var(--ink)} .btn-primary:hover{background:#FFC65C}
+.btn-ghost{border-color:rgba(238,241,238,.4);color:#EEF1EE} .btn-ghost:hover{border-color:#EEF1EE}
+.site-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(238,241,238,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);box-shadow:0 6px 24px rgba(14,24,34,.12)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:var(--header-h)}
+.logo-lockup{height:44px;width:auto}
+.nav{display:flex;align-items:center;gap:28px}
+.nav a{text-decoration:none;font-size:15px;font-weight:500} .nav a:hover{color:var(--lamp-text)}
+.nav a[aria-current=page]{color:var(--lamp-text);text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+.nav .nav-contact{display:none}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:inherit;border-radius:8px;height:40px;padding:0 12px;font:500 14px var(--body);cursor:pointer}
+@media (max-width:1000px){
+  .menu-btn{display:inline-flex;align-items:center}
+  .nav{position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--paper);padding:8px var(--gutter) 16px;border-bottom:1px solid var(--line);display:none}
+  .nav.open{display:flex} .nav a{padding:12px 0;border-bottom:1px solid var(--line);font-size:17px}
+  .header-cta{display:none}
+  .nav .nav-contact{display:block}
+}
+@media (max-width:420px){.logo-lockup{height:36px}}
+
+.intro{padding-block:clamp(56px,8vw,104px) clamp(36px,5vw,64px)}
+.intro .label{color:var(--lamp-text);margin-bottom:14px}
+.intro h1{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(46px,7vw,96px);line-height:.92}
+.intro p{margin-top:18px;font-size:clamp(18px,1.7vw,21px);color:var(--muted);max-width:34em}
+
+/* The comparison: the two other ways on the outside, ours in the middle as a dark, gold-edged card (like the
+   recommended plan on the homepage). On phones ours comes first. */
+.compare{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:clamp(16px,2vw,24px);align-items:start}
+.col{display:grid;gap:18px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(24px,2.6vw,34px)}
+.col .label{color:var(--muted)}
+.col h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(30px,2.8vw,38px);line-height:1}
+.col-us{background:var(--ink);color:#EEF1EE;border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp) inset,0 24px 60px rgba(14,24,34,.22);margin-top:-14px}
+.col-us .label{color:var(--lamp)}
+.col-us .btn{justify-self:start;margin-top:6px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.list li{display:grid;grid-template-columns:22px 1fr;gap:12px;line-height:1.45}
+.list li::before{content:"";width:22px;height:22px;margin-top:1px;border-radius:50%;background:center/12px 12px no-repeat}
+.cons li{color:var(--muted)}
+.cons li::before{background-color:#E2E7E5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3.5 3.5l5 5M8.5 3.5l-5 5' fill='none' stroke='%235B6872' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.pros li{color:#E3E9EE}
+.pros li::before{background-color:rgba(242,181,68,.16);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.3l2.3 2.3 4.7-5' fill='none' stroke='%23F2B544' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.pros strong{color:#fff;font-weight:600}
+@media (max-width:980px){
+  .compare{grid-template-columns:1fr}
+  .col-us{order:-1;margin-top:0}
+}
+.notes{display:grid;gap:10px;margin-top:clamp(32px,4vw,48px);padding-bottom:clamp(64px,9vw,112px)}
+.notes p{max-width:52em;color:var(--muted);font-size:15px;padding-left:16px;border-left:2px solid var(--line)}
+
+.cta{background:var(--ink);color:#EEF1EE;padding-block:clamp(56px,8vw,96px)}
+.cta .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.cta h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5vw,64px);line-height:.95}
+.cta-actions{display:flex;flex-wrap:wrap;gap:12px}
+.site-footer{background:var(--card);border-top:1px solid var(--line);color:var(--muted);padding-block:40px calc(32px + env(safe-area-inset-bottom,0px));font-size:15px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+.site-footer a{text-decoration:none} .site-footer a:hover{color:var(--lamp-text)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html"><img class="logo-lockup" src="media/zengers-logo-horizontal.webp" width="561" height="112" alt="ZENGERS Digital Services home"></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <a href="index.html#services">Services</a>
+      <a href="index.html#benefits">Why it matters</a>
+      <a href="why-choose-us.html" aria-current="page">Why choose us?</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="examples.html">Examples</a>
+      <a class="nav-contact" href="index.html#contact">Contact us</a>
+    </nav>
+    <a class="btn btn-primary header-cta" href="index.html#contact">Contact us</a>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap intro">
+    <p class="label">Why choose us</p>
+    <h1>Why choose us?</h1>
+    <p>How we compare with building your own site on GoDaddy, or hiring a typical web designer.</p>
+  </div>
+
+  <div class="wrap compare">
+    <section class="col" aria-labelledby="c-godaddy">
+      <p class="label">Do it yourself</p>
+      <h2 id="c-godaddy">GoDaddy Website Builder</h2>
+      <ul class="list cons">
+        <li>Templates are basic and harder to customize deeply.</li>
+        <li>Websites aren’t fully custom, and many GoDaddy websites can look similar.</li>
+        <li>Potential AI slop: AI-written text and designs that can feel generic.</li>
+        <li>You have to manage the tech, even though GoDaddy hosts it.</li>
+        <li>Your website gets neglected if you don’t manage it.</li>
+        <li>Users and industry reviews say its SEO tools, for showing up on Google, are limited.</li>
+        <li>You can’t easily move your site’s code or structure to another hosting provider if you outgrow it.</li>
+      </ul>
+    </section>
+
+    <section class="col col-us" aria-labelledby="c-us">
+      <p class="label">Done for you</p>
+      <h2 id="c-us">ZENGERS Digital Services</h2>
+      <ul class="list pros">
+        <li><span><strong>Branded to you.</strong> Your name, colors, photos and services, so your site looks like your business.</span></li>
+        <li><span><strong>We build it, host it and keep it up to date.</strong> You don’t have to worry about tech.</span></li>
+        <li><span><strong>Your site stays fresh.</strong> We handle updates based on your plan, with next‑business‑day updates on Premier.</span></li>
+        <li><span><strong>Made by people.*</strong> Every design, page and idea is chosen, checked and approved by a real person.</span></li>
+        <li><span><strong>Easy to use on a phone,</strong> with tap‑to‑call and tap‑to‑email buttons.</span></li>
+        <li><span><strong>For local businesses in the Nashville area.</strong></span></li>
+        <li><span><strong>A father-and-son business.</strong> You deal directly with the family that builds your site, and you can ask us a question anytime.</span></li>
+        <li><span><strong>Clear monthly plans from $49,</strong> with no extra hosting fees. 3‑month minimum, then month‑to‑month. One-time builds by custom quote.</span></li>
+      </ul>
+      <a class="btn btn-primary" href="index.html#pricing">See plans and pricing <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="col" aria-labelledby="c-designers">
+      <p class="label">Hire it out</p>
+      <h2 id="c-designers">Many other web designers</h2>
+      <ul class="list cons">
+        <li>High costs and no flexible estimates.</li>
+        <li>Not fast.</li>
+        <li>Not specifically for local businesses in the Nashville area.</li>
+        <li>Usually not focused only on you.</li>
+        <li>You get less attention.</li>
+        <li>Less hands-on collaboration.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="wrap notes">
+    <p>*We use AI tools to speed up coding and first drafts. A person reviews and improves everything before it goes live.</p>
+    <p>GoDaddy is a trademark of its owner. ZENGERS Digital Services isn’t affiliated with GoDaddy. The GoDaddy column is about its do-it-yourself Website Builder, based on published reviews as of October 2026.</p>
+  </div>
+
+  <section class="cta" aria-labelledby="cta-title">
+    <div class="wrap">
+      <h2 id="cta-title">Let’s build your website.</h2>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="index.html#pricing">See plans <span aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="index.html#contact">Ask a question</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot">
+    <span>© <span id="year">2026</span> ZENGERS Digital Services · A division of ZENGERS Inc.</span>
+    <a href="index.html">Back to home</a>
+  </div>
+</footer>
+<script>
+(function(){
+  var y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
+  var b = document.querySelector(".menu-btn"), n = document.getElementById("site-nav");
+  b.addEventListener("click", function(){ var o = n.classList.toggle("open"); b.setAttribute("aria-expanded", o ? "true" : "false"); });
+  n.addEventListener("click", function(e){ if (e.target.tagName === "A") { n.classList.remove("open"); b.setAttribute("aria-expanded", "false"); } });
+})();
+</script>
+</body>
+</html>
