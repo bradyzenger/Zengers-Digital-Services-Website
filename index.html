@@ -408,6 +408,178 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 .footer-bottom{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13.5px}
 @media (max-width:760px){.footer-grid{grid-template-columns:1fr}}
 </style>
+<!-- Structured data for Google and other search tools: who we are, what we do, where, and the plans.
+     Keep it in step with the page: if a price, plan feature, service area or the site address changes, change it here too.
+     No phone number or email on purpose (site rule). -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://zengersdigital.com/#organization",
+      "name": "ZENGERS Digital Services",
+      "url": "https://zengersdigital.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://zengersdigital.com/media/zengers-logo.webp",
+        "width": 760,
+        "height": 446
+      },
+      "image": "https://zengersdigital.com/media/film-summit-wide.webp",
+      "description": "ZENGERS Digital Services builds clear, mobile-ready websites for local businesses, with an easy way for customers to reach you.",
+      "slogan": "We build it, host it, and keep it up to date.",
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "ZENGERS Inc."
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Nashville",
+        "containedInPlace": {
+          "@type": "State",
+          "name": "Tennessee"
+        }
+      },
+      "knowsAbout": [
+        "Website design",
+        "Website hosting",
+        "Website maintenance and updates",
+        "Mobile-friendly websites",
+        "Websites for local businesses"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "url": "https://zengersdigital.com/#contact",
+        "availableLanguage": "English"
+      },
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "name": "Starter plan",
+          "url": "https://zengersdigital.com/#pricing",
+          "price": "49",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "49",
+            "priceCurrency": "USD",
+            "unitCode": "MON",
+            "unitText": "per month"
+          },
+          "description": "Monthly subscription, billed each month. 3-month minimum, then month-to-month.",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Starter website plan",
+            "serviceType": "Website design, hosting and updates",
+            "description": "A single strong page that covers the essentials. One-page website. Branded to your business. Hosting and security. Small text changes when you need them. Tap-to-call and tap-to-email buttons.",
+            "provider": {
+              "@id": "https://zengersdigital.com/#organization"
+            },
+            "areaServed": {
+              "@type": "City",
+              "name": "Nashville",
+              "containedInPlace": {
+                "@type": "State",
+                "name": "Tennessee"
+              }
+            }
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro plan",
+          "url": "https://zengersdigital.com/#pricing",
+          "price": "99",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "99",
+            "priceCurrency": "USD",
+            "unitCode": "MON",
+            "unitText": "per month"
+          },
+          "description": "Monthly subscription, billed each month. 3-month minimum, then month-to-month.",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Pro website plan",
+            "serviceType": "Website design, hosting and updates",
+            "description": "More pages, plus online booking and payments. Everything in Starter. Up to 5 pages. Scheduling and service-payment integration.",
+            "provider": {
+              "@id": "https://zengersdigital.com/#organization"
+            },
+            "areaServed": {
+              "@type": "City",
+              "name": "Nashville",
+              "containedInPlace": {
+                "@type": "State",
+                "name": "Tennessee"
+              }
+            }
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Premier plan",
+          "url": "https://zengersdigital.com/#pricing",
+          "price": "199",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "199",
+            "priceCurrency": "USD",
+            "unitCode": "MON",
+            "unitText": "per month"
+          },
+          "description": "Monthly subscription, billed each month. 3-month minimum, then month-to-month.",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Premier website plan",
+            "serviceType": "Website design, hosting and updates",
+            "description": "More pages, faster updates, and something new every month. Everything in Pro. Up to 10 pages. Next-business-day updates. One new website post per month, such as a project update or blog post.",
+            "provider": {
+              "@id": "https://zengersdigital.com/#organization"
+            },
+            "areaServed": {
+              "@type": "City",
+              "name": "Nashville",
+              "containedInPlace": {
+                "@type": "State",
+                "name": "Tennessee"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://zengersdigital.com/#website",
+      "url": "https://zengersdigital.com/",
+      "name": "ZENGERS Digital Services",
+      "publisher": {
+        "@id": "https://zengersdigital.com/#organization"
+      },
+      "inLanguage": "en-US"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://zengersdigital.com/#webpage",
+      "url": "https://zengersdigital.com/",
+      "name": "ZENGERS Digital Services",
+      "isPartOf": {
+        "@id": "https://zengersdigital.com/#website"
+      },
+      "about": {
+        "@id": "https://zengersdigital.com/#organization"
+      },
+      "description": "ZENGERS Digital Services builds clear, mobile-ready websites for local businesses, with an easy way for customers to reach you.",
+      "inLanguage": "en-US"
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <!-- ============================ OPENING LOGO ANIMATION ============================
@@ -586,7 +758,8 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
   </div>
 </section>
 
-<!-- ============================ WHY CHOOSE US ============================ -->
+<!-- ============================ WHY CHOOSE US ============================
+     why-choose-us.html repeats this comparison as its own page for search engines. Change both together. -->
 <section class="block" id="why-us" aria-labelledby="why-us-title" style="padding-top:0">
   <div class="wrap">
     <div class="section-head">
