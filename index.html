@@ -340,6 +340,12 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .benefit h3{font-size:21px;font-weight:700;line-height:1.25}
 .benefit p{color:var(--muted)}
 .benefit svg{width:40px;height:40px;margin-bottom:6px}
+/* the four icons' moving parts (animated by the "Why it matters icons" script; at rest they look the same as before) */
+.ic *{transform-box:fill-box}
+.ic-tip{transform-origin:100% 0}
+.ic-phone,.ic-eye{transform-origin:50% 50%}
+.ic-ring{transform-box:view-box;transform-origin:24px 16px;vector-effect:non-scaling-stroke}   /* ripples spread from the arc's centre */
+.ic-head{transform-origin:50% 100%}
 .fineprint{margin-top:clamp(36px,5vw,56px);max-width:44em;color:var(--muted);font-size:15.5px;padding-left:16px;border-left:2px solid var(--line)}
 .benefits-notes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px 48px;margin-top:clamp(36px,5vw,56px)}
 .benefits-notes .fineprint{margin-top:0;flex:1 1 22em}
@@ -769,22 +775,22 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
     </div>
     <div class="benefits-grid">
       <article class="benefit">
-        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v29h29"/><path d="m11 27 7-7 5 4 10-11M27 13h6v6" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <svg class="ic ic-chart" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v29h29"/><g stroke="#C98A1B" stroke-width="2.5"><path class="ic-line" d="m11 27 7-7 5 4 10-11" pathLength="1"/><path class="ic-tip" d="M27 13h6v6"/></g></svg>
         <h3>Credibility</h3>
         <p>A bad website, or no website, makes you look like you’re out of business. We keep yours looking sharp.</p>
       </article>
       <article class="benefit">
-        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 14h30"/><path d="M11 21h12M11 26h8" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <svg class="ic ic-nav" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 14h30"/><path class="ic-bar" d="M5 14h30" stroke="#C98A1B" pathLength="1" opacity="0"/><g stroke="#C98A1B" stroke-width="2.5"><path class="ic-l1" d="M11 21h12" pathLength="1"/><path class="ic-l2" d="M11 26h8" pathLength="1"/></g></svg>
         <h3>Easier navigation</h3>
         <p>If a user can’t find your phone number or services in 5 seconds, they leave.</p>
       </article>
       <article class="benefit">
-        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><path d="M25 6a10 10 0 0 1 9 9" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <svg class="ic ic-call" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path class="ic-phone" d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><g stroke="#C98A1B" stroke-width="2.5"><path class="ic-wave" d="M25 6a10 10 0 0 1 9 9" pathLength="1"/><path class="ic-ring" d="M25 6a10 10 0 0 1 9 9" opacity="0"/><path class="ic-ring" d="M25 6a10 10 0 0 1 9 9" opacity="0"/></g></svg>
         <h3>Call to action</h3>
         <p>A useful directory makes a client press BUY NOW.</p>
       </article>
       <article class="benefit">
-        <svg viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="12" width="24" height="20" rx="4"/><path d="M20 12V7M5 19v7M35 19v7M15 27h10"/><circle cx="20" cy="5.5" r="1.5"/><circle cx="15" cy="20" r="2" stroke="#C98A1B" stroke-width="2.5"/><circle cx="25" cy="20" r="2" stroke="#C98A1B" stroke-width="2.5"/></svg>
+        <svg class="ic ic-bot" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><g class="ic-head"><rect x="8" y="12" width="24" height="20" rx="4"/><path d="M20 12V7M5 19v7M35 19v7M15 27h10"/><circle class="ic-bulb" cx="20" cy="5.5" r="1.5"/><g class="ic-eyes" stroke="#C98A1B" stroke-width="2.5"><circle class="ic-eye" cx="15" cy="20" r="2"/><circle class="ic-eye" cx="25" cy="20" r="2"/></g></g></svg>
         <h3>No AI slop</h3>
         <p>*Every design, page and idea is chosen, checked and approved by a real person.</p>
       </article>
@@ -2017,6 +2023,127 @@ window.__zwdIntro3D = function(THREE, intro, on){
   } catch(e){
     document.querySelectorAll(".lq-on").forEach(function(el){ el.classList.remove("lq-on"); });   // anything unexpected: plain text
   }
+})();
+</script>
+<script>
+/* Why it matters icons. While the section is on screen the icons take turns, one every 1.5 seconds, and each plays
+   again every 6 seconds: the chart line grows, the window reloads, the phone rings and sends its signal, and the robot
+   looks around (the first time, it powers up as well). Between turns, and with reduced motion, they rest exactly as drawn.
+   Tune: CYCLE_MS and STAGGER_MS. The moves themselves are in PLAY. */
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  try {
+    if (!window.IntersectionObserver || !Element.prototype.animate) return;
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var grid = document.querySelector("#benefits .benefits-grid"); if (!grid) return;
+    var CYCLE_MS = 6000, STAGGER_MS = 1500;
+    var GOLD = "#C98A1B", CLEAR = "rgba(201,138,27,0)", DASH = "1 1";
+
+    function all(svg, sel){ return [].slice.call(svg.querySelectorAll(sel)); }
+    // fill "backwards": a move's first frame holds through its delay. Moves that repeat on the same part use "none".
+    function move(el, frames, ms, delay, easing, fill){
+      if (el) el.animate(frames, { duration: ms, delay: delay || 0, easing: easing || "ease-in-out", fill: fill || "backwards" });
+    }
+    function shake(){ return [0, -14, 12, -11, 9, -6, 4, -2, 0].map(function(d, i, a){ return { transform: "rotate(" + d + "deg)", offset: i / (a.length - 1) }; }); }
+    function look(a){                                                     // left, hold, right, hold, back: shared by the eyes and the head
+      return [{ transform: a(0), offset: 0 }, { transform: a(-1), offset: .14 }, { transform: a(-1), offset: .38 },
+              { transform: a(1), offset: .52 }, { transform: a(1), offset: .76 }, { transform: a(0), offset: .9 }, { transform: a(0), offset: 1 }];
+    }
+
+    var PLAY = {
+      chart: function(svg){                                                // the line fades, grows from the bottom left, then the arrow tip pops on
+        move(svg.querySelector(".ic-line"), [
+          { strokeDasharray: DASH, strokeDashoffset: 0, opacity: 1, offset: 0 },
+          { strokeDasharray: DASH, strokeDashoffset: 0, opacity: 0, offset: .14 },
+          { strokeDasharray: DASH, strokeDashoffset: 1, opacity: 0, offset: .14 },
+          { strokeDasharray: DASH, strokeDashoffset: 1, opacity: 1, offset: .2, easing: "cubic-bezier(.6,0,.3,1)" },
+          { strokeDasharray: DASH, strokeDashoffset: 0, opacity: 1, offset: 1 }
+        ], 1300, 0, "linear");
+        move(svg.querySelector(".ic-tip"), [
+          { opacity: 1, transform: "scale(1)", offset: 0 },
+          { opacity: 0, transform: "scale(1)", offset: .12 },
+          { opacity: 0, transform: "scale(.3)", offset: .78 },
+          { opacity: 1, transform: "scale(1.2)", offset: .9 },
+          { opacity: 1, transform: "scale(1)", offset: 1 }
+        ], 1500, 0, "linear");
+      },
+      nav: function(svg){                                                  // the page clears, a loading bar crosses the top, the lines redraw
+        all(svg, ".ic-l1, .ic-l2").forEach(function(el, i){
+          move(el, [
+            { strokeDasharray: DASH, strokeDashoffset: 0, offset: 0 },
+            { strokeDasharray: DASH, strokeDashoffset: 1, offset: .22 },
+            { strokeDasharray: DASH, strokeDashoffset: 1, offset: .62 + i * .1 },
+            { strokeDasharray: DASH, strokeDashoffset: 0, offset: .9 + i * .1 },
+            { strokeDasharray: DASH, strokeDashoffset: 0, offset: 1 }
+          ], 1300, i * 60);
+        });
+        move(svg.querySelector(".ic-bar"), [
+          { strokeDasharray: DASH, strokeDashoffset: 1, opacity: 1, offset: 0 },
+          { strokeDasharray: DASH, strokeDashoffset: 1, opacity: 1, offset: .15 },
+          { strokeDasharray: DASH, strokeDashoffset: 0, opacity: 1, offset: .65 },
+          { strokeDasharray: DASH, strokeDashoffset: 0, opacity: 0, offset: 1 }
+        ], 1100, 120);
+      },
+      call: function(svg){                                                 // two rings: the phone shakes, the signal goes out and ripples away
+        var phone = svg.querySelector(".ic-phone");
+        move(phone, shake(), 560, 0, "linear", "none"); move(phone, shake(), 560, 760, "linear", "none");
+        move(svg.querySelector(".ic-wave"), [
+          { strokeDasharray: DASH, strokeDashoffset: 0, offset: 0 },
+          { strokeDasharray: DASH, strokeDashoffset: -1, offset: .16 },
+          { strokeDasharray: DASH, strokeDashoffset: 1, offset: .16 },
+          { strokeDasharray: DASH, strokeDashoffset: 0, offset: .4 },
+          { strokeDasharray: DASH, strokeDashoffset: 0, offset: 1 }
+        ], 1400);
+        all(svg, ".ic-ring").forEach(function(el, i){
+          move(el, [{ opacity: 0, transform: "scale(1)" }, { opacity: .85, transform: "scale(1.08)", offset: .15 }, { opacity: 0, transform: "scale(1.5)" }], 750, 200 + i * 700, "ease-out");
+        });
+      },
+      bot: function(svg, first){                                           // first time: antenna and eyes power up. Then: look left, look right, blink
+        var eyes = all(svg, ".ic-eye"), bulb = svg.querySelector(".ic-bulb"), t;
+        if (first) {
+          move(bulb, [{ fill: CLEAR }, { fill: GOLD }, { fill: CLEAR }, { fill: GOLD }, { fill: CLEAR }], 800, 0, "linear");
+          eyes.forEach(function(e){ move(e, [{ opacity: 1 }, { opacity: .15, offset: .1 }, { opacity: .9, offset: .35 }, { opacity: .25, offset: .5 }, { opacity: 1, offset: .8 }, { opacity: 1 }], 700, 300, "linear"); });
+          t = 1000;
+        } else {
+          move(bulb, [{ fill: CLEAR }, { fill: GOLD, offset: .3 }, { fill: CLEAR }], 600);
+          t = 250;
+        }
+        eyes.forEach(function(e){ move(e, [{ fill: CLEAR }, { fill: GOLD, offset: .08 }, { fill: GOLD, offset: .92 }, { fill: CLEAR }], 1900, t, "linear"); });
+        move(svg.querySelector(".ic-eyes"), look(function(k){ return "translate(" + (k * 2.5) + "px,0)"; }), 1900, t);
+        move(svg.querySelector(".ic-head"), look(function(k){ return "rotate(" + (k < 0 ? -5 : k > 0 ? 4 : 0) + "deg)"; }), 1900, t);
+        eyes.forEach(function(e){ move(e, [{ transform: "scaleY(1)" }, { transform: "scaleY(.12)", offset: .5 }, { transform: "scaleY(1)" }], 200, t + 1950); });
+      }
+    };
+
+    var icons = [["chart", ".ic-chart"], ["nav", ".ic-nav"], ["call", ".ic-call"], ["bot", ".ic-bot"]].map(function(x){
+      return { play: PLAY[x[0]], svg: grid.querySelector(x[1]), awake: false, timer: 0 };
+    }).filter(function(ic){ return ic.svg; });
+    var on = false, inView = false;
+    function revealed(svg){ return !root.classList.contains("fx-ready") || !svg.classList.contains("fx-up") || svg.classList.contains("fx-in"); }
+    function start(){
+      if (on) return; on = true;
+      icons.forEach(function(ic, i){
+        (function loop(delay){
+          ic.timer = setTimeout(function(){
+            if (!on) return;
+            if (!revealed(ic.svg)) { loop(250); return; }                  // wait for the card's fade-in
+            try { ic.play(ic.svg, !ic.awake); ic.awake = true; } catch(e){}
+            loop(CYCLE_MS);
+          }, delay);
+        })(500 + i * STAGGER_MS);
+      });
+    }
+    function stop(){
+      on = false;
+      icons.forEach(function(ic){
+        clearTimeout(ic.timer);
+        if (ic.svg.getAnimations) ic.svg.getAnimations({ subtree: true }).forEach(function(a){ a.cancel(); });   // back to rest
+      });
+    }
+    new IntersectionObserver(function(es){ inView = es[es.length - 1].isIntersecting; if (inView && !document.hidden) start(); else stop(); }, { threshold: .2 }).observe(grid);
+    document.addEventListener("visibilitychange", function(){ if (document.hidden) stop(); else if (inView) start(); });
+  } catch(e){}
 })();
 </script>
 
