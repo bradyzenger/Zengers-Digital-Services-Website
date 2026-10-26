@@ -206,6 +206,18 @@ html.fx-ready .fx-dc.fx-in{opacity:1;transition:opacity .16s ease}
 .fx-layer span{position:absolute;display:block;text-align:center;white-space:pre}
 .fx-layer span.fx-g{opacity:.55}                                    /* a character still decoding */
 
+/* ---------- text with weight (see the "Text with weight" script) ----------
+   While the effect runs, a block's real letters turn transparent (they keep their place and stay readable to
+   search engines and screen readers) and a canvas over the block draws the bending copy. */
+.lq-host{position:relative}
+.lq-canvas{position:absolute;z-index:3;display:none;max-width:none;pointer-events:none}
+.lq-on > .lq-canvas{display:block}
+.lq-on.lq-t,.lq-on .lq-t{-webkit-text-fill-color:transparent!important;text-decoration-color:transparent!important;text-shadow:none!important}
+.lq-on .lq-r{transition:none!important}                             /* bullets, icons and buttons ride along */
+.lq-on .lq-r::before{transform:translate(var(--lq-x,0px),var(--lq-y,0px))}
+.lq-on svg.lq-r,.lq-on .btn.lq-r,.lq-on button.lq-r{transform:translate(var(--lq-x,0px),var(--lq-y,0px))!important}
+@media print{.lq-canvas{display:none!important}.lq-on.lq-t,.lq-on .lq-t{-webkit-text-fill-color:currentColor!important}}
+
 /* ---------- the film (pinned scroll section) ---------- */
 .film{position:relative;height:460vh;background:var(--ink);color:#F4F6F3}
 @media (max-width:700px){.film{height:400vh}}
@@ -297,6 +309,30 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .ticks li{display:grid;grid-template-columns:18px 1fr;gap:10px;color:var(--muted);line-height:1.45}
 .ticks li::before{content:"";width:9px;height:9px;margin-top:7px;border:2px solid var(--lamp-text);border-radius:2px}
 @media (max-width:860px){.cards3{grid-template-columns:1fr}}
+
+/* services: Liquid Glass cards that slide over a floating binary field (the field is built by the "Binary field" script).
+   The glass: heavy backdrop blur, a fine semi-transparent inner border, and a glossy reflection whose position
+   (--gx, --gs) follows the card as it scrolls. Browsers without backdrop blur keep the plain card above. */
+#services{position:relative;overflow:hidden}
+.cards3{position:relative}
+.cards3 > .svc{position:relative;z-index:1}
+.bin-field{--bin-top:clamp(24px,5vw,60px);position:absolute;top:calc(-1 * var(--bin-top));bottom:-150px;left:50%;width:100vw;margin-left:-50vw;z-index:0;overflow:hidden;pointer-events:none;-webkit-user-select:none;user-select:none;
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 var(--bin-top),#000 calc(100% - 150px),transparent);mask-image:linear-gradient(to bottom,transparent,#000 var(--bin-top),#000 calc(100% - 150px),transparent)}
+.bin-layer{position:absolute;left:0;right:0;top:-40%;bottom:-40%;will-change:transform}
+.bin{position:absolute;font-family:var(--mono);font-weight:500;line-height:1;white-space:pre;letter-spacing:.06em;color:rgba(14,24,34,var(--a,.14));animation:bin-float var(--dur,9s) ease-in-out var(--del,0s) infinite alternate}
+.bin.gold{color:rgba(214,150,36,var(--a,.5))}
+@keyframes bin-float{from{transform:translate3d(-7px,-12px,0)}to{transform:translate3d(7px,12px,0)}}
+@media (prefers-reduced-motion:reduce){.bin{animation:none}}
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .svc{border:1px solid rgba(255,255,255,.75);
+    background:
+      radial-gradient(130% 70% at var(--gx,30%) -18%,rgba(255,255,255,.8),rgba(255,255,255,0) 58%),
+      linear-gradient(118deg,rgba(255,255,255,0) calc(var(--gs,40%) - 16%),rgba(255,255,255,.42) var(--gs,40%),rgba(255,255,255,0) calc(var(--gs,40%) + 13%)),
+      linear-gradient(160deg,rgba(255,255,255,.4),rgba(248,249,246,.12));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -20px 36px -26px rgba(14,24,34,.18),
+      0 0 0 1px rgba(14,24,34,.06),0 28px 56px -26px rgba(14,24,34,.34);
+    -webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%)}
+}
 
 /* benefits */
 .benefits-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,3vw,36px)}
@@ -1622,6 +1658,364 @@ window.__zwdIntro3D = function(THREE, intro, on){
     units.forEach(function(u){ io.observe(u.el); });
   } catch(e){
     root.classList.remove("fx-ready");   // anything unexpected: show the text as written
+  }
+})();
+</script>
+<script>
+/* Binary field behind the three Services cards: groups of 0s and 1s on three depth layers.
+   The layers scroll slower than the page (the far one slowest), so the glass cards slide over them,
+   and each group drifts gently on its own (CSS). The cards' glossy reflection follows their position on screen.
+   Decorative only: hidden from screen readers and clicks. With reduced motion everything stays still. */
+(function(){
+  "use strict";
+  try {
+    var grid = document.querySelector("#services .cards3"); if (!grid) return;
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var seed = 20261025;   // fixed seed: the same layout on every visit
+    function rnd(){ seed = (seed + 0x6D2B79F5) | 0; var t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+    // Per layer: groups, font size (px), opacity, share of gold groups, parallax (how much slower than the page).
+    var LAYERS = [
+      { n: 36, size: [12, 17], a: [.14, .24], gold: .12, k: .34 },
+      { n: 22, size: [19, 32], a: [.16, .27], gold: .22, k: .20 },
+      { n: 14, size: [48, 86], a: [.14, .22], gold: .45, k: .08 }
+    ];
+    var scale = Math.max(.55, Math.min(1, (window.innerWidth || 1100) / 1100));   // smaller digits on phones, where the cards cover most of the width
+    var field = document.createElement("div"); field.className = "bin-field"; field.setAttribute("aria-hidden", "true");
+    var layers = LAYERS.map(function(L){
+      var layer = document.createElement("div"); layer.className = "bin-layer";
+      for (var i = 0; i < L.n; i++) {
+        var b = document.createElement("span"), len = 1 + Math.floor(rnd() * 8), txt = "", gold = rnd() < L.gold, a = L.a[0] + rnd() * (L.a[1] - L.a[0]);
+        for (var j = 0; j < len; j++) txt += (j === 4 ? " " : "") + (rnd() < .5 ? "0" : "1");
+        b.className = gold ? "bin gold" : "bin"; b.textContent = txt;
+        b.style.left = (rnd() * 97).toFixed(2) + "%"; b.style.top = (rnd() * 98).toFixed(2) + "%";
+        b.style.fontSize = Math.round((L.size[0] + rnd() * (L.size[1] - L.size[0])) * scale) + "px";
+        b.style.setProperty("--a", (gold ? a * 3 : a).toFixed(3));
+        b.style.setProperty("--dur", (7 + rnd() * 8).toFixed(1) + "s"); b.style.setProperty("--del", (-rnd() * 15).toFixed(1) + "s");
+        layer.appendChild(b);
+      }
+      field.appendChild(layer); return { el: layer, k: L.k };
+    });
+    grid.insertBefore(field, grid.firstChild);
+    if (still) return;
+    var cards = [].slice.call(grid.querySelectorAll(".svc")), near = false, raf = 0;
+    function frame(){
+      raf = 0;
+      var r = grid.getBoundingClientRect(), vh = window.innerHeight || 1, c = r.top + r.height / 2 - vh / 2;
+      for (var i = 0; i < layers.length; i++) layers[i].el.style.transform = "translate3d(0," + (-c * layers[i].k).toFixed(1) + "px,0)";
+      cards.forEach(function(card){
+        var b = card.getBoundingClientRect(), p = Math.max(-.25, Math.min(1.25, (b.top + b.height / 2) / vh));   // 0 at the top of the screen, 1 at the bottom
+        card.style.setProperty("--gx", (82 - p * 64).toFixed(1) + "%"); card.style.setProperty("--gs", (18 + p * 64).toFixed(1) + "%");
+      });
+    }
+    function kick(){ if (near && !raf) raf = requestAnimationFrame(frame); }
+    new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; kick(); }, { rootMargin: "25% 0px" }).observe(grid);
+    window.addEventListener("scroll", kick, { passive: true }); window.addEventListener("resize", kick);
+  } catch(e){}
+})();
+</script>
+
+<script>
+/* Text with weight. When the page is scrolled fast, the text in the content sections bends, stretches and ripples a
+   little, as if it had mass, then springs back into its crisp shape when scrolling stops. Slow scrolling does nothing.
+   How: the real text never leaves the page, so search engines, screen readers and copy and paste are unaffected.
+   Each text block is copied once into a picture, word by word from the browser's own layout. While the effect runs,
+   WebGL draws that copy, distorted, into a canvas over the block, and the real letters turn transparent. At rest the
+   canvas goes away and the real text shows again. Pricing cards and the question form are left alone.
+   Off with reduced motion, on Data Saver or a slow connection, without WebGL, on software graphics, or opened from the folder.
+   Tune: V0 and V1 (scroll speed in px a second where it starts and where it is full), LAG, STRETCH, BEND and WAVE (px),
+   K and C (the spring that snaps it back). To see it frozen, type __zwdTextWeight.hold(1) in the browser console
+   (any strength from 0 to 1); __zwdTextWeight.hold(null) lets go. */
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  try {
+    if (!window.__zwd3dOK || !window.requestAnimationFrame || !window.IntersectionObserver || !window.MutationObserver || !window.ResizeObserver) return;
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!document.fonts || !document.fonts.check || !document.createRange || !document.createTreeWalker) return;
+
+    var V0 = 800, V1 = 4200;
+    var LAG = 4, STRETCH = .05, STRETCH_MAX = 11, BEND = .025, BEND_MAX = 7, WAVE = 1.7;
+    var K = 170, C = 15;
+    var PX = 14, PY = 36;                // room around each block for the bend and stretch (px)
+    var SETTLE_MS = 1100;                // after a block's reveal animation, or any change, wait this long before copying it
+    var BLOCKS = "#services .section-head, #services .svc, #benefits .section-head, #benefits .benefit, #benefits .benefits-notes, " +
+                 "#why-us .section-head, #why-us .cmp, #why-us .cmp-notes, #pricing .section-head, #contact .section-head, #contact .who";
+    var SKIP = "a.btn, button, input, textarea, select, svg, canvas, .fx-layer, [hidden]";
+    var RIDE = ".ticks li, .cmp-list li, svg, a.btn, button";
+
+    var glc = document.createElement("canvas");
+    var gl = glc.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false, powerPreference: "low-power" });
+    if (!gl) return;
+    var info = gl.getExtension("WEBGL_debug_renderer_info");
+    if (info && /swiftshader|llvmpipe|software|basic render/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) return;
+    var scratch = document.createElement("canvas"), sx = scratch.getContext("2d");
+    if (!sx) return;
+    var canSpace = "letterSpacing" in sx;
+
+    var VS = "attribute vec2 aPos; uniform vec2 uCanvas; uniform vec2 uPad; varying vec2 vP;" +
+      "void main(){ vP = aPos * uCanvas - uPad; gl_Position = vec4(aPos.x * 2.0 - 1.0, 1.0 - aPos.y * 2.0, 0.0, 1.0); }";
+    var FS = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n" +
+      "uniform sampler2D uTex; uniform vec2 uCanvas, uPad, uSize; uniform vec3 uK; uniform float uAmp, uDir, uT, uPhase, uWave; varying vec2 vP;" +
+      "void main(){" +
+      "  vec2 p = vP, n = clamp(p / uSize, 0.0, 1.0);" +
+      "  float a = uAmp * uDir, w = abs(uAmp);" +
+      "  float trail = uDir > 0.0 ? n.y : 1.0 - n.y;" +                                   // the leading edge holds, the trailing edge lags
+      "  float dy = a * (uK.z + uK.x * trail + uK.y * sin(3.14159 * n.x));" +                 // lag + stretch + bow
+      "  float dx = w * uWave * sin(p.y * 0.055 + uT * 7.0 + uPhase);" +                      // liquid ripple
+      "  dy += w * uWave * 0.5 * sin(p.x * 0.03 - uT * 5.0 + uPhase);" +
+      "  vec2 uv = (p - vec2(dx, dy) + uPad) / uCanvas;" +
+      "  float m = w * 1.6 / uCanvas.y;" +                                                    // a slight smear along the scroll
+      "  gl_FragColor = texture2D(uTex, uv) * 0.5 + texture2D(uTex, uv - vec2(0.0, m)) * 0.25 + texture2D(uTex, uv + vec2(0.0, m)) * 0.25;" +
+      "}";
+    function shader(type, src){ var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+    var prog = gl.createProgram();
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error("link");
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
+    var aPos = gl.getAttribLocation(prog, "aPos"); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    var U = {};
+    ["uTex", "uCanvas", "uPad", "uSize", "uK", "uAmp", "uDir", "uT", "uPhase", "uWave"].forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+    gl.uniform1i(U.uTex, 0); gl.uniform1f(U.uWave, WAVE);
+    gl.disable(gl.BLEND); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+
+    var blocks = [].slice.call(document.querySelectorAll(BLOCKS)).map(function(el, i){
+      return { el: el, phase: i * 1.7, near: false, tex: null, dirty: true, stamp: performance.now(), on: false, cv: null, cx: null, marks: [], riders: [], w: 0, h: 0, cw: 0, ch: 0, dpr: 1, bl: 0, bt: 0, ox: 0, oy: 0 };
+    });
+    if (!blocks.length) return;
+    var byEl = new Map(); blocks.forEach(function(b){ byEl.set(b.el, b); });
+    var dead = false;
+
+    /* ---- a block is ready once its reveal has finished and nothing has changed for a moment ---- */
+    function ready(b, now){
+      if (now - b.stamp < SETTLE_MS) return false;
+      return !(root.classList.contains("fx-ready") && b.el.querySelector(".fx-run, .fx-up:not(.fx-in), .fx-dc:not(.fx-in)"));
+    }
+
+    /* ---- copy a block's text into a texture, word by word at the positions the browser laid it out ---- */
+    var metrics = {};
+    function look(p, block){
+      var cs = getComputedStyle(p), see = /rgba\(.*,\s*0\)$/;
+      if (cs.visibility !== "visible" || (cs.webkitBackgroundClip || cs.backgroundClip) === "text") return null;
+      var fill = cs.webkitTextFillColor || cs.color;
+      if (see.test(fill) && !see.test(cs.color)) return null;                       // see-through letters: leave them as they are
+      if ((cs.fontVariationSettings && cs.fontVariationSettings !== "normal") || (cs.fontStretch && cs.fontStretch !== "100%" && cs.fontStretch !== "normal")) return null;
+      if (p.querySelector(SKIP)) return null;                                       // hiding these letters would hide a button inside too
+      var alpha = 1;
+      for (var e = p; e; e = e.parentElement) { alpha *= parseFloat(getComputedStyle(e).opacity); if (e === block) break; }
+      if (!(alpha > .02)) return null;
+      return { font: cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily, color: fill, alpha: alpha,
+               spacing: parseFloat(cs.letterSpacing) || 0, tt: cs.textTransform };
+    }
+    function fontBox(font){
+      sx.font = font; var m = sx.measureText("Hg"), a = m.fontBoundingBoxAscent, d = m.fontBoundingBoxDescent;
+      if (!(a > 0)) { var size = parseFloat((font.match(/([\d.]+)px/) || [0, 16])[1]); a = size * .8; d = size * .2; }
+      return { a: a, h: a + d };
+    }
+    function cased(s, tt, start){ return tt === "uppercase" ? s.toUpperCase() : tt === "lowercase" ? s.toLowerCase() : (tt === "capitalize" && start) ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+    function raster(b){
+      var el = b.el, was = b.on;
+      if (was) el.classList.remove("lq-on");
+      try {
+        var br = el.getBoundingClientRect();
+        if (br.width < 4 || br.height < 4) return false;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2), W = br.width + 2 * PX, H = br.height + 2 * PY;
+        if (W * H * dpr * dpr > 6e6) dpr = Math.max(1, Math.sqrt(6e6 / (W * H)));
+        // Line the canvas up with the screen's pixel grid, so the copy is as sharp as the real text.
+        var ox = (br.left * dpr - Math.floor(br.left * dpr)) / dpr, oy = (br.top * dpr - Math.floor(br.top * dpr)) / dpr;
+        var cw = Math.ceil((W + ox) * dpr), ch = Math.ceil((H + oy) * dpr);
+        scratch.width = cw; scratch.height = ch;
+        sx.setTransform(dpr, 0, 0, dpr, (PX + ox) * dpr, (PY + oy) * dpr); sx.textBaseline = "alphabetic";
+        var range = document.createRange(), styles = new Map(), marks = [];
+        var walk = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+          if (n.nodeType === 1) return n.matches(SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
+          return /\S/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        } });
+        for (var node = walk.nextNode(); node; node = walk.nextNode()) {
+          var p = node.parentElement, st = styles.get(p);
+          if (st === undefined) { st = look(p, el); styles.set(p, st); }
+          if (!st) continue;
+          if (!document.fonts.check(st.font)) return false;                         // web font not here yet: try again later
+          var m = metrics[st.font] || (metrics[st.font] = fontBox(st.font));
+          sx.font = st.font; sx.fillStyle = st.color; sx.globalAlpha = st.alpha;
+          if (canSpace) sx.letterSpacing = st.spacing + "px";
+          var text = node.nodeValue, re = /\S+/g, t;
+          while ((t = re.exec(text))) {
+            var start = t.index === 0 || /\s/.test(text.charAt(t.index - 1));
+            range.setStart(node, t.index); range.setEnd(node, t.index + t[0].length);
+            var rs = range.getClientRects();
+            if (rs.length === 1 && (canSpace || !st.spacing)) put(cased(t[0], st.tt, start), rs[0], br, m);
+            else for (var k = 0; k < t[0].length; k++) {                            // a word over two lines, or spacing this browser can't draw: letter by letter
+              range.setStart(node, t.index + k); range.setEnd(node, t.index + k + 1);
+              var r1 = range.getClientRects()[0];
+              if (r1 && r1.width) put(cased(t[0].charAt(k), st.tt, start && k === 0), r1, br, m);
+            }
+          }
+          if (marks.indexOf(p) < 0) marks.push(p);
+        }
+        var cs = getComputedStyle(el);
+        if (!b.tex) b.tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, b.tex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, scratch);
+        b.marks.forEach(function(e){ if (marks.indexOf(e) < 0) e.classList.remove("lq-t"); });
+        marks.forEach(function(e){ e.classList.add("lq-t"); });
+        // Bullets, icons and buttons aren't part of the copy; they ride along with the text instead.
+        var riders = [];
+        [].forEach.call(el.querySelectorAll(RIDE), function(r){
+          var rr = r.getBoundingClientRect(), li = r.tagName === "LI";
+          if (rr.width) riders.push({ el: r, x: rr.left - br.left + (li ? 10 : rr.width / 2), y: rr.top - br.top + (li ? 12 : rr.height / 2) });
+        });
+        b.riders.forEach(function(r){ if (!riders.some(function(n){ return n.el === r.el; })) r.el.classList.remove("lq-r"); });
+        riders.forEach(function(r){ r.el.classList.add("lq-r"); });
+        b.riders = riders;
+        b.marks = marks; b.w = br.width; b.h = br.height; b.cw = cw; b.ch = ch; b.dpr = dpr; b.dirty = false;
+        b.bl = parseFloat(cs.borderLeftWidth) || 0; b.bt = parseFloat(cs.borderTopWidth) || 0;   // the canvas sits inside the border
+        b.ox = ox; b.oy = oy;
+        return true;
+      } finally { if (was) el.classList.add("lq-on"); }
+    }
+    function put(s, r, br, m){ sx.fillText(s, r.left - br.left, r.top - br.top + (r.height - m.h) / 2 + m.a); }
+
+    /* ---- the canvas over a block, and drawing one frame into it ---- */
+    function fit(b){
+      if (!b.cv) {
+        b.cv = document.createElement("canvas"); b.cv.className = "lq-canvas"; b.cv.setAttribute("aria-hidden", "true"); b.cx = b.cv.getContext("2d");
+        if (getComputedStyle(b.el).position === "static") b.el.classList.add("lq-host");
+        b.el.appendChild(b.cv);
+      }
+      if (b.cv.width !== b.cw || b.cv.height !== b.ch) { b.cv.width = b.cw; b.cv.height = b.ch; }
+      var s = b.cv.style;
+      s.left = -(PX + b.bl + b.ox) + "px"; s.top = -(PY + b.bt + b.oy) + "px"; s.width = b.cw / b.dpr + "px"; s.height = b.ch / b.dpr + "px";
+    }
+    function render(b){
+      gl.viewport(0, glc.height - b.ch, b.cw, b.ch);
+      gl.bindTexture(gl.TEXTURE_2D, b.tex);
+      gl.uniform2f(U.uCanvas, b.cw / b.dpr, b.ch / b.dpr); gl.uniform2f(U.uPad, PX + b.ox, PY + b.oy); gl.uniform2f(U.uSize, b.w, b.h);
+      gl.uniform3f(U.uK, Math.min(STRETCH * b.h, STRETCH_MAX), Math.min(BEND * b.w, BEND_MAX), LAG);
+      gl.uniform1f(U.uAmp, amp); gl.uniform1f(U.uDir, dir); gl.uniform1f(U.uT, tw); gl.uniform1f(U.uPhase, b.phase);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      b.cx.globalCompositeOperation = "copy";
+      b.cx.drawImage(glc, 0, 0, b.cw, b.ch, 0, 0, b.cw, b.ch);
+      b.riders.forEach(function(r){ var d = shift(b, r.x, r.y); r.el.style.setProperty("--lq-x", d[0].toFixed(2) + "px"); r.el.style.setProperty("--lq-y", d[1].toFixed(2) + "px"); });
+    }
+    function shift(b, x, y){                                                         // the shader's displacement, for one point
+      var nx = Math.max(0, Math.min(1, x / b.w)), ny = Math.max(0, Math.min(1, y / b.h)), a = amp * dir, w = Math.abs(amp);
+      var dy = a * (LAG + Math.min(STRETCH * b.h, STRETCH_MAX) * (dir > 0 ? ny : 1 - ny) + Math.min(BEND * b.w, BEND_MAX) * Math.sin(Math.PI * nx));
+      return [w * WAVE * Math.sin(y * .055 + tw * 7 + b.phase), dy + w * WAVE * .5 * Math.sin(x * .03 - tw * 5 + b.phase)];
+    }
+    function setOn(b, on){ b.on = on; b.el.classList.toggle("lq-on", on); }
+    function allOff(){ blocks.forEach(function(b){ if (b.on) setOn(b, false); }); }
+
+    function draw(now){
+      var vh = window.innerHeight, list = [], copies = 0;
+      for (var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        if (!b.near) continue;
+        var r = b.el.getBoundingClientRect();
+        var ok = r.width > 0 && r.bottom > -PY && r.top < vh + PY && ready(b, now);
+        if (ok && (b.dirty || !b.tex || Math.abs(r.width - b.w) > 1 || Math.abs(r.height - b.h) > 1)) ok = copies++ < 1 && raster(b);   // at most one copy a frame
+        if (ok) list.push(b); else if (b.on) setOn(b, false);
+      }
+      if (!list.length) return;
+      var mw = 0, mh = 0;
+      list.forEach(function(b){ mw = Math.max(mw, b.cw); mh = Math.max(mh, b.ch); });
+      if (glc.width < mw || glc.height < mh) { glc.width = Math.max(glc.width, Math.ceil(mw / 256) * 256); glc.height = Math.max(glc.height, Math.ceil(mh / 256) * 256); }
+      list.forEach(function(b){ fit(b); render(b); if (!b.on) setOn(b, true); });   // drawn first, then shown: no blank frame
+    }
+
+    /* ---- scroll speed -> a spring that bends the text, then snaps it back ---- */
+    var yLast = window.scrollY, tLast = 0, lastScroll = 0, vS = 0, amp = 0, ampV = 0, dir = 1, tw = 0, running = false, active = false, hold = null;
+    function smooth(x){ x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+    function frame(now){
+      if (dead) return;
+      try {
+        var dt = tLast ? Math.min(Math.max((now - tLast) / 1000, 1 / 240), 1 / 20) : 1 / 60; tLast = now;
+        var y = window.scrollY, vi = (y - yLast) / dt; yLast = y;
+        vS += (vi - vS) * (1 - Math.exp(-dt * 14));
+        if (Math.abs(vS) > 60) dir = vS > 0 ? 1 : -1;
+        var target = smooth((Math.abs(vS) - V0) / (V1 - V0));
+        ampV += (K * (target - amp) - C * ampV) * dt; amp += ampV * dt;
+        if (hold !== null) { amp = hold; ampV = 0; }
+        tw += dt * (.6 + 2.4 * Math.abs(amp));
+        var want = hold !== null || (active ? !(target === 0 && Math.abs(amp) < .012 && Math.abs(ampV) < .08) : amp > .03);
+        if (want) draw(performance.now()); else if (active) allOff();
+        active = want;
+        if (active || now - lastScroll < 250 || Math.abs(vS) > 4 || Math.abs(amp) > .001 || Math.abs(ampV) > .001) requestAnimationFrame(frame);
+        else { running = false; tLast = 0; amp = ampV = vS = 0; }
+      } catch(e){ fail(e); }
+    }
+    function kick(){ if (!running && !dead) { running = true; yLast = window.scrollY; tLast = 0; requestAnimationFrame(frame); } }
+    function onScroll(){ lastScroll = performance.now(); kick(); }
+    function fail(e){ dead = true; allOff(); if (e && window.console) console.warn("Text with weight is off:", e); }
+
+    /* ---- keep copies fresh: changes, resizes, reveal animations; copy blocks near the screen in idle time ---- */
+    var pending = [], pumping = false;
+    var idle = window.requestIdleCallback || function(f){ return setTimeout(function(){ f({ timeRemaining: function(){ return 8; } }); }, 120); };
+    function queue(b){ if (pending.indexOf(b) < 0) pending.push(b); pump(); }
+    function pump(){
+      if (pumping || !pending.length || dead) return;
+      pumping = true;
+      idle(function(dl){
+        pumping = false;
+        try {
+          var now = performance.now();
+          while (pending.length && dl.timeRemaining() > 4) {
+            var b = pending.shift();
+            if (b.near && (b.dirty || !b.tex) && ready(b, now)) raster(b);
+          }
+        } catch(e){ fail(); return; }
+        if (pending.length) pump();
+      }, { timeout: 1500 });
+    }
+    function changed(b){
+      b.stamp = performance.now(); b.dirty = true;
+      if (b.on) setOn(b, false);
+      setTimeout(function(){ queue(b); }, SETTLE_MS + 60);
+    }
+    function own(rec){                                                               // our own class and canvas changes don't count
+      if (rec.type === "attributes") {
+        if (rec.target.classList && rec.target.classList.contains("lq-canvas")) return true;
+        var strip = function(s){ return (s || "").replace(/\blq-[\w-]+/g, "").replace(/\s+/g, " ").trim(); };
+        return strip(rec.oldValue) === strip(rec.target.getAttribute("class"));
+      }
+      if (rec.type === "childList") {
+        var all = [].slice.call(rec.addedNodes).concat([].slice.call(rec.removedNodes));
+        return all.length > 0 && all.every(function(n){ return n.nodeType === 1 && n.classList.contains("lq-canvas"); });
+      }
+      return false;
+    }
+    blocks.forEach(function(b){
+      new MutationObserver(function(recs){ if (!recs.every(own)) changed(b); })
+        .observe(b.el, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class"], attributeOldValue: true });
+    });
+    var ro = new ResizeObserver(function(es){ es.forEach(function(e){ var b = byEl.get(e.target); if (b) changed(b); }); });
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var b = byEl.get(e.target); if (!b) return;
+        b.near = e.isIntersecting;
+        if (b.near) queue(b);
+        else {                                                                       // far away: free its memory
+          if (b.on) setOn(b, false);
+          if (b.tex) { gl.deleteTexture(b.tex); b.tex = null; }
+          b.dirty = true; if (b.cv) { b.cv.width = 0; b.cv.height = 0; }
+        }
+      });
+    }, { rootMargin: "60% 0px" });
+    document.fonts.ready.then(function(){
+      if (dead) return;
+      blocks.forEach(function(b){ ro.observe(b.el); io.observe(b.el); });
+      window.addEventListener("scroll", onScroll, { passive: true });
+    });
+    glc.addEventListener("webglcontextlost", fail);
+    document.addEventListener("visibilitychange", function(){ if (document.hidden) { allOff(); active = false; amp = ampV = vS = 0; } });
+    window.__zwdTextWeight = {
+      hold: function(v){ hold = v == null ? null : Math.max(-1.2, Math.min(1.2, +v || 0)); kick(); },
+      state: function(){ return { on: !dead, running: running, active: active, strength: +amp.toFixed(3), speed: Math.round(vS), drawn: blocks.filter(function(b){ return b.on; }).length }; }
+    };
+  } catch(e){
+    document.querySelectorAll(".lq-on").forEach(function(el){ el.classList.remove("lq-on"); });   // anything unexpected: plain text
   }
 })();
 </script>
