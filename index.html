@@ -1812,20 +1812,23 @@ window.__zwdIntro3D = function(THREE, intro, on){
 </script>
 <script>
 /* Devices: Services, Why it matters and Why choose us? on three devices in a 3D room (Three.js, like the film).
-   Right after the mountain film a warm room appears by itself: a laptop on a short wood desk against a white wall in
-   amber light, close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. At the end
-   of each section the camera moves on by itself: along the desk to a desktop display (Why it matters), then into that
-   display and out to a phone floating on white (Why choose us?). At the end of that the phone turns to dust that drifts
-   off to the upper right, and the ordinary page carries on with The process. Scrolling up plays it all backwards.
+   Right after the mountain film a warm room appears: a laptop on a short wood desk against a white wall in amber light,
+   close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. After each section and a
+   short pause, the camera moves on: along the desk to a desktop display (Why it matters), then into that display and
+   out to a phone floating on white (Why choose us?). At the end of that the phone turns to dust that drifts off to the
+   upper right, and the ordinary page carries on with The process. Every move follows the scroll, so nothing can skip or
+   lag and scrolling up plays it all backwards; a move left partway finishes by itself, in the direction it was going.
    The pages on the screens are the real page (links, search engines, screen readers): each section is moved into a box
    that is fitted onto its 3D screen every frame. Without this script (reduced motion, Data Saver, slow connection, no
    WebGL 2, software graphics, opened from the folder) the three sections stay ordinary page sections.
-   Tune: DUR (seconds per move), INTRO/GAP/END (scroll room, in screen heights), FILL (how much of the window a screen
-   fills), the lights in "the room", and the dust in DUST_VS. The devices are look-alikes with no logos. */
+   Tune: ZONE and HOLD (scroll room, in screen heights), AUTO (seconds a move takes when it finishes by itself), FILL (how
+   much of the window a screen fills), the lights in "the room", and the dust in DUST_VS. The devices are look-alikes
+   with no logos. */
 (function(){
   "use strict";
-  var DUR = [1.5, 1.4, 1.8, 2.6];             // the room appears / along the desk / into the phone / to dust
-  var INTRO = .45, GAP = .6, END = .5;        // scroll room, in screen heights
+  var ZONE = [.8, 1, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / along the desk / into the phone / to dust
+  var HOLD = .6, TAIL = .15;                  // after each page, a pause before the next move; after the dust, before the page carries on
+  var AUTO = [1.2, 1.4, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
   var FOV = 28, T = Math.tan(FOV * Math.PI / 360);
   var IDS = ["services", "benefits", "why-us"];
@@ -2029,7 +2032,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     };
 
     // ---------- layout: where the camera stands for each device, and how much scrolling each part gets ----------
-    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], poses = {}, lastW = 0, lastH = 0;
+    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], poses = {}, lastW = 0, lastH = 0;
     function pose(mesh, w, h){
       mesh.updateWorldMatrix(true, false);
       var c = mesh.getWorldPosition(new V3()), q = mesh.getWorldQuaternion(new THREE.Quaternion());
@@ -2056,17 +2059,24 @@ window.__zwdIntro3D = function(THREE, intro, on){
         sc.el.style.borderRadius = sc.rad.map(function(x){ return (x * k).toFixed(1) + "px"; }).join(" ");
       });
       screens.forEach(function(sc, i){ len[i] = Math.max(0, sc.page.offsetHeight - sc.H); });
-      st[0] = INTRO * vpH; st[1] = st[0] + len[0] + GAP * vpH; st[2] = st[1] + len[1] + GAP * vpH;
-      P = st[2] + len[2] + END * vpH;
+      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the phone / Why choose us? / pause / dust / tail
+      var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; };
+      zones[0] = zone(0, 0); st[0] = zones[0][1];
+      zones[1] = zone(st[0] + len[0] + HOLD * vpH, 1); st[1] = zones[1][1];
+      zones[2] = zone(st[1] + len[1] + HOLD * vpH, 2); st[2] = zones[2][1];
+      zones[3] = zone(st[2] + len[2] + HOLD * vpH, 3);
+      P = zones[3][1] + TAIL * vpH;
       track.style.marginTop = -vpH + "px"; track.style.height = (vpH + P) + "px";
       renderer.shadowMap.needsUpdate = true; glKey = "";
       lastW = window.innerWidth; lastH = window.innerHeight;
     }
-    function targetAt(s){
-      if (s < 0) return 0;
-      if (s < st[0] + len[0] + .2 * GAP * vpH) return 1;
-      if (s < st[1] + len[1] + .2 * GAP * vpH) return 2;
-      if (s < st[2] + len[2] + .2 * END * vpH) return 3;
+    function curAt(s){                                    // where the sequence is at a scroll position: 0 film, 1 laptop, 2 display, 3 phone, 4 dust done
+      if (s <= 0) return 0;
+      for (var k = 0; k < 4; k++) {
+        var z = zones[k];
+        if (s < z[0]) return k;
+        if (s < z[1]) return k + (s - z[0]) / (z[1] - z[0]);
+      }
       return 4;
     }
 
@@ -2210,31 +2220,59 @@ window.__zwdIntro3D = function(THREE, intro, on){
       }
       veil.style.opacity = v.veil.toFixed(3);
     }
-    function tick(now){
+    function tick(now){                                   // what's on screen always follows the scroll position
       raf = 0;
       if (dead) return;
       try {
         var dt = last ? Math.min(.05, (now - last) / 1000) : 1 / 60;
-        var s = -track.getBoundingClientRect().top, tgt = targetAt(s), moving = false;
-        if (s < -vpH || s > P + vpH) cur = tgt;                       // out of sight: no need to animate
-        if (Math.abs(tgt - cur) > 1e-4) {
-          var dir = tgt > cur ? 1 : -1, seg = dir > 0 ? Math.floor(cur + 1e-6) : Math.ceil(cur - 1e-6) - 1;
-          cur += dir * dt / DUR[Math.max(0, Math.min(3, seg))];
-          if ((dir > 0 && cur > tgt) || (dir < 0 && cur < tgt)) cur = tgt;
-          moving = true;
-        } else cur = tgt;                                              // land exactly, or the last frame can stop a hair short
+        if (auto) {                                                     // a move finishing by itself
+          var t = Math.min(1, (now - auto.t0) / auto.d), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          window.scrollTo({ top: auto.y0 + (auto.y1 - auto.y0) * e, behavior: "instant" });
+          if (t >= 1) auto = null;
+        }
+        var s = -track.getBoundingClientRect().top;
+        cur = curAt(s);
         draw(s, now);
-        if (moving && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
-        var phoneUp = cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH;
-        if (moving || phoneUp) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
+        var going = !!auto || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating phone keeps bobbing
+        if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
+        if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
       } catch(e){ fail(e); }
     }
     function kick(){ if (!raf && !dead) raf = requestAnimationFrame(tick); }
 
+    // ---------- a move left partway finishes by itself, in the direction the visitor was going ----------
+    var auto = null, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, wheelAt = 0;
+    function cancelAuto(){ auto = null; }
+    function settle(){
+      if (auto || held || dead) return;
+      if (performance.now() - wheelAt < 150) { quiet = setTimeout(settle, 150); return; }   // trackpad momentum still coming
+      var s = -track.getBoundingClientRect().top;
+      for (var k = 0; k < 4; k++) {
+        var z = zones[k];
+        if (s > z[0] + 2 && s < z[1] - 2) {
+          var p = (s - z[0]) / (z[1] - z[0]), on = dirY > 0 ? p > .2 : p > .8, to = on ? z[1] : z[0];   // only nudged in (under a fifth of the move): settle back
+          auto = { y0: window.scrollY, y1: window.scrollY + (to - s), t0: performance.now(), d: Math.max(250, AUTO[k] * 1000 * Math.abs(to - s) / (z[1] - z[0])) };
+          kick(); return;
+        }
+      }
+    }
+    function onScroll(){
+      var y = window.scrollY;
+      if (!auto) { if (Math.abs(y - lastY) > .5) dirY = y > lastY ? 1 : -1; clearTimeout(quiet); quiet = setTimeout(settle, 160); }
+      lastY = y; kick();
+    }
+    window.addEventListener("wheel", function(){ wheelAt = performance.now(); cancelAuto(); }, { passive: true });
+    window.addEventListener("touchstart", function(){ held = true; cancelAuto(); }, { passive: true });
+    window.addEventListener("touchend", function(){ held = false; clearTimeout(quiet); quiet = setTimeout(settle, 220); }, { passive: true });
+    window.addEventListener("touchcancel", function(){ held = false; }, { passive: true });
+    window.addEventListener("mousedown", function(){ held = true; cancelAuto(); });
+    window.addEventListener("mouseup", function(){ held = false; clearTimeout(quiet); quiet = setTimeout(settle, 160); });
+    window.addEventListener("keydown", cancelAuto);
+
     // ---------- menu links, focus, resizing ----------
     function jump(i, push){
       var top = track.getBoundingClientRect().top + window.scrollY + st[i] + 1;
-      cur = i + 1; window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
+      cancelAuto(); window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
       if (push && history.pushState) history.pushState(null, "", "#" + IDS[i]);
     }
     document.addEventListener("click", function(e){
@@ -2252,7 +2290,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
           var sc = screens[i], y = 0, el = target;
           while (el && el !== sc.page) { y += el.offsetTop || 0; el = el.offsetParent; if (el === sc.el) break; }
           var top = track.getBoundingClientRect().top + window.scrollY + st[i] + Math.max(0, Math.min(len[i], y - sc.H * .35));
-          if (Math.abs(top - window.scrollY) > 2) { cur = i + 1; window.scrollTo({ top: top, behavior: "instant" }); }
+          if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); window.scrollTo({ top: top, behavior: "instant" }); }
           sc.el.scrollTop = 0; sc.el.scrollLeft = 0; glKey = ""; kick();
         }
       });
@@ -2270,21 +2308,21 @@ window.__zwdIntro3D = function(THREE, intro, on){
       }, 180);
     });
     canvas.addEventListener("webglcontextlost", function(e){ e.preventDefault(); fail(new Error("WebGL context lost")); });
-    window.addEventListener("scroll", kick, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) kick(); }, { rootMargin: "50% 0px" }).observe(track);
 
     layout();
     if (below) window.scrollTo({ top: after.getBoundingClientRect().top + window.scrollY - keepY, behavior: "instant" });   // opened further down: stay put
     var h0 = IDS.indexOf(location.hash.slice(1));
     if (h0 >= 0) jump(h0, false);
-    else { cur = targetAt(-track.getBoundingClientRect().top); }
+    cur = curAt(-track.getBoundingClientRect().top);
     window.addEventListener("load", function(){ var i = IDS.indexOf(location.hash.slice(1)); if (i >= 0) jump(i, false); });
     kick();
     // Get the scenes ready ahead of time, so the room's first frame doesn't stutter: compile in the background, then draw it once unseen.
     (renderer.compileAsync ? renderer.compileAsync(room, cam).then(function(){ return renderer.compileAsync(studio, cam); }).then(function(){ return renderer.compileAsync(dustScene, dustCam); }) : Promise.resolve())
       .then(function(){ (window.requestIdleCallback || setTimeout)(function(){ if (dead || cur > 0) return; setPose(poses.I); renderer.render(room, cam); glKey = ""; }); })
       .catch(function(){});
-    window.__zwdDevices = { state: function(){ return { cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
+    window.__zwdDevices = { state: function(){ return { cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
   }
 })();
 </script>
