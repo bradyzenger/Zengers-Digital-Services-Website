@@ -1815,7 +1815,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
    Right after the mountain film a warm room appears: a laptop on a short wood desk against a white wall in amber light,
    close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. After each section and a
    short pause, the camera moves on: along the desk to a desktop display (Why it matters), then into that display and
-   out to a phone floating on white (Why choose us?). At the end of that the phone turns to dust that drifts off to the
+   out to a tablet floating on white (Why choose us?). At the end of that the tablet turns to dust that drifts off to the
    upper right, and the ordinary page carries on with The process. Every move follows the scroll, so nothing can skip or
    lag and scrolling up plays it all backwards; a move left partway finishes by itself, in the direction it was going.
    The pages on the screens are the real page (links, search engines, screen readers): each section is moved into a box
@@ -1826,7 +1826,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
    with no logos. */
 (function(){
   "use strict";
-  var ZONE = [.8, 1, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / along the desk / into the phone / to dust
+  var ZONE = [.8, 1, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / along the desk / into the tablet / to dust
   var HOLD = .6, TAIL = .15;                  // after each page, a pause before the next move; after the dust, before the page carries on
   var AUTO = [1.2, 1.4, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
@@ -1908,17 +1908,11 @@ window.__zwdIntro3D = function(THREE, intro, on){
       for (var j = 0; j < 9000; j++) { x.fillStyle = "rgba(30,16,6," + (rnd() * .12).toFixed(3) + ")"; x.fillRect(rnd() * 1024, rnd() * 512, 1 + rnd() * 3, 1); }
       var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); return t;
     }
-    function plasterTex(){                                // the faintest texture, so the wall isn't plastic
-      var c = document.createElement("canvas"); c.width = c.height = 256; var x = c.getContext("2d");
-      x.fillStyle = "#F1EDE6"; x.fillRect(0, 0, 256, 256);
-      for (var i = 0; i < 5000; i++) { var v = rnd(); x.fillStyle = v < .5 ? "rgba(120,104,86,.05)" : "rgba(255,255,255,.08)"; x.fillRect(rnd() * 256, rnd() * 256, 1 + rnd() * 2, 1 + rnd() * 2); }
-      var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(9, 5); return t;
-    }
 
     // ---------- the room: a short wood desk against a white wall, in warm amber light ----------
     var room = new THREE.Scene(); room.background = new THREE.Color(0xE6DED3);
     room.environment = envMap([[[6, 3.3, 1.3], 3, 2, [-3.2, 2.3, 1.8]], [[1.5, 1.42, 1.3], 4, 1.6, [3.4, 2, 2.6]], [[.9, .84, .76], 6, 3, [0, 3, 0]]], 0x9E9182);
-    var wall = new THREE.Mesh(new THREE.PlaneGeometry(7, 4), new THREE.MeshStandardMaterial({ color: 0xF3EFE8, roughness: .94, map: plasterTex() }));
+    var wall = new THREE.Mesh(new THREE.PlaneGeometry(7, 4), new THREE.MeshStandardMaterial({ color: 0xF1EDE6, roughness: .94 }));
     wall.position.set(.4, 1.2, -.55); wall.receiveShadow = true; room.add(wall);
     var desk = new THREE.Mesh(new THREE.BoxGeometry(2.2, .036, .8), new THREE.MeshPhysicalMaterial({ map: woodTex(), roughness: .5, clearcoat: .3, clearcoatRoughness: .45 }));
     desk.position.set(.42, -.018, -.15); desk.receiveShadow = true; desk.castShadow = true; room.add(desk);
@@ -1965,19 +1959,19 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var arm = new THREE.Mesh(new THREE.BoxGeometry(.165, .3, .01), alu); arm.position.set(0, .155, -.1); arm.rotation.x = .22; arm.castShadow = true; sd.add(arm);
     room.updateMatrixWorld(true);
 
-    // ---------- the studio: a phone floating on white ----------
+    // ---------- the studio: a tablet floating on white ----------
     var studio = new THREE.Scene(); studio.background = new THREE.Color(0xF3F2EE);
     studio.environment = envMap([[[3, 3, 3], 4, 3, [-2.5, 2, 3]], [[2, 2, 2.1], 4, 3, [3, 1, 3]], [[1.2, 1.2, 1.2], 6, 3, [0, 3, 0]]], 0xD9D8D4);
     studio.add(new THREE.HemisphereLight(0xFFFFFF, 0xDDDAD4, 1.2));
     var sun = new THREE.DirectionalLight(0xFFF6EA, 1.6); sun.position.set(-1, 1.5, 2); studio.add(sun);
-    var PH = { w: .0715, h: .1476, t: .0078, dw: .0655, dh: .1418, r: .0115, dr: .0095 };
-    var phone = new THREE.Group(); studio.add(phone);
-    var pBody = slab(PH.w, PH.h, PH.t, PH.r, .0013, new THREE.MeshPhysicalMaterial({ color: 0xA2A2A7, metalness: 1, roughness: .36 })); pBody.position.z = -PH.t / 2; phone.add(pBody);
-    var pGlass = flat(PH.w - .0016, PH.h - .0016, PH.r - .0008, glass); pGlass.position.z = .0002; phone.add(pGlass);
-    var phScreen = flat(PH.dw, PH.dh, PH.dr, off); phScreen.position.z = .0004; phone.add(phScreen);
+    var TB = { w: .1775, h: .2497, t: .0053, dw: .1605, dh: .233, r: .018, dr: .0115 };   // an 11-inch tablet, upright, no logo
+    var tablet = new THREE.Group(); studio.add(tablet);
+    var tBody = slab(TB.w, TB.h, TB.t, TB.r, .0013, new THREE.MeshPhysicalMaterial({ color: 0xA2A2A7, metalness: 1, roughness: .36 })); tBody.position.z = -TB.t / 2; tablet.add(tBody);
+    var tGlass = flat(TB.w - .0016, TB.h - .0016, TB.r - .0008, glass); tGlass.position.z = .0002; tablet.add(tGlass);
+    var tbScreen = flat(TB.dw, TB.dh, TB.dr, off); tbScreen.position.z = .0004; tablet.add(tbScreen);
     studio.updateMatrixWorld(true);
 
-    // ---------- dust: the phone and its page, flown off to the upper right ----------
+    // ---------- dust: the tablet and its page, flown off to the upper right ----------
     var DUST_COMMON = "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }\n" +
       "float delayAt(vec2 uv, float r){ return .62 * (1. - (uv.x * .55 + (1. - uv.y) * .45)) + .24 * r; }\n";   // the upper right goes first
     var dustU = { uSrc: { value: null }, uRect: { value: new THREE.Vector4() }, uVp: { value: new THREE.Vector2(1, 1) }, uGrid: { value: new THREE.Vector2(1, 1) },
@@ -2013,7 +2007,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var screens = [
       { mesh: macScreen, w: MAC.dw, h: MAC.dh, rad: [.006, .006, 0, 0] },
       { mesh: sdScreen, w: SD.dw, h: SD.dh, rad: [0, 0, 0, 0] },
-      { mesh: phScreen, w: PH.dw, h: PH.dh, rad: [PH.dr, PH.dr, PH.dr, PH.dr] }
+      { mesh: tbScreen, w: TB.dw, h: TB.dh, rad: [TB.dr, TB.dr, TB.dr, TB.dr] }
     ];
     screens.forEach(function(sc, i){
       sc.el = document.createElement("div"); sc.el.className = "dev-screen";
@@ -2046,8 +2040,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       vpW = stage.clientWidth || window.innerWidth; vpH = filmStage.offsetHeight || window.innerHeight; hdr = header ? header.offsetHeight : 64;
       var tall = vpW < vpH; fillW = FILL[tall ? "tall" : "wide"][0]; fillH = FILL[tall ? "tall" : "wide"][1];
       renderer.setSize(vpW, vpH, false); cam.aspect = vpW / vpH; cam.updateProjectionMatrix();
-      phone.position.y = 0; studio.updateMatrixWorld(true);
-      poses.A = pose(macScreen, MAC.dw, MAC.dh); poses.B = pose(sdScreen, SD.dw, SD.dh); poses.C = pose(phScreen, PH.dw, PH.dh);
+      tablet.position.y = 0; studio.updateMatrixWorld(true);
+      poses.A = pose(macScreen, MAC.dw, MAC.dh); poses.B = pose(sdScreen, SD.dw, SD.dh); poses.C = pose(tbScreen, TB.w + .004, TB.h + .004);   // framed by the whole tablet, so its wide bezel stays in view
       var A = poses.A, dir = A.n.clone().add(new V3(-.5, .34, .12)).normalize();
       poses.I = { pos: A.c.clone().addScaledVector(dir, A.d * 2.7).add(new V3(0, .02, 0)), target: A.c.clone().add(new V3(.05, -.03, 0)), up: new V3(0, 1, 0) };
       poses.BC = closer(poses.B, .42); poses.CC = closer(poses.C, .5);
@@ -2059,7 +2053,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         sc.el.style.borderRadius = sc.rad.map(function(x){ return (x * k).toFixed(1) + "px"; }).join(" ");
       });
       screens.forEach(function(sc, i){ len[i] = Math.max(0, sc.page.offsetHeight - sc.H); });
-      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the phone / Why choose us? / pause / dust / tail
+      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust / tail
       var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; };
       zones[0] = zone(0, 0); st[0] = zones[0][1];
       zones[1] = zone(st[0] + len[0] + HOLD * vpH, 1); st[1] = zones[1][1];
@@ -2070,7 +2064,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
       renderer.shadowMap.needsUpdate = true; glKey = "";
       lastW = window.innerWidth; lastH = window.innerHeight;
     }
-    function curAt(s){                                    // where the sequence is at a scroll position: 0 film, 1 laptop, 2 display, 3 phone, 4 dust done
+    function curAt(s){                                    // where the sequence is at a scroll position: 0 film, 1 laptop, 2 display, 3 tablet, 4 dust done
       if (s <= 0) return 0;
       for (var k = 0; k < 4; k++) {
         var z = zones[k];
@@ -2121,7 +2115,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     // ---------- dust ----------
     function alpha(col){ var m = /rgba?\(([^)]+)\)/.exec(col || ""); if (!m) return col === "transparent" ? 0 : 1; var p = m[1].split(","); return p.length > 3 ? parseFloat(p[3]) : 1; }
     function rrect(x, L, T0, w, h, r){ r = Math.max(0, Math.min(r, w / 2, h / 2)); x.beginPath(); x.moveTo(L + r, T0); x.arcTo(L + w, T0, L + w, T0 + h, r); x.arcTo(L + w, T0 + h, L, T0 + h, r); x.arcTo(L, T0 + h, L, T0, r); x.arcTo(L, T0, L + w, T0, r); x.closePath(); }
-    function snap(sc){                                    // the phone's page as a picture, from its own layout (read untransformed, nothing paints meanwhile)
+    function snap(sc){                                    // the tablet's page as a picture, from its own layout (read untransformed, nothing paints meanwhile)
       var keep = sc.el.style.transform; sc.el.style.transform = "none";
       var b = sc.el.getBoundingClientRect(), W = sc.W, H = sc.H, k = Math.min(window.devicePixelRatio || 1, 2);
       var cv = document.createElement("canvas"); cv.width = Math.ceil(W * k); cv.height = Math.ceil(H * k);
@@ -2166,15 +2160,15 @@ window.__zwdIntro3D = function(THREE, intro, on){
       } finally { sc.el.style.transform = keep; }
       return cv;
     }
-    function dustStart(){                                 // the phone as it is now, flat, ready to blow away
-      var sc = screens[2], body = corners(phone, PH.w, PH.h), scr = corners(phScreen, PH.dw, PH.dh);
+    function dustStart(){                                 // the tablet as it is now, flat, ready to blow away
+      var sc = screens[2], body = corners(tablet, TB.w, TB.h), scr = corners(tbScreen, TB.dw, TB.dh);
       if (!body || !scr) return false;
       var bx = Math.min(body[0][0], body[3][0]), by = Math.min(body[0][1], body[1][1]), bw = Math.max(body[1][0], body[2][0]) - bx, bh = Math.max(body[2][1], body[3][1]) - by;
-      var sx = scr[0][0] - bx, sy = scr[0][1] - by, sw = scr[1][0] - scr[0][0], sh = scr[3][1] - scr[0][1], kpx = bw / PH.w;
+      var sx = scr[0][0] - bx, sy = scr[0][1] - by, sw = scr[1][0] - scr[0][0], sh = scr[3][1] - scr[0][1], kpx = bw / TB.w;
       var k = Math.min(window.devicePixelRatio || 1, 2), cv = document.createElement("canvas"); cv.width = Math.ceil(bw * k); cv.height = Math.ceil(bh * k);
       var x = cv.getContext("2d"); x.scale(k, k);
-      rrect(x, .6, .6, bw - 1.2, bh - 1.2, PH.r * kpx); x.fillStyle = "#17181B"; x.fill(); x.strokeStyle = "#A6A6AB"; x.lineWidth = 1.2; x.stroke();
-      x.save(); rrect(x, sx, sy, sw, sh, PH.dr * kpx); x.clip(); x.drawImage(snap(sc), sx, sy, sw, sh); x.restore();
+      rrect(x, .6, .6, bw - 1.2, bh - 1.2, TB.r * kpx); x.fillStyle = "#17181B"; x.fill(); x.strokeStyle = "#A6A6AB"; x.lineWidth = 1.2; x.stroke();
+      x.save(); rrect(x, sx, sy, sw, sh, TB.dr * kpx); x.clip(); x.drawImage(snap(sc), sx, sy, sw, sh); x.restore();
       var tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.NoColorSpace; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
       if (dustU.uSrc.value) dustU.uSrc.value.dispose();
       dustU.uSrc.value = tex; dustU.uRect.value.set(bx, by, bw, bh); dustU.uVp.value.set(vpW, vpH);
@@ -2197,8 +2191,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       var v = view(cur);
       stage.style.opacity = v.stage.toFixed(3); stage.style.pointerEvents = v.stage > .5 ? "auto" : "none";
       if (v.stage <= 0) return;
-      var bob = (cur > 2.5 && cur <= 3) ? Math.sin(now / 900) * .0016 : 0;
-      if (phone.position.y !== bob) { phone.position.y = bob; phone.updateMatrixWorld(true); }
+      var bob = (cur > 2.5 && cur <= 3) ? Math.sin(now / 900) * .003 : 0;
+      if (tablet.position.y !== bob) { tablet.position.y = bob; tablet.updateMatrixWorld(true); }
       setPose(v.pose);
       if (v.dust >= 0) {
         if (!dust && v.dust < 1) dust = dustStart() ? 1 : null;
@@ -2233,7 +2227,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         var s = -track.getBoundingClientRect().top;
         cur = curAt(s);
         draw(s, now);
-        var going = !!auto || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating phone keeps bobbing
+        var going = !!auto || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating tablet keeps bobbing
         if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
         if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
       } catch(e){ fail(e); }
