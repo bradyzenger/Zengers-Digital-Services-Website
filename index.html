@@ -206,6 +206,7 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 .dev-screen.is-on{pointer-events:auto}
 .dev-screen::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(118deg,rgba(255,255,255,.08),rgba(255,255,255,0) 34%)}   /* faint glass glare */
 .dev-page{will-change:transform}
+html.dev-moving,html.dev-moving body{touch-action:none}   /* while the flight or the glide plays by itself, a swipe doesn't scroll (it would jump) */
 .dev-stage.is-dust{background:transparent}   /* the dust is see-through: The process waits underneath */
 .dev-next>section{position:sticky}            /* The process, held in place under the dust (the script sets its top) */
 .dev-screen section.block{padding-block:clamp(48px,7cqw,96px)!important}
@@ -230,20 +231,13 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 @media print{.devices{height:auto!important;margin-top:0!important}.dev-stage{position:static;height:auto;opacity:1!important}.dev-stage canvas,.dev-veil{display:none}.dev-screen{position:static;transform:none!important;width:auto!important;height:auto!important;opacity:1!important}.dev-page{transform:none!important}.dev-next{margin-top:0!important}.dev-next>section{position:static}.dev-next-pin{display:none}}
 
 /* ---------- the film (pinned scroll section) ---------- */
-.film{position:relative;height:460vh;background:var(--ink);color:#F4F6F3}
-@media (max-width:700px){.film{height:400vh}}
+.film{position:relative;height:calc(460vh + var(--film-tail,0px));background:var(--ink);color:#F4F6F3}   /* the tail: the rise after the summit ("Devices" script) */
+@media (max-width:700px){.film{height:calc(400vh + var(--film-tail,0px))}}
 .film-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .film-media{position:absolute;inset:0;background:linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%)}   /* pre-dawn, until the picture is ready */
 .film-media canvas,.film-media video,.film-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .film-media .film-3d{opacity:0;transition:opacity .9s ease}
 .film-media .film-3d.is-on{opacity:1}
-.web-frame{position:absolute;inset:0;pointer-events:none;border:1px solid rgba(238,241,238,.22);border-radius:14px;opacity:0;box-shadow:0 0 0 100vmax var(--ink)}
-.web-frame::before{content:"";position:absolute;left:0;right:0;top:0;height:34px;background:var(--dusk);border-radius:14px 14px 0 0}
-.web-frame::after{content:"";position:absolute;left:14px;top:13px;width:8px;height:8px;border-radius:50%;background:#E26D5A;box-shadow:14px 0 0 #F2B544,28px 0 0 #5FB37A}
-.web-frame i{position:absolute;display:block}
-.web-frame .wf-url{left:30%;width:40%;top:8px;height:18px;border-radius:9px;background:rgba(238,241,238,.1)}
-.web-frame .wf-nav{right:66px;top:50px;width:104px;height:5px;background:repeating-linear-gradient(90deg,rgba(238,241,238,.22) 0 28px,transparent 28px 38px)}
-.web-frame .wf-cta{right:16px;top:44px;width:44px;height:17px;border-radius:9px;background:var(--lamp)}
 .film-scrim{position:absolute;inset:0;pointer-events:none;background:
   linear-gradient(to top,rgba(14,24,34,.92) 0%,rgba(14,24,34,.55) 30%,rgba(14,24,34,0) 58%),
   linear-gradient(to right,rgba(14,24,34,.55) 0%,rgba(14,24,34,0) 55%)}
@@ -722,13 +716,14 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 <main id="main">
 <!-- ============================ THE FILM ============================
      Scroll plays the film forward; scrolling up plays it back.
-     The picture is a 3D mountain at sunrise: a gold chart line climbs it to the summit (the "Hero film, 3D version"
-     script draws it). Where 3D can't play, a still of the summit stands in (media/film-summit-*.webp).
+     The picture is a 3D mountain in the Smokies at sunrise: a gold chart line climbs it to the summit (the "Hero film,
+     3D version" script draws it). After the summit, with the 3D devices on, the camera rises into the clouds and flies
+     on to Nashville by itself (the "Devices" script). Where 3D can't play, a still of the summit stands in
+     (media/film-summit-*.webp).
      VIDEO: setting VIDEO_DESKTOP (and optionally VIDEO_MOBILE, POSTER) in the SITE settings plays a video instead. -->
 <section class="film" id="top" aria-label="Introduction">
   <div class="film-stage">
     <div class="film-media" id="film-media"></div>
-    <div class="web-frame" id="web-frame" aria-hidden="true"><i class="wf-url"></i><i class="wf-nav"></i><i class="wf-cta"></i></div>
     <div class="film-scrim"></div>
 
     <div class="film-copy">
@@ -1816,9 +1811,366 @@ window.__zwdIntro3D = function(THREE, intro, on){
 })();
 </script>
 <script>
+/* Nashville, 3D: the city the camera flies through between the mountain film and the devices. The "Devices" script
+   builds it into its own renderer, next to the room, and flies the camera through it. East Nashville at sunrise, seen
+   from the east: streets of houses under big trees, the Cumberland River, and downtown beyond, led by a look-alike of
+   the AT&T ("Batman") tower, with a truss footbridge, an arch bridge and the stadium on the east bank. Look-alikes
+   only: no names, logos, cars or people. One narrow two-storey house stands around the room; the camera goes in at its
+   upper window (o.win). There a mask, drawn only into the depth buffer, lets the room (drawn first) show through.
+   Units: metres; y up; +z east (the camera comes from there), -z west (downtown), +x north. The sun is low in the
+   south-east. Tune: SUN, the fog, DT (how far downtown is), the tree and house counts. */
+window.__zwdNashville = function(THREE, o){
+  var V3 = THREE.Vector3, G = o.ground, W = o.win, fine = o.fine, DT = 530;
+  var seed = 1779;   // the year Nashville was founded: the same city on every visit
+  function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  function smooth(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+  function river(x){ return -800 + 110 * Math.sin(x / 600 + .6); }   // the river's centre line (z) at x
+  var scene = new THREE.Scene(), SUN = new V3(-.62, .21, .76).normalize(), textures = [];
+  scene.fog = new THREE.FogExp2(0xC2BDD0, .00024);
+
+  // ---------- the sky, looking west at sunrise: blue overhead, a pink band low down, the earth's blue shadow along
+  // the horizon, and warmth toward the sun behind the camera ----------
+  var SKY_FS = "uniform vec3 uSun;varying vec3 vD;void main(){vec3 d=normalize(vD);float h=d.y;" +
+    "vec3 col=mix(vec3(.46,.52,.74),vec3(.13,.24,.54),smoothstep(.1,.75,h));" +
+    "col=mix(col,vec3(.95,.66,.6),(1.0-smoothstep(.02,.2,h))*smoothstep(-.03,.05,h));" +
+    "col=mix(col,vec3(.5,.5,.64),1.0-smoothstep(-.02,.04,h));" +
+    "float s=max(dot(d,uSun),0.0);col+=vec3(1.0,.62,.34)*pow(s,6.0)*.9+vec3(1.0,.85,.6)*pow(s,300.0)*6.0;" +
+    "gl_FragColor=vec4(col,1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}";
+  function skyMesh(r){ return new THREE.Mesh(new THREE.SphereGeometry(r, 32, 16), new THREE.ShaderMaterial({ uniforms: { uSun: { value: SUN } }, side: THREE.BackSide, depthWrite: false, fog: false,
+    vertexShader: "varying vec3 vD;void main(){vD=position;vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.0);gl_Position=p.xyww;}", fragmentShader: SKY_FS })); }
+  var sky = skyMesh(20000); sky.frustumCulled = false; sky.renderOrder = -5; scene.add(sky);
+  var envScene = new THREE.Scene(); envScene.add(skyMesh(10));
+  var pm = new THREE.PMREMGenerator(o.renderer); scene.environment = pm.fromScene(envScene, 0).texture; pm.dispose();
+
+  // the low sun, with long shadows round the house (out to about 450 m), and the sky's light
+  var sun = new THREE.DirectionalLight(0xFFB271, 4.2), hc = new V3(W.x, G, W.z - 120);
+  sun.position.copy(hc).addScaledVector(SUN, 1500); sun.target.position.copy(hc); scene.add(sun, sun.target);
+  sun.castShadow = true; sun.shadow.mapSize.set(fine ? 2048 : 1024, fine ? 2048 : 1024);
+  var sc = sun.shadow.camera; sc.left = -450; sc.right = 450; sc.top = 450; sc.bottom = -450; sc.near = 600; sc.far = 2600;
+  sun.shadow.bias = -.0004; sun.shadow.normalBias = .6;
+  scene.add(new THREE.HemisphereLight(0xA9BCE2, 0x3A342C, .8));
+
+  // ---------- the ground: lawns, sidewalks and streets in the neighbourhoods, pavement downtown, dark river banks ----------
+  var NOISE = "float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}" +
+    "float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y);}\n";
+  var groundMat = new THREE.MeshLambertMaterial();
+  groundMat.onBeforeCompile = function(sh){
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vP;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvP = (modelMatrix * vec4(position, 1.0)).xz;");
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec2 vP;\n" + NOISE +
+      "vec3 groundCol(vec2 p){float rv=-800.0+110.0*sin(p.x/600.0+.6),n=vn(p*.02)*.55+vn(p*.11)*.3+vn(p*.7)*.15;" +
+      "vec3 c=mix(vec3(.12,.15,.085),vec3(.2,.22,.12),n);" +
+      "float sz=abs(mod(p.y-13.5+55.0,110.0)-55.0),sx=abs(mod(p.x+100.0,200.0)-100.0),m=min(sz,sx);" +
+      "c=mix(c,vec3(.5,.49,.46),(1.0-smoothstep(4.6,4.8,m))*smoothstep(3.9,4.1,m));" +
+      "c=mix(c,vec3(.2,.2,.21),1.0-smoothstep(2.7,2.9,m));" +
+      "float tz=abs(mod(p.y+40.0,95.0)-47.5),tx=abs(mod(p.x+20.0,95.0)-47.5);" +
+      "vec3 t=mix(vec3(.36,.35,.34),vec3(.44,.42,.4),n);t=mix(t,vec3(.17,.17,.18),1.0-smoothstep(6.0,6.4,min(tz,tx)));" +
+      "c=mix(c,t,smoothstep(rv-110.0,rv-150.0,p.y));" +
+      "c=mix(c,vec3(.08,.11,.06),1.0-smoothstep(100.0,140.0,abs(p.y-rv)));" +
+      "return c;}")
+      .replace("vec4 diffuseColor = vec4( diffuse, opacity );", "vec4 diffuseColor = vec4( groundCol(vP), 1.0 );");
+  };
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), groundMat); ground.rotation.x = -Math.PI / 2; ground.position.y = G; ground.receiveShadow = true; scene.add(ground);
+
+  // ---------- the river, mirroring the sky ----------
+  var rp = [], ri = [];
+  for (var x = -6000, n = 0; x <= 6000; x += 50, n++) { var zc = river(x); rp.push(x, G + .4, zc - 95, x, G + .4, zc + 95); if (n) { var b = (n - 1) * 2; ri.push(b, b + 1, b + 2, b + 1, b + 3, b + 2); } }
+  var rg = new THREE.BufferGeometry(); rg.setAttribute("position", new THREE.Float32BufferAttribute(rp, 3)); rg.setIndex(ri); rg.computeVertexNormals();
+  var water = new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ color: 0x24333B, roughness: .08, metalness: .4 })); water.receiveShadow = true; scene.add(water);
+
+  // ---------- geometry helpers: boxes merged into one mesh, with UVs in metres for the window pattern ----------
+  function Batch(){ this.p = []; this.n = []; this.u = []; this.c = []; }
+  Batch.prototype.box = function(x, y, z, w, h, d, col, plain){   // centred on x, z; from y up; w along x, d along z
+    var g = new THREE.BoxGeometry(w, h, d).toNonIndexed(), P = g.attributes.position, N = g.attributes.normal;
+    for (var i = 0; i < P.count; i++) {
+      var px = P.getX(i), py = P.getY(i), pz = P.getZ(i), nx = N.getX(i), ny = N.getY(i), nz = N.getZ(i);
+      this.p.push(x + px, y + h / 2 + py, z + pz); this.n.push(nx, ny, nz);
+      if (Math.abs(ny) > .5 || plain) this.u.push(.02, .5); else this.u.push((Math.abs(nx) > .5 ? pz : px) / 25.6, (py + h / 2) / 30.4);
+      this.c.push(col.r, col.g, col.b);
+    }
+    g.dispose(); return this;
+  };
+  Batch.prototype.geo = function(g, col){   // any other shape, already placed
+    g = g.index ? g.toNonIndexed() : g; var P = g.attributes.position, N = g.attributes.normal;
+    for (var i = 0; i < P.count; i++) { this.p.push(P.getX(i), P.getY(i), P.getZ(i)); this.n.push(N.getX(i), N.getY(i), N.getZ(i)); this.u.push(.02, .5); this.c.push(col.r, col.g, col.b); }
+    return this;
+  };
+  Batch.prototype.mesh = function(mat){
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(this.p, 3)); g.setAttribute("normal", new THREE.Float32BufferAttribute(this.n, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(this.u, 2)); g.setAttribute("color", new THREE.Float32BufferAttribute(this.c, 3));
+    var m = new THREE.Mesh(g, mat); m.frustumCulled = false; m.castShadow = m.receiveShadow = true; return m;
+  };
+  function C(hex){ return new THREE.Color(hex); }
+  function pyramid(r, h, x, y, z, sx, sz){ var g = new THREE.CylinderGeometry(0, r, h, 4, 1); g.rotateY(Math.PI / 4); g.scale(sx || 1, 1, sz || 1); g.translate(x, y + h / 2, z); return g; }
+
+  // ---------- downtown: towers of glass and stone, a few windows lit ----------
+  function facade(){   // 8 x 8 windows: frames and spandrels light, glass dark and smooth; a few lit from inside
+    var S = 256, cv = [0, 1, 2].map(function(){ var c = document.createElement("canvas"); c.width = c.height = S; return c; });
+    var A = cv[0].getContext("2d"), R = cv[1].getContext("2d"), E = cv[2].getContext("2d");
+    A.fillStyle = "#C9C2B6"; A.fillRect(0, 0, S, S); R.fillStyle = "rgb(0,220,0)"; R.fillRect(0, 0, S, S); E.fillStyle = "#000"; E.fillRect(0, 0, S, S);
+    for (var j = 0; j < 8; j++) for (var i = 0; i < 8; i++) {
+      var x = i * 32 + 3, y = j * 32 + 7, w = 26, h = 21, t = rnd();
+      A.fillStyle = "rgb(" + (52 + t * 18 | 0) + "," + (60 + t * 18 | 0) + "," + (74 + t * 20 | 0) + ")"; A.fillRect(x, y, w, h);
+      R.fillStyle = "rgb(0,30,200)"; R.fillRect(x, y, w, h);
+      if (rnd() < .06) { E.fillStyle = rnd() < .7 ? "#FFB467" : "#FFE2B0"; E.fillRect(x, y, w, h); }
+    }
+    return cv.map(function(c){ var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; textures.push(t); return t; });
+  }
+  var F = facade(); F[0].colorSpace = F[2].colorSpace = THREE.SRGBColorSpace;
+  var towerMat = new THREE.MeshStandardMaterial({ map: F[0], roughnessMap: F[1], metalnessMap: F[1], emissiveMap: F[2], emissive: 0xFFB06A, emissiveIntensity: .35, vertexColors: true, envMapIntensity: 1.2 });
+  var town = new Batch(), STONE = [C(0xEADAC0), C(0xDDD6CC), C(0xC9D2DA), C(0xEBD6B8), C(0xBAC7D2), C(0xF0E8DA)];
+  var GLASS = C(0xA8BDD0), DARK = C(0x8593A0), Z = function(z){ return z + DT; };
+  town.box(40, G, Z(-1880), 52, 150, 32, DARK).box(40, G + 150, Z(-1880), 46, 12, 28, DARK);              // the "Batman" tower: shaft and crown,
+  town.geo(pyramid(1, 16, 40, G + 162, Z(-1880), 28, 17), DARK);                                            // its hipped top
+  [-1, 1].forEach(function(s){ var sp = new THREE.CylinderGeometry(.2, 3.2, 44, 4, 1); sp.rotateY(Math.PI / 4); sp.translate(40 + s * 22, G + 172, Z(-1880)); town.geo(sp, DARK); });   // and its two spires
+  town.box(140, G, Z(-1940), 34, 150, 34, GLASS); town.geo(pyramid(24, 15, 140, G + 150, Z(-1940)), GLASS);
+  town.box(-60, G, Z(-1960), 40, 122, 40, STONE[0]).box(-60, G + 122, Z(-1960), 33, 12, 33, STONE[0]).box(-60, G + 134, Z(-1960), 25, 9, 25, STONE[0]); town.geo(pyramid(15, 12, -60, G + 143, Z(-1960)), STONE[0]);
+  town.box(-140, G, Z(-1700), 30, 155, 36, GLASS);
+  town.box(-40, G, Z(-1760), 36, 112, 44, C(0xB6C8D6)); town.geo(pyramid(20, 16, -40, G + 112, Z(-1760), 1, 1.2), C(0xB6C8D6));
+  town.box(230, G, Z(-2050), 40, 105, 40, STONE[3]); town.geo(pyramid(26, 17, 230, G + 105, Z(-2050)), STONE[3]);
+  town.box(330, G, Z(-2150), 70, 138, 24, STONE[1]).box(80, G, Z(-2080), 40, 120, 40, STONE[4]).box(-120, G, Z(-1950), 45, 95, 30, STONE[5]);
+  town.box(-350, G, Z(-2300), 34, 120, 34, GLASS).box(-300, G, Z(-2380), 30, 140, 30, GLASS).box(-420, G, Z(-2220), 40, 90, 36, STONE[2]);
+  town.box(-230, G, Z(-1560), 120, 30, 90, C(0xD6D0C4), true);                                               // the arena, and its tower
+  town.box(-170, G, Z(-1515), 8, 66, 8, C(0xD6D0C4)); var tip = new THREE.CylinderGeometry(.2, 2, 12, 6); tip.translate(-170, G + 72, Z(-1515)); town.geo(tip, C(0xE0DBD0));
+  var mound = new THREE.SphereGeometry(1, 24, 8, 0, Math.PI * 2, 0, Math.PI / 2); mound.scale(170, 24, 140); mound.translate(520, G, Z(-2150)); town.geo(mound, C(0x5E6B40));   // Capitol hill,
+  town.box(520, G + 22, Z(-2150), 58, 18, 26, C(0xEDE6D4), true).box(520, G + 40, Z(-2150), 12, 14, 12, C(0xEDE6D4), true).box(520, G + 54, Z(-2150), 8, 10, 8, C(0xEDE6D4), true);   // and its capitol
+  var cup = new THREE.CylinderGeometry(0, 5, 8, 8); cup.translate(520, G + 68, Z(-2150)); town.geo(cup, C(0xEDE6D4));
+  var taken = [[40, -1880, 60], [140, -1940, 40], [-60, -1960, 45], [-140, -1700, 40], [-40, -1760, 45], [230, -2050, 45], [330, -2150, 75], [80, -2080, 45], [-120, -1950, 45],
+    [-350, -2300, 40], [-300, -2380, 36], [-420, -2220, 45], [-230, -1560, 90], [520, -2150, 120]].map(function(t){ return [t[0], Z(t[1]), t[2]]; });
+  for (var bx = -720; bx <= 860; bx += 95) for (var bz = Z(-1450); bz >= Z(-3000); bz -= 95) {   // the rest of the blocks: taller toward the middle
+    if (bz > river(bx) - 150) continue;
+    var dc = Math.sqrt((bx - 40) * (bx - 40) + (bz - Z(-1900)) * (bz - Z(-1900))), k = 1 + (rnd() < .6 ? 1 : 0) + (rnd() < .35 ? 1 : 0);
+    for (var q = 0; q < k; q++) {
+      var w = 20 + rnd() * 30, d = 20 + rnd() * 30, cx = bx + (rnd() - .5) * (80 - w), cz = bz + (rnd() - .5) * (80 - d), clash = false;
+      for (var t = 0; t < taken.length; t++) if (Math.abs(cx - taken[t][0]) < taken[t][2] / 2 + w / 2 && Math.abs(cz - taken[t][1]) < taken[t][2] / 2 + d / 2) clash = true;
+      if (clash) continue;
+      var h = 10 + 100 * Math.exp(-Math.pow(dc / 500, 2)) * Math.pow(rnd(), 1.3) + rnd() * 14;
+      town.box(cx, G, cz, w, h, d, STONE[(rnd() * STONE.length) | 0]);
+      if (h > 45 && rnd() < .6) town.box(cx, G + h, cz, w * .72, h * .1, d * .72, STONE[(rnd() * STONE.length) | 0]);   // a setback,
+      if (h > 30 && rnd() < .5) town.box(cx + (rnd() - .5) * w * .4, G + h, cz + (rnd() - .5) * d * .4, 5 + rnd() * 5, 3, 5 + rnd() * 5, C(0x8A8A86), true);   // and plant on the roof
+      taken.push([cx, cz, Math.max(w, d)]);
+    }
+  }
+  scene.add(town.mesh(towerMat));
+
+  // ---------- bridges and the stadium ----------
+  var steel = new Batch(), STEEL = C(0x6A7987), CON = C(0xC4BFB4);
+  (function footbridge(x){   // a camelback truss footbridge across the river
+    var z0 = river(x) + 130, z1 = river(x) - 130, deck = G + 16, spans = 4, L = (z0 - z1) / spans;
+    steel.box(x, deck - 1.2, (z0 + z1) / 2, 7, 1.2, z0 - z1, CON, true);
+    for (var s = 0; s < spans; s++) for (var side = -1; side <= 1; side += 2) {
+      var za = z0 - s * L, prev = null;
+      for (var j = 0; j <= 10; j++) {
+        var z = za - L * j / 10, top = deck + 6 + 6 * Math.sin(Math.PI * j / 10), pt = new V3(x + side * 3.6, top, z);
+        steel.box(x + side * 3.6, deck, z, .4, top - deck, .4, STEEL, true);
+        if (prev) { var mid = prev.clone().add(pt).multiplyScalar(.5), len = prev.distanceTo(pt), bar = new THREE.BoxGeometry(.5, .5, len);
+          bar.lookAt(pt.clone().sub(prev)); bar.translate(mid.x, mid.y, mid.z); steel.geo(bar, STEEL);
+          var dg = new THREE.BoxGeometry(.3, .3, 1), a = new V3(x + side * 3.6, deck, prev.z), dl = a.distanceTo(pt); dg.scale(1, 1, dl);
+          dg.lookAt(pt.clone().sub(a)); dg.translate((a.x + pt.x) / 2, (a.y + pt.y) / 2, (a.z + pt.z) / 2); steel.geo(dg, STEEL); }
+        prev = pt;
+      }
+    }
+    for (var pi = 1; pi < spans; pi++) steel.box(x, G, z0 - pi * L, 6, deck - G - 1.2, 4, CON, true);
+  })(-300);
+  (function arches(x){   // a road bridge under two steel arches
+    var z0 = river(x) + 120, z1 = river(x) - 120, deck = G + 14;
+    steel.box(x, deck - 1.5, (z0 + z1) / 2, 22, 1.5, z0 - z1, CON, true);
+    [-9, 9].forEach(function(dx){ var c = new THREE.EllipseCurve(0, 0, (z0 - z1) / 2, 34, 0, Math.PI), pts = c.getPoints(40).map(function(p){ return new V3(x + dx, deck + p.y, (z0 + z1) / 2 + p.x); });
+      steel.geo(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, .9, 6), STEEL);
+      for (var j = 1; j < 12; j++) { var p = pts[Math.round(j * 40 / 12)]; steel.box(p.x, deck, p.z, .15, p.y - deck, .15, STEEL, true); } });
+  })(-560);
+  steel.box(80, G + 12, river(80), 18, 1.5, 250, CON, true); [-60, 0, 60].forEach(function(dz){ steel.box(80, G, river(80) + dz, 5, 12, 4, CON, true); });
+  (function stadium(x, z){   // the stadium on the east bank: a bowl of stands round a green field
+    var ring = new THREE.LatheGeometry([new THREE.Vector2(118, 0), new THREE.Vector2(118, 30), new THREE.Vector2(112, 31), new THREE.Vector2(70, 6), new THREE.Vector2(66, 1)], 48);
+    ring.scale(1.25, 1, 1); ring.translate(x, G, z); steel.geo(ring, C(0xC9C4B9));
+    var field = new THREE.CircleGeometry(66, 32); field.rotateX(-Math.PI / 2); field.scale(1.25, 1, 1); field.translate(x, G + 1.2, z); steel.geo(field, C(0x4A7434));
+  })(-430, -590);
+  scene.add(steel.mesh(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7, metalness: .2, side: THREE.DoubleSide })));
+
+  // ---------- the neighbourhood: houses on long streets under big trees; low-rise city out to the horizon ----------
+  function wallTex(rows){   // painted siding with windows (one row per storey), tinted per house
+    var c = document.createElement("canvas"); c.width = 128; c.height = 64 * rows; var x = c.getContext("2d");
+    x.fillStyle = "#FFFFFF"; x.fillRect(0, 0, 128, 64 * rows);
+    for (var y = 0; y < 64 * rows; y += 5) { x.fillStyle = "rgba(0,0,0,.07)"; x.fillRect(0, y, 128, 1); }
+    for (var r = 0; r < rows; r++) for (var i = 0; i < 2; i++) { x.fillStyle = "#F4F2EE"; x.fillRect(22 + i * 58, 14 + r * 64, 28, 34); x.fillStyle = "#2B3138"; x.fillRect(25 + i * 58, 17 + r * 64, 22, 28); }
+    var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; textures.push(t); return t;
+  }
+  var houses = [[], []], trees = [], RX = fine ? 760 : 460, K0 = fine ? -5 : -4, K1 = fine ? 9 : 6;
+  function clear(x, z, m){ return !(Math.abs(x - W.x) < (m || 11) && z > W.z - 16 && z < W.z + 70); }   // the hero house, its neighbours, and the way in to its window
+  for (var kk = K0; kk <= K1; kk++) {
+    var sc2 = 13.5 + 110 * kk;
+    for (var side = -1; side <= 1; side += 2) for (var lx = -RX; lx < RX; lx += 10 + rnd() * 3) {
+      if (Math.abs(((lx + 100) % 200 + 200) % 200 - 100) < 14) continue;          // a cross street
+      var hw = 6 + rnd() * 2.6, hd = 10 + rnd() * 5, fl = rnd() < .55 ? 1 : 0, front = sc2 + side * (11.2 + rnd() * 2), hz = front + side * hd / 2;
+      if (!clear(lx + hw / 2, hz, 17) || river(lx) + 160 > hz) continue;
+      houses[fl].push([lx + hw / 2, hz, hw, hd]);
+      if (rnd() < .85) { var yz = front + side * (hd + 3 + rnd() * 20); if (clear(lx + hw / 2, yz)) trees.push([lx + rnd() * hw, yz, 4.5 + rnd() * 3.5]); }   // a back-yard tree
+      if (rnd() < .6) { var tx = lx + rnd() * 10, tz = sc2 + side * 3.6; if (clear(tx, tz)) trees.push([tx, tz, 3.8 + rnd() * 2.6]); }   // a street tree
+    }
+  }
+  for (var i = 0; i < (fine ? 2200 : 900); i++) {   // more trees round about, and along the river
+    var ax = (rnd() - .5) * 3600, az = -550 + rnd() * 2400, rv = river(ax);
+    if (!clear(ax, az) || (az > rv - 150 && az < rv + 100)) continue;
+    trees.push([ax, az, 4.5 + rnd() * 4]);
+  }
+  for (i = 0; i < (fine ? 600 : 260); i++) { var bxr = (rnd() - .5) * 5000, bk = river(bxr) + (rnd() < .5 ? 1 : -1) * (100 + rnd() * 40); trees.push([bxr, bk, 4.5 + rnd() * 3]); }
+  var dummy = new THREE.Object3D(), tint = new THREE.Color();
+  var roofG = new THREE.CylinderGeometry(1, 1, 1, 3, 1); roofG.rotateZ(Math.PI / 2); roofG.rotateY(Math.PI / 2);   // a triangular prism: a gable roof, its ridge along z
+  var SIDING = [0xF1EEE7, 0xE4DDCD, 0xA9B7A6, 0x7F909E, 0xC2AC92, 0x9A6A57, 0xD9D2BF, 0x66727E], ROOF = [0x4A4D52, 0x5A5550, 0x3E4247, 0x6A6058];
+  houses.forEach(function(list, fl){
+    var walls = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ map: wallTex(fl + 1) }), list.length);
+    var roofs = new THREE.InstancedMesh(roofG, new THREE.MeshLambertMaterial({ flatShading: true }), list.length);
+    walls.castShadow = walls.receiveShadow = roofs.castShadow = roofs.receiveShadow = true;
+    list.forEach(function(h, i){
+      var wallH = fl ? 6.6 : 3.6;
+      dummy.position.set(h[0], G + wallH / 2, h[1]); dummy.scale.set(h[2], wallH, h[3]); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); walls.setMatrixAt(i, dummy.matrix);
+      walls.setColorAt(i, tint.setHex(SIDING[(rnd() * SIDING.length) | 0]));
+      dummy.position.set(h[0], G + wallH + h[2] * .2, h[1]); dummy.scale.set(h[2] * .62, h[2] * .42, h[3] + .8); dummy.updateMatrix(); roofs.setMatrixAt(i, dummy.matrix);
+      roofs.setColorAt(i, tint.setHex(ROOF[(rnd() * ROOF.length) | 0]));
+    });
+    scene.add(walls, roofs);
+  });
+  var low = [];   // the rest of the city: low blocks out to the haze, beyond downtown and either side
+  for (i = 0; i < (fine ? 4200 : 1600); i++) {
+    var fx = (rnd() - .5) * 9000, fz = 1200 - rnd() * 7500;
+    if (fz > river(fx) - 160 && Math.abs(fx) < 1500) continue;                   // the neighbourhood itself
+    if (Math.abs(fx - 40) < 900 && fz < river(fx) - 100 && fz > Z(-3000)) continue;   // downtown
+    low.push([fx, fz, 14 + rnd() * 34, 14 + rnd() * 34, 6 + rnd() * rnd() * 30]);
+    if (rnd() < .6) trees.push([fx + 20 + rnd() * 20, fz + rnd() * 30, 5 + rnd() * 4]);
+  }
+  var lows = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), low.length);
+  low.forEach(function(b, i){ dummy.position.set(b[0], G + b[4] / 2, b[1]); dummy.scale.set(b[2], b[4], b[3]); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); lows.setMatrixAt(i, dummy.matrix);
+    lows.setColorAt(i, tint.setHex([0xD8D2C6, 0xC9C5BE, 0xBFB6A6, 0xA9A49B, 0xD9CDB8][(rnd() * 5) | 0])); });
+  scene.add(lows);
+  function lump(detail, ox, oy, oz, r, k){   // one rounded, lumpy blob of leaves, darker underneath, shaded smooth (as a ball, not facet by facet)
+    var g = new THREE.IcosahedronGeometry(1, detail), p = g.attributes.position, nm = g.attributes.normal, col = [];
+    for (var i = 0; i < p.count; i++) { var v = new V3(p.getX(i), p.getY(i), p.getZ(i)), j = .84 + .22 * Math.sin(v.x * 3.1 + v.y * 2.3 + k) * Math.cos(v.z * 2.7 - v.y * 1.9 + k);
+      p.setXYZ(i, ox + v.x * j * r, oy + v.y * j * r * .85, oz + v.z * j * r); var sn = new V3(v.x, v.y / .85, v.z).normalize(); nm.setXYZ(i, sn.x, sn.y, sn.z);
+      var sh = .5 + .5 * (v.y * .5 + .5); col.push(sh, sh, sh); }
+    g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3)); return g;
+  }
+  function merge(list){ var P = [], N = [], Cc = []; list.forEach(function(g){ P.push.apply(P, g.attributes.position.array); N.push.apply(N, g.attributes.normal.array); Cc.push.apply(Cc, g.attributes.color.array); });
+    var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3)); g.setAttribute("normal", new THREE.Float32BufferAttribute(N, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(Cc, 3)); return g; }
+  var big = merge([lump(2, 0, 0, 0, .8, 0), lump(2, .45, -.12, .2, .62, 1.3), lump(2, -.38, -.05, -.3, .66, 2.9), lump(1, .05, .35, -.05, .55, 4.1)]);   // by the house: a fine cluster
+  var crowns = [merge([lump(1, 0, 0, 0, .8, 0), lump(1, .45, -.12, .2, .62, 1.3), lump(1, -.38, -.05, -.3, .66, 2.9)]), lump(1, 0, 0, 0, 1, .7), lump(0, 0, 0, 0, 1, .7)];   // near, further, far
+  var LEAF = [0x4E6E34, 0x5A7B38, 0x68853F, 0x4A673A, 0x719046, 0x435E37, 0xAE8F40, 0xA06A3A];
+  [0, 1, 2].forEach(function(tier){
+    var list = trees.filter(function(t){ var d = Math.abs(t[0] - W.x) + Math.abs(t[1] - W.z); return tier === (d < 340 ? 0 : d < 900 ? 1 : 2); });
+    var m = new THREE.InstancedMesh(crowns[tier], new THREE.MeshLambertMaterial({ vertexColors: true }), list.length);
+    m.castShadow = m.receiveShadow = true;
+    list.forEach(function(t, i){
+      dummy.position.set(t[0], G + t[2] * 1.7, t[1]); dummy.scale.set(t[2], t[2] * (.9 + rnd() * .25), t[2]); dummy.rotation.set(0, rnd() * 6.3, 0); dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
+      m.setColorAt(i, tint.setHex(LEAF[rnd() < .07 ? 6 + ((rnd() * 2) | 0) : (rnd() * 6) | 0]));
+    });
+    scene.add(m);
+  });
+
+  // ---------- low hills all round the horizon ----------
+  var hp = [], hi = [], HS = 96;
+  for (i = 0; i <= HS; i++) { var an = i / HS * Math.PI * 2, hh = 60 + 80 * Math.abs(Math.sin(an * 3.1) * Math.cos(an * 5.3 + 1)) + 30 * Math.sin(an * 11);
+    hp.push(Math.cos(an) * 8500, G - 20, Math.sin(an) * 8500 - 1500, Math.cos(an) * 9800, G + hh, Math.sin(an) * 9800 - 1500, Math.cos(an) * 12500, G + hh * .6, Math.sin(an) * 12500 - 1500);
+    if (i) { var o3 = (i - 1) * 3; hi.push(o3, o3 + 3, o3 + 1, o3 + 1, o3 + 3, o3 + 4, o3 + 1, o3 + 4, o3 + 2, o3 + 2, o3 + 4, o3 + 5); } }
+  var hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(hp, 3)); hg.setIndex(hi); hg.computeVertexNormals();
+  scene.add(new THREE.Mesh(hg, new THREE.MeshLambertMaterial({ color: 0x4A5A3E })));
+
+  // ---------- the house: narrow, two storeys, white siding, a shingled roof, a porch, its upper window lit ----------
+  function stripes(w, h, base, line, every, rep){ var c = document.createElement("canvas"); c.width = w; c.height = h; var x = c.getContext("2d");
+    x.fillStyle = base; x.fillRect(0, 0, w, h);
+    for (var y = 0; y < h; y += every) { var g = x.createLinearGradient(0, y, 0, y + every); g.addColorStop(0, line); g.addColorStop(.15, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.03)"); x.fillStyle = g; x.fillRect(0, y, w, every); }
+    var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.repeat.set(rep[0], rep[1]); textures.push(t); return t; }
+  var SID = stripes(64, 256, "#F3F0EA", "rgba(0,0,0,.16)", 32, [1, 1 / 1.44]), SHINGLE = stripes(64, 128, "#868A90", "rgba(0,0,0,.3)", 16, [1, 1 / 1.2]);
+  function metres(g, w, h){ var uv = g.attributes.uv; for (var i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w, uv.getY(i) * h); return g; }
+  function house(o2){   // x0..x1 across, front z, depth, the window openings in the front ([x, y, w, h, lit]), colours
+    var g = new THREE.Group(), x0 = o2.x0, x1 = o2.x1, zf = o2.z, zb = zf - o2.d, eave = G + 6.25, hw = (x1 - x0) / 2, xc = (x0 + x1) / 2, ridge = eave + hw * .9;
+    var wall = new THREE.MeshLambertMaterial({ map: SID, color: o2.color, side: THREE.DoubleSide });
+    var front = new THREE.Shape(); front.moveTo(x0, G); front.lineTo(x1, G); front.lineTo(x1, eave); front.lineTo(xc, ridge); front.lineTo(x0, eave); front.lineTo(x0, G);
+    o2.holes.forEach(function(h){ var p = new THREE.Path(); p.moveTo(h[0] - h[2] / 2, h[1] - h[3] / 2); p.lineTo(h[0] + h[2] / 2, h[1] - h[3] / 2); p.lineTo(h[0] + h[2] / 2, h[1] + h[3] / 2); p.lineTo(h[0] - h[2] / 2, h[1] + h[3] / 2); front.holes.push(p); });
+    var fg = new THREE.ShapeGeometry(front); fg.translate(0, 0, zf); g.add(new THREE.Mesh(fg, wall));
+    var back = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(x0, G), new THREE.Vector2(x1, G), new THREE.Vector2(x1, eave), new THREE.Vector2(xc, ridge), new THREE.Vector2(x0, eave)]));
+    back.translate(0, 0, zb); g.add(new THREE.Mesh(back, wall));
+    [x0, x1].forEach(function(sx){ var s = new THREE.Mesh(metres(new THREE.PlaneGeometry(o2.d, eave - G), o2.d, eave - G), wall); s.rotation.y = Math.PI / 2; s.position.set(sx, (G + eave) / 2, zf - o2.d / 2); g.add(s); });
+    var roofM = new THREE.MeshLambertMaterial({ map: SHINGLE, color: o2.roof }), rl = Math.sqrt(hw * hw + (ridge - eave) * (ridge - eave)) + .45, ang = Math.atan2(ridge - eave, hw);
+    [-1, 1].forEach(function(s){ var r = new THREE.Mesh(metres(new THREE.BoxGeometry(rl, .14, o2.d + .9), rl, o2.d + .9), roofM); r.position.set(xc + s * (hw / 2 + .1), (eave + ridge) / 2 + .05, zf - o2.d / 2 + .25); r.rotation.z = -s * ang; g.add(r); });
+    var trim = new THREE.MeshLambertMaterial({ color: 0xF6F4EF }), black = new THREE.MeshLambertMaterial({ color: 0x2B2723 });
+    [x0, x1].forEach(function(sx){ var c = new THREE.Mesh(new THREE.BoxGeometry(.16, eave - G, .16), trim); c.position.set(sx, (G + eave) / 2, zf - .02); g.add(c); });   // corner boards
+    [-1, 1].forEach(function(s){ var f = new THREE.Mesh(new THREE.BoxGeometry(rl - .3, .22, .06), trim); f.position.set(xc + s * (hw / 2 + .05), (eave + ridge) / 2 - .02, zf + .7); f.rotation.z = -s * ang; g.add(f); });   // the gable's trim
+    o2.holes.forEach(function(h){   // black frames; glass that mirrors the sky, with a dark (or warm) room behind
+      var fr = .055, d = .09;
+      [[0, h[3] / 2 + fr / 2, h[2] + fr * 2, fr], [0, -h[3] / 2 - fr / 2, h[2] + fr * 2, fr], [-h[2] / 2 - fr / 2, 0, fr, h[3]], [h[2] / 2 + fr / 2, 0, fr, h[3]]].forEach(function(b){
+        var m = new THREE.Mesh(new THREE.BoxGeometry(b[2], b[3], d), black); m.position.set(h[0] + b[0], h[1] + b[1], zf + d / 2 - .02); g.add(m); });
+      var sill = new THREE.Mesh(new THREE.BoxGeometry(h[2] + .3, .06, .16), trim); sill.position.set(h[0], h[1] - h[3] / 2 - fr - .03, zf + .07); g.add(sill);
+      if (h[4] === "room") return;
+      var gl = new THREE.Mesh(new THREE.PlaneGeometry(h[2], h[3]), new THREE.MeshStandardMaterial({ color: 0x14191F, roughness: .05, metalness: .6, emissive: h[4] ? 0xFF9A4A : 0x000000, emissiveIntensity: h[4] ? .45 : 0 }));
+      gl.position.set(h[0], h[1], zf - .04); g.add(gl);
+    });
+    if (o2.porch) {   // a porch over the front door: a shed roof on two posts, a floor and a path to the street
+      var pw = o2.porch, pd = o2.porchD || 2.6, pz = zf + pd - .4, ph = o2.porchD ? 2.75 : 3.25;
+      var pr = new THREE.Mesh(metres(new THREE.BoxGeometry(pw + .4, .14, pd), pw + .4, pd), roofM); pr.position.set(xc, G + ph, zf + pd / 2 - .1); pr.rotation.x = .22; g.add(pr);
+      [-1, 1].forEach(function(s){ var p = new THREE.Mesh(new THREE.BoxGeometry(.18, ph - .2, .18), trim); p.position.set(xc + s * pw / 2, G + (ph - .2) / 2, pz); g.add(p); });
+      var fl = new THREE.Mesh(new THREE.BoxGeometry(pw + .4, .4, pd), new THREE.MeshLambertMaterial({ color: 0x9A9286 })); fl.position.set(xc, G + .2, zf + pd / 2 - .05); g.add(fl);
+      var walk = new THREE.Mesh(new THREE.BoxGeometry(1.2, .06, 6), new THREE.MeshLambertMaterial({ color: 0xA9A397 })); walk.position.set(xc, G + .03, zf + 5.4); g.add(walk);
+    }
+    g.traverse(function(m){ if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+    return g;
+  }
+  var hx0 = W.x - 2.9, hx1 = W.x + 2.9;
+  scene.add(house({ x0: hx0, x1: hx1, z: W.z, d: 13, color: 0xFFFFFF, roof: 0xFFFFFF, porch: 2.2, porchD: 1.5,
+    holes: [[W.x, W.y, W.w, W.h, "room"], [W.x, G + 1.05, 1.0, 2.1, 0], [W.x - 1.9, G + 1.6, .9, 1.5, 1], [W.x + 1.9, G + 1.6, .9, 1.5, 0]] }));
+  scene.add(house({ x0: hx0 - 10.5, x1: hx0 - 4.3, z: W.z - 1.5, d: 12, color: 0xB7C6B2, roof: 0xD8D2C8, porch: 3,
+    holes: [[hx0 - 7.4, W.y, 1.1, 1.4, 0], [hx0 - 7.4, G + 1.05, 1.0, 2.1, 0], [hx0 - 5.6, G + 1.6, .9, 1.5, 1]] }));
+  scene.add(house({ x0: hx1 + 4.4, x1: hx1 + 10.4, z: W.z - 1, d: 12, color: 0x93A3B2, roof: 0xC9CED4, porch: 3,
+    holes: [[hx1 + 7.4, W.y, 1.1, 1.4, 1], [hx1 + 7.4, G + 1.05, 1.0, 2.1, 0], [hx1 + 9.1, G + 1.6, .8, 1.4, 0]] }));
+  var shrub = new THREE.MeshLambertMaterial({ vertexColors: true, color: 0x5C7A3E });
+  [[hx0 - 2.6, W.z - 6, 3.6, 5.6], [hx1 + 2.8, W.z - 7.5, 3.4, 5.4], [hx0 - 16, W.z + 3, 4.2, 7], [hx1 + 16, W.z + 2, 4.4, 7.2]].forEach(function(t){   // trees beside and behind the house
+    var c = new THREE.Mesh(big, new THREE.MeshLambertMaterial({ vertexColors: true, color: LEAF[(rnd() * 6) | 0] })); c.position.set(t[0], G + t[3], t[1]); c.scale.setScalar(t[2]); c.castShadow = c.receiveShadow = true; scene.add(c);
+    var tr = new THREE.Mesh(new THREE.CylinderGeometry(.2, .3, t[3], 6), new THREE.MeshLambertMaterial({ color: 0x3B2E24 })); tr.position.set(t[0], G + t[3] / 2, t[1]); tr.castShadow = true; scene.add(tr);
+  });
+  [-2.2, -1.2, 1.3, 2.3].forEach(function(dx){ var b2 = new THREE.Mesh(crowns[1], shrub); b2.position.set(W.x + dx, G + .5, W.z + .8); b2.scale.set(.6, .55, .5); b2.castShadow = b2.receiveShadow = true; scene.add(b2); });   // shrubs along the front
+
+  // ---------- the way in: a depth-only mask in the window (the room shows through), the glass's sheen, and a warm glow
+  // that marks the window from far away ----------
+  var mask = new THREE.Mesh(new THREE.PlaneGeometry(W.w, W.h), new THREE.MeshBasicMaterial({ colorWrite: false }));
+  mask.position.set(W.x, W.y, W.z + .001); mask.renderOrder = -10; scene.add(mask);
+  var sheen = new THREE.Mesh(new THREE.PlaneGeometry(W.w, W.h), new THREE.MeshBasicMaterial({ color: 0xC2CDE2, transparent: true, opacity: .3, depthWrite: false, fog: false }));
+  sheen.position.set(W.x, W.y, W.z + .004); scene.add(sheen);
+  var glowT = (function(){ var c = document.createElement("canvas"); c.width = c.height = 64; var x = c.getContext("2d"), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,190,120,1)"); g.addColorStop(.3, "rgba(255,160,90,.35)"); g.addColorStop(1, "rgba(255,140,70,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    var t = new THREE.CanvasTexture(c); textures.push(t); return t; })();
+  var glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowT, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  glow.position.set(W.x, W.y, W.z + .3); scene.add(glow);
+
+  // ---------- the cloud the camera comes down out of ----------
+  var puffT = (function(){ var S = 128, c = document.createElement("canvas"); c.width = c.height = S; var x = c.getContext("2d"), d = x.createImageData(S, S);
+    for (var j = 0; j < S; j++) for (var i = 0; i < S; i++) { var u = i / S * 2 - 1, v = j / S * 2 - 1, r = Math.sqrt(u * u + v * v), nn = .5 + .25 * Math.sin(u * 7.3 + Math.cos(v * 5.1) * 2) + .25 * Math.sin(v * 9.1 - u * 3.3);
+      var a = smooth(1, .2, r + (nn - .5) * .45) * (.6 + .4 * nn), k = (j * S + i) * 4; d.data[k] = d.data[k + 1] = d.data[k + 2] = 255; d.data[k + 3] = 255 * Math.max(0, Math.min(1, a)); }
+    x.putImageData(d, 0, 0); var t = new THREE.CanvasTexture(c); textures.push(t); return t; })();
+  var puffs = [];
+  for (i = 0; i < 18; i++) {
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, color: o.mist, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
+    s.position.set(-250 + rnd() * 600, 180 + rnd() * 320, 450 + rnd() * 700); s.scale.setScalar(140 + rnd() * 200); s.userData.op = .5 + rnd() * .4; s.frustumCulled = false; scene.add(s); puffs.push(s);
+  }
+
+  // ---------- each frame: k is how far the flight is through the city (0 → 1) ----------
+  var wc = new V3(W.x, W.y, W.z);
+  function update(k, cam){
+    sky.position.copy(cam.position);
+    puffs.forEach(function(s){ s.material.opacity = s.userData.op * (1 - smooth(.03, .25, k)); s.visible = k < .25; });
+    var d = cam.position.distanceTo(wc);
+    sheen.material.opacity = .3 * smooth(1.2, 6, d);
+    glow.material.opacity = .55 * smooth(10, 80, d); glow.scale.setScalar(Math.max(1.5, d * .02));
+  }
+  return { scene: scene, update: update, textures: textures };
+};
+</script>
+
+<script>
 /* Devices: Services, Why it matters and Why choose us? on three devices in a 3D room (Three.js, like the film).
-   Right after the mountain film a warm room appears: a laptop on a short wood desk against a white wall in amber light,
-   close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. After Services comes a
+   Right after the mountain film's summit, once the visitor scrolls on, a flight plays by itself (FLY): the film's camera
+   rises into the morning cloud (the film draws that), then out of the cloud over Nashville at sunrise (the "Nashville,
+   3D" script), down to a house and in at its upper window, to a laptop on a short wood desk against a white wall in
+   amber light, with Services full-screen on its screen. A firm scroll the other way turns it around; scrolling up from
+   the laptop flies it back, twice as fast. Scrolling scrolls the page on the screen. After Services comes a
    generous pause (the camera leans a little toward what's next); once the visitor clearly scrolls on, the camera glides
    along the desk to a desktop display (Why it matters) at its own pace, then (after a pause) into that display and
    out to a tablet floating on white (Why choose us?). At the end of that the tablet turns to dust that drifts off to the
@@ -1828,15 +2180,19 @@ window.__zwdIntro3D = function(THREE, intro, on){
    The pages on the screens are the real page (links, search engines, screen readers): each section is moved into a box
    that is fitted onto its 3D screen every frame. Without this script (reduced motion, Data Saver, slow connection, no
    WebGL 2, software graphics, opened from the folder) the three sections stay ordinary page sections.
-   Tune: ZONE and HOLD (scroll room, in screen heights), PAN (the glide: its pause, bands, travel and seconds), AUTO
+   Tune: FLY (the flight: the hold at the summit, its scroll room and seconds), WIN (the window it goes in at),
+   ZONE and HOLD (scroll room, in screen heights), PAN (the glide: its pause, bands, travel and seconds), AUTO
    (seconds a move takes when it finishes by itself), FILL (how
    much of the window a screen fills), the lights in "the room", and the dust in DUST_VS. The devices are look-alikes
    with no logos. */
 (function(){
   "use strict";
-  var ZONE = [.8, 0, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / (the glide: PAN) / into the tablet / to dust
+  var ZONE = [0, 0, 1.1, 1.2];               // scroll room for each move, in screen heights: (the flight: FLY) / (the glide: PAN) / into the tablet / to dust
+  var FLY = { hold: .3, rise: 1, city: 2.4, band: .3, secs: 7.6, back: .5 };   // summit to desk: a hold at the summit, then by itself the rise (in the film) and Nashville; back up in half the time
+  var WIN = { x: -.7, y: .85, w: 1.1, h: 1.5, z: 2.3 }, GROUND = -3.8;     // the window the camera goes in at, facing the desk, and the street below it
+  var MIST = 0xF2E6D8;                        // the cloud between the mountain and the city: the film's rise ends in exactly this colour
   var HOLD = .6;                              // after each page, a pause before the next move
-  var AUTO = [1.2, 1.8, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
+  var AUTO = [0, 1.8, 1.6, 2.2];              // seconds a whole move takes when it finishes by itself (the flight always plays at its own pace: FLY)
   var PAN = { hold: .8, band: .3, travel: .9, secs: 1.8 };   // laptop to display: a generous pause after Services, then, once the visitor clearly scrolls on, a 1.8-second glide
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
   var FOV = 28, T = Math.tan(FOV * Math.PI / 360);
@@ -1968,6 +2324,12 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var arm = new THREE.Mesh(new THREE.BoxGeometry(.165, .3, .01), alu); arm.position.set(0, .155, -.1); arm.rotation.x = .22; arm.castShadow = true; sd.add(arm);
     room.updateMatrixWorld(true);
 
+    // ---------- Nashville, for the flight in from the mountain (the "Nashville, 3D" script) ----------
+    var city = window.__zwdNashville(THREE, { renderer: renderer, ground: GROUND, win: WIN, mist: MIST, fine: Math.min(screen.width, screen.height) >= 700 });
+    var mistScene = new THREE.Scene(), mistQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ color: MIST, transparent: true, toneMapped: false, depthTest: false, depthWrite: false }));
+    mistQuad.position.z = -.5; mistQuad.frustumCulled = false; mistScene.add(mistQuad);
+    var lit = new THREE.MeshBasicMaterial({ color: 0xEEF1EE, toneMapped: false }), cityLit = false;   // the laptop's screen, on, as seen from outside (its page fades in on the way in)
+
     // ---------- the studio: a tablet floating on white ----------
     var studio = new THREE.Scene(); studio.background = new THREE.Color(0xF3F2EE);
     studio.environment = envMap([[[3, 3, 3], 4, 3, [-2.5, 2, 3]], [[2, 2, 2.1], 4, 3, [3, 1, 3]], [[1.2, 1.2, 1.2], 6, 3, [0, 3, 0]]], 0xD9D8D4);
@@ -2036,6 +2398,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     }
     var HASHES = IDS.concat(next && next.id ? [next.id] : []);
     restore = function(){
+      film.style.removeProperty("--film-tail"); delete film.dataset.tail; delete film.dataset.rise; root.classList.remove("dev-moving");
       if (hold && hold.parentNode) {
         hold.parentNode.insertBefore(next, hold); hold.parentNode.removeChild(hold);
         next.style.top = ""; next.classList.remove("dev-under"); document.dispatchEvent(new Event("zwd:uncovered"));
@@ -2046,7 +2409,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     };
 
     // ---------- layout: where the camera stands for each device, and how much scrolling each part gets ----------
-    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], poses = {}, lastW = 0, lastH = 0, nextTop = 88;
+    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], fly = [0, 1], moves = {}, poses = {}, lastW = 0, lastH = 0, nextTop = 88;
     function pose(mesh, w, h){
       mesh.updateWorldMatrix(true, false);
       var c = mesh.getWorldPosition(new V3()), q = mesh.getWorldQuaternion(new THREE.Quaternion());
@@ -2059,11 +2422,9 @@ window.__zwdIntro3D = function(THREE, intro, on){
     function layout(){
       vpW = stage.clientWidth || window.innerWidth; vpH = filmStage.offsetHeight || window.innerHeight; hdr = header ? header.offsetHeight : 64;
       var tall = vpW < vpH; fillW = FILL[tall ? "tall" : "wide"][0]; fillH = FILL[tall ? "tall" : "wide"][1];
-      renderer.setSize(vpW, vpH, false); cam.aspect = vpW / vpH; cam.updateProjectionMatrix();
+      renderer.setSize(vpW, vpH, false); cam.aspect = vpW / vpH; cam.fov = FOV; cam.near = .01; cam.far = 30; cam.updateProjectionMatrix();   // (the room's lens, even mid-flight)
       tablet.position.y = 0; studio.updateMatrixWorld(true);
       poses.A = pose(macScreen, MAC.dw, MAC.dh); poses.B = pose(sdScreen, SD.dw, SD.dh); poses.C = pose(tbScreen, TB.w + .004, TB.h + .004);   // framed by the whole tablet, so its wide bezel stays in view
-      var A = poses.A, dir = A.n.clone().add(new V3(-.5, .34, .12)).normalize();
-      poses.I = { pos: A.c.clone().addScaledVector(dir, A.d * 2.7).add(new V3(0, .02, 0)), target: A.c.clone().add(new V3(.05, -.03, 0)), up: new V3(0, 1, 0) };
       poses.BC = closer(poses.B, .42); poses.CC = closer(poses.C, .5);
       poses.back = poses.A.n.clone().add(poses.B.n).normalize();
       poses.right = poses.A.target.clone().sub(poses.A.pos).cross(poses.A.up).normalize();
@@ -2075,14 +2436,18 @@ window.__zwdIntro3D = function(THREE, intro, on){
         sc.el.style.borderRadius = sc.rad.map(function(x){ return (x * k).toFixed(1) + "px"; }).join(" ");
       });
       screens.forEach(function(sc, i){ len[i] = Math.max(0, sc.page.offsetHeight - sc.H); });
-      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust
-      var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; };
-      zones[0] = zone(0, 0); st[0] = zones[0][1];
+      // the scroll, in order: the summit (a hold) / the flight: the rise (in the film), Nashville, in at the window / Services / pause /
+      // along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust. The film gets a tail for the hold and the rise.
+      var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; }, R = FLY.rise * vpH, Hd = FLY.hold * vpH;
+      film.dataset.tail = Hd + R; film.dataset.rise = R; film.style.setProperty("--film-tail", (Hd + R) + "px");
+      fly = [-R, FLY.city * vpH]; zones[0] = [-R - Hd, fly[1] + FLY.band * vpH]; st[0] = zones[0][1];
       var pa = st[0] + len[0] + PAN.hold * vpH;                   // the glide: a still band, the travel, a still band
       zones[1] = [pa, pa + (2 * PAN.band + PAN.travel) * vpH]; st[1] = zones[1][1]; glide = [pa + PAN.band * vpH, zones[1][1] - PAN.band * vpH];
       zones[2] = zone(st[1] + len[1] + HOLD * vpH, 2); st[2] = zones[2][1];
       zones[3] = zone(st[2] + len[2] + HOLD * vpH, 3);
       P = zones[3][1];
+      moves.fly = { a: fly[0], b: fly[1], land: [zones[0][0] + 4, st[0]], secs: FLY.secs, back: FLY.back };
+      moves.glide = { a: glide[0], b: glide[1], land: [glide[0] - 4, zones[1][1]], secs: PAN.secs, back: 1 };
       track.style.marginTop = -vpH + "px"; track.style.height = (vpH + P) + "px";
       if (hold) {                                                 // The process sits still under the dust, just below the header, then carries on with the page
         var dz = zones[3][1] - zones[3][0]; nextTop = hdr + 24;
@@ -2091,9 +2456,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
       renderer.shadowMap.needsUpdate = true; glKey = "";
       lastW = window.innerWidth; lastH = window.innerHeight;
     }
-    function curAt(s){                                    // where the sequence is at a scroll position: 0 film, 1 laptop, 2 display, 3 tablet, 4 dust done
-      if (s <= 0) return 0;
-      for (var k = 0; k < 4; k++) {
+    function curAt(s){                                    // where the sequence is at a scroll position: 0 film, (the flight), 1 laptop, 2 display, 3 tablet, 4 dust done
+      if (s <= fly[0]) return 0;
+      if (s < fly[1]) return (s - fly[0]) / (fly[1] - fly[0]);
+      for (var k = 1; k < 4; k++) {
         var z = zones[k];
         if (s < z[0]) return k;
         if (s < z[1]) return k === 1 ? (s < glide[0] ? 1 : s > glide[1] ? 2 : 1 + (s - glide[0]) / (glide[1] - glide[0])) : k + (s - z[0]) / (z[1] - z[0]);
@@ -2130,9 +2496,13 @@ window.__zwdIntro3D = function(THREE, intro, on){
     function ease(t){ t = clamp(t); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
     function smooth(a, b, x){ var t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); }
     function view(c){                                     // everything on screen for one value of the sequence (0 film … 4 dust done)
-      var v = { scene: room, pose: poses.I, scr: [0, 0, 0], veil: 0, stage: 1, dust: -1 };
+      var v = { scene: room, pose: poses.A, scr: [0, 0, 0], veil: 0, stage: 1, dust: -1, fly: -1, fov: FOV };
       if (c <= 0) { v.stage = 0; return v; }
-      if (c < 1) { v.pose = mixPose(poses.I, poses.A, ease(c)); v.stage = clamp(c / .2); v.scr[0] = clamp((c - .55) / .3); return v; }
+      if (c < 1) {                                          // the flight: until the film has risen into the cloud there's nothing to draw here
+        var c0 = -fly[0] / (fly[1] - fly[0]); if (c <= c0) { v.stage = 0; return v; }
+        var k = (c - c0) / (1 - c0), f = flyCam(k);
+        v.fly = k; v.mist = 1 - smooth(0, .12, k); v.pose = f; v.fov = f.fov; v.scr[0] = clamp((k - UW) / .06); return v;
+      }
       if (c < 2) {                                          // the glide along the desk: eased in and out, pulling back a little mid-way, looking ahead
         var t = c - 1, e = t < .5 ? 16 * Math.pow(t, 5) : 1 - Math.pow(-2 * t + 2, 5) / 2, arc = Math.sin(e * Math.PI), A = leaned(), B = poses.B;
         v.pose = { pos: A.pos.clone().lerp(B.pos, e).addScaledVector(poses.back, arc * .75).add(new V3(0, arc * .08, 0)), target: A.target.clone().lerp(B.target, ease(t)), up: A.up.clone().lerp(B.up, e).normalize() };
@@ -2142,6 +2512,48 @@ window.__zwdIntro3D = function(THREE, intro, on){
       if (c <= 3) { var t4 = clamp((c - 2.5) / .5); v.scene = studio; v.pose = mixPose(poses.CC, poses.C, 1 - Math.pow(1 - t4, 3)); v.scr[2] = 1; v.veil = 1 - smooth(2.5, 2.64, c); return v; }
       if (c >= 4) { v.stage = 0; return v; }               // the dust has cleared: only The process is left
       v.scene = null; v.pose = poses.C; v.dust = clamp(c - 3); return v;
+    }
+
+    // ---------- the flight: down out of the cloud over East Nashville, looking at downtown, then closing in on the house
+    // at a steady zoom (distance falling away exponentially), in at the window and on to the laptop ----------
+    var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), WC = new V3(WIN.x, WIN.y, WIN.z), D1 = new V3(0, .05, 1).normalize(), UW = .84, ASIDE = new V3(-.3, 0, 0);
+    function outside(v){                                  // 0 → 1: from the cloud to the window
+      var a = 2.5, D0 = P0.distanceTo(WC), g = Math.pow(v, 1.6), D = (D0 + a) * Math.pow((.02 + a) / (D0 + a), g) - a;
+      return WC.clone().addScaledVector(P0.clone().sub(WC).normalize().lerp(D1, smooth(0, 1, v)).normalize(), D);
+    }
+    function flyCam(k){
+      var A = poses.A, wide = vpW < vpH ? 58 : 40, aside = vpW < vpH ? 0 : 1;   // (on a tall screen the display is out of view anyway)
+      if (k < UW) {
+        var v = k / UW;
+        return { pos: outside(v), target: TD.clone().lerp(A.target.clone().addScaledVector(ASIDE, aside), smooth(.3, .8, v)), up: new V3(0, 1, 0), fov: wide + (FOV - wide) * smooth(.35, 1, v) };
+      }
+      var w = (k - UW) / (1 - UW), Pw = outside(1), vel = Pw.clone().sub(outside(1 - 1e-4)).multiplyScalar(1e4 / UW), L = A.pos.distanceTo(Pw);   // carry the speed in through the window
+      var p1 = Pw.clone().addScaledVector(vel, (1 - UW) / 3); if (p1.distanceTo(Pw) > .45 * L) p1 = Pw.clone().addScaledVector(vel.normalize(), .45 * L);
+      var p2 = A.pos.clone().addScaledVector(A.pos.clone().sub(A.target).normalize(), .35 * L), m = 1 - w;
+      var pos = Pw.multiplyScalar(m * m * m).addScaledVector(p1, 3 * m * m * w).addScaledVector(p2, 3 * m * w * w).addScaledVector(A.pos, w * w * w);
+      return { pos: pos, target: A.target.clone().addScaledVector(ASIDE, aside * (1 - smooth(0, .6, w))), up: new V3(0, 1, 0).lerp(A.up, smooth(0, 1, w)).normalize(), fov: FOV };   // looking a little left of the laptop until close, so the display stays out of view
+    }
+    function winRect(){                                   // the window's rectangle on the stage (px from the bottom left, for the scissor), or null when it's off screen
+      var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (var i = 0; i < 4; i++) {
+        tv.set(WIN.x + (i & 1 ? .5 : -.5) * WIN.w, WIN.y + (i & 2 ? .5 : -.5) * WIN.h, WIN.z).project(cam);
+        if (!(tv.z > -1 && tv.z < 1)) return [0, 0, vpW, vpH];
+        var px = (tv.x + 1) / 2 * vpW, py = (tv.y + 1) / 2 * vpH;
+        x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+      }
+      x0 = Math.max(0, Math.floor(x0) - 2); y0 = Math.max(0, Math.floor(y0) - 2); x1 = Math.min(vpW, Math.ceil(x1) + 2); y1 = Math.min(vpH, Math.ceil(y1) + 2);
+      return x1 > x0 && y1 > y0 ? [x0, y0, x1 - x0, y1 - y0] : null;
+    }
+    function drawFly(v){
+      city.update(v.fly, cam);
+      if (cam.position.z > WIN.z + .03) {                 // outside: the room, only where the window is; then the city round it
+        var r = winRect();
+        if (r) { renderer.setScissorTest(true); renderer.setScissor(r[0], r[1], r[2], r[3]); renderer.render(room, cam); renderer.setScissorTest(false); }
+        if (!cityLit) { renderer.shadowMap.needsUpdate = true; cityLit = true; }   // the city's long shadows: drawn once
+        renderer.autoClear = false; renderer.clearDepth(); renderer.render(city.scene, cam);
+      } else renderer.render(room, cam);
+      if (v.mist > 0) { renderer.autoClear = false; mistQuad.material.opacity = v.mist; renderer.render(mistScene, dustCam); }
+      renderer.autoClear = true;
     }
 
     // ---------- dust ----------
@@ -2227,8 +2639,13 @@ window.__zwdIntro3D = function(THREE, intro, on){
       if (v.stage <= 0) { screens.forEach(function(sc){ sc.el.style.opacity = "0"; sc.el.classList.remove("is-on"); }); return; }
       var bob = (cur > 2.5 && cur <= 3) ? Math.sin(now / 900) * .003 : 0;
       if (tablet.position.y !== bob) { tablet.position.y = bob; tablet.updateMatrixWorld(true); }
+      var near = .01, far = 30;                           // the room needs 30 m; on the flight the depth range follows the distance to the window
+      if (v.fly >= 0 && v.pose.pos.z > WIN.z) { near = Math.min(4, Math.max(.01, v.pose.pos.distanceTo(WC) * .02)); far = 40000; }
+      if (cam.fov !== v.fov || cam.near !== near || cam.far !== far) { cam.fov = v.fov; cam.near = near; cam.far = far; cam.updateProjectionMatrix(); }
       setPose(v.pose);
-      if (dusting) {
+      macScreen.material = v.fly >= 0 ? lit : off;
+      if (v.fly >= 0) { drawFly(v); glKey = ""; }
+      else if (dusting) {
         if (!dust) dust = dustStart() ? 1 : null;
         dustU.uQ.value = v.dust * 1.3;
         renderer.setClearColor(WHITE, 1 - smooth(.1, .6, v.dust));   // the white clears, and The process shows through
@@ -2241,7 +2658,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       for (var i = 0; i < 3; i++) {
         var sc = screens[i], o = v.scr[i], q = o > 0 ? corners(sc.mesh, sc.w, sc.h) : null, m = q && fit(sc.W, sc.H, q);
         if (!m) o = 0;
-        sc.el.style.opacity = o > 0 ? "1" : "0"; sc.el.style.filter = o > 0 && o < 1 ? "brightness(" + (.25 + .75 * o).toFixed(3) + ")" : "";
+        if (v.fly >= 0) { sc.el.style.opacity = o.toFixed(3); sc.el.style.filter = ""; }   // on the way in, the page fades in over the lit screen
+        else { sc.el.style.opacity = o > 0 ? "1" : "0"; sc.el.style.filter = o > 0 && o < 1 ? "brightness(" + (.25 + .75 * o).toFixed(3) + ")" : ""; }
         sc.el.classList.toggle("is-on", o > .5);
         if (o > 0) { sc.el.style.transform = m; sc.page.style.transform = "translate3d(0," + (-Math.max(0, Math.min(len[i], s - st[i]))).toFixed(1) + "px,0)"; }
       }
@@ -2260,7 +2678,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         if (glideAnim) {                                                // the glide plays at its own pace (its easing is in view())
           var g = glideAnim, tg = Math.min(1, (now - g.t0) / Math.max(1, g.d));
           window.scrollTo({ top: g.base + (tg < 1 ? g.from + (g.to - g.from) * tg : g.land), behavior: "instant" });
-          if (tg >= 1) { glideAnim = null; lastY = window.scrollY; }
+          if (tg >= 1) { stopMove(); lastY = window.scrollY; }
         }
         if (lean > 0) { lean *= Math.exp(-dt / .45); if (lean < .002) lean = 0; }
         var s = -track.getBoundingClientRect().top;
@@ -2280,16 +2698,18 @@ window.__zwdIntro3D = function(THREE, intro, on){
     // ---------- a move left partway finishes by itself, in the direction the visitor was going ----------
     var auto = null, glideAnim = null, lean = 0, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, mouseHeld = false, wheelAt = 0, flight = false, flightT = 0, reland = null;
     function cancelAuto(){ auto = null; flight = false; reland = null; }
+    function stopMove(){ glideAnim = null; root.classList.remove("dev-moving"); }
     function landed(){                                    // a scroll the visitor didn't make (a menu link, the browser opening a link) has come to rest
       flight = false;
       if (reland) { var r = reland; reland = null; r(); }
       settle();
     }
-    function glideTo(dir){                                // laptop to display (or back): once started it plays through, unless the visitor firmly scrolls the other way
+    function playTo(m, dir){                              // the flight or the glide (or back): once started it plays through, unless the visitor firmly scrolls the other way
       clearTimeout(quiet); auto = null;
-      var s = -track.getBoundingClientRect().top, from = Math.max(glide[0], Math.min(glide[1], s)), to = dir > 0 ? glide[1] : glide[0];
-      glideAnim = { base: window.scrollY - s, from: from, to: to, land: dir > 0 ? zones[1][1] : glide[0] - 4, dir: dir, push: 0, t0: performance.now(),
-                    d: PAN.secs * 1000 * Math.abs(to - from) / (glide[1] - glide[0]) };
+      var s = -track.getBoundingClientRect().top, from = Math.max(m.a, Math.min(m.b, s)), to = dir > 0 ? m.b : m.a;
+      root.classList.add("dev-moving");
+      glideAnim = { m: m, base: window.scrollY - s, from: from, to: to, land: m.land[dir > 0 ? 1 : 0], dir: dir, push: 0, t0: performance.now(),
+                    d: m.secs * (dir > 0 ? 1 : m.back) * 1000 * Math.abs(to - from) / (m.b - m.a) };
       kick();
     }
     function settle(){
@@ -2297,9 +2717,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
       if (performance.now() - wheelAt < 150) { quiet = setTimeout(settle, 150); return; }   // trackpad momentum still coming
       var s = -track.getBoundingClientRect().top;
       for (var k = 0; k < 4; k++) {
-        var z = k === 1 ? glide : zones[k];                          // the glide's still bands are places to rest
+        var z = k === 0 ? fly : k === 1 ? glide : zones[k];          // the still bands round the flight and the glide are places to rest
         if (s > z[0] + 2 && s < z[1] - 2) {
           var p = (s - z[0]) / (z[1] - z[0]), on = dirY > 0 ? p > .2 : p > .8, to = on ? z[1] : z[0];   // only nudged in (under a fifth of the move): settle back
+          if (k === 0) { playTo(moves.fly, on ? 1 : -1); return; }    // the flight always plays at its own pace
           auto = { y0: window.scrollY, y1: window.scrollY + (to - s), t0: performance.now(), d: Math.max(250, AUTO[k] * 1000 * Math.abs(to - s) / (z[1] - z[0])) };
           kick(); return;
         }
@@ -2312,27 +2733,46 @@ window.__zwdIntro3D = function(THREE, intro, on){
         if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
         clearTimeout(quiet); quiet = setTimeout(settle, 160);
         var s = -track.getBoundingClientRect().top, z = zones[1], half = PAN.band * vpH / 2;
-        if (z && dy > 0 && s > st[0] + len[0] && s < z[0] + half) lean = Math.min(1, lean + dy / (.5 * vpH));   // scrolling on past Services: lean toward the display
-        if (z && dy > 0 && s >= z[0] + half && s < glide[1]) glideTo(1);           // clearly moving on: the glide plays
-        else if (z && dy < 0 && s <= z[1] - half && s > glide[0]) glideTo(-1);     // clearly going back
+        if (z && dy > 0 && s >= fly[0] - FLY.hold * vpH / 2 && s < fly[1]) playTo(moves.fly, 1);            // on past the summit: the flight plays
+        else if (z && dy < 0 && s <= st[0] - FLY.band * vpH / 2 && s > fly[0]) playTo(moves.fly, -1);      // back up from the laptop: it flies back
+        else {
+          if (z && dy > 0 && s > st[0] + len[0] && s < z[0] + half) lean = Math.min(1, lean + dy / (.5 * vpH));   // scrolling on past Services: lean toward the display
+          if (z && dy > 0 && s >= z[0] + half && s < glide[1]) playTo(moves.glide, 1);   // clearly moving on: the glide plays
+          else if (z && dy < 0 && s <= z[1] - half && s > glide[0]) playTo(moves.glide, -1);   // clearly going back
+        }
       }
       lastY = y; kick();
     }
+    // While a move plays by itself the page holds still (the wheel, a swipe or a key would make it jump ahead for a
+    // frame); a firm scroll, swipe or key the other way turns it around.
     window.addEventListener("wheel", function(e){
       wheelAt = performance.now(); cancelAuto();
-      if (glideAnim && e.deltaY * glideAnim.dir < 0 && (glideAnim.push += Math.abs(e.deltaY)) > 240) glideTo(-glideAnim.dir);   // a firm scroll the other way turns it around
+      if (!glideAnim) return;
+      if (e.cancelable) e.preventDefault();
+      if (e.deltaY * glideAnim.dir < 0 && (glideAnim.push += Math.abs(e.deltaY)) > 240) playTo(glideAnim.m, -glideAnim.dir);
+    }, { passive: false });
+    var touchY = 0;
+    window.addEventListener("touchstart", function(e){ held = true; cancelAuto(); touchY = e.touches[0] ? e.touches[0].clientY : 0; }, { passive: true });
+    window.addEventListener("touchmove", function(e){
+      var y = e.touches[0] ? e.touches[0].clientY : touchY, dy = touchY - y; touchY = y;
+      if (glideAnim && dy * glideAnim.dir < 0 && (glideAnim.push += Math.abs(dy)) > 120) playTo(glideAnim.m, -glideAnim.dir);
     }, { passive: true });
-    window.addEventListener("touchstart", function(){ held = true; cancelAuto(); }, { passive: true });
     window.addEventListener("touchend", function(){ held = false; clearTimeout(quiet); quiet = setTimeout(settle, 220); }, { passive: true });
     window.addEventListener("touchcancel", function(){ held = false; }, { passive: true });
-    window.addEventListener("mousedown", function(){ held = mouseHeld = true; cancelAuto(); glideAnim = null; });   // grabbing the scroll bar takes over
+    window.addEventListener("mousedown", function(){ held = mouseHeld = true; cancelAuto(); stopMove(); });   // grabbing the scroll bar takes over
     window.addEventListener("mouseup", function(){ held = mouseHeld = false; clearTimeout(quiet); quiet = setTimeout(settle, 160); });
-    window.addEventListener("keydown", cancelAuto);
+    window.addEventListener("keydown", function(e){
+      cancelAuto();
+      var k = e.key, down = k === "ArrowDown" || k === "PageDown" || (k === " " && !e.shiftKey), up = k === "ArrowUp" || k === "PageUp" || (k === " " && e.shiftKey);
+      if (!glideAnim || !(down || up) || (e.target && e.target.closest && e.target.closest("input, textarea, select, [contenteditable]"))) return;
+      e.preventDefault();
+      if (down ? glideAnim.dir < 0 : glideAnim.dir > 0) playTo(glideAnim.m, -glideAnim.dir);
+    });
 
     // ---------- menu links, focus, resizing ----------
     function jump(i, push){                               // straight to that page; The process: where the dust has cleared
       var top = track.getBoundingClientRect().top + window.scrollY + (i < 3 ? st[i] + 1 : P);
-      cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
+      cancelAuto(); stopMove(); window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
       if (push && history.pushState) history.pushState(null, "", "#" + HASHES[i]);
     }
     document.addEventListener("click", function(e){
@@ -2342,7 +2782,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
       if (!u.hash || u.pathname !== location.pathname) return;
       var i = HASHES.indexOf(u.hash.slice(1));
       if (i >= 0) { e.preventDefault(); jump(i, true); return; }
-      flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400); auto = null; glideAnim = null; lean = 0;   // anywhere else on the page: the browser's smooth scroll passes the devices untouched
+      flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400); auto = null; stopMove(); lean = 0;   // anywhere else on the page: the browser's smooth scroll passes the devices untouched
     });
     window.addEventListener("hashchange", function(){ var i = HASHES.indexOf(location.hash.slice(1)); if (i >= 0) jump(i, false); });
     stage.addEventListener("focusin", function(e){                  // tabbing into a page that isn't on screen yet: go there
@@ -2352,7 +2792,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
           var sc = screens[i], y = 0, el = target;
           while (el && el !== sc.page) { y += el.offsetTop || 0; el = el.offsetParent; if (el === sc.el) break; }
           var top = track.getBoundingClientRect().top + window.scrollY + st[i] + Math.max(0, Math.min(len[i], y - sc.H * .35));
-          if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); }
+          if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); stopMove(); window.scrollTo({ top: top, behavior: "instant" }); }
           sc.el.scrollTop = 0; sc.el.scrollLeft = 0; glKey = ""; kick();
         }
       });
@@ -2363,7 +2803,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         var base = track.getBoundingClientRect().top + window.scrollY + P;
         if (window.scrollY >= base - 1) return;
         var over = target.getBoundingClientRect().bottom - next.getBoundingClientRect().top + nextTop + 24 - window.innerHeight;
-        cancelAuto(); glideAnim = null; window.scrollTo({ top: base + Math.max(0, over), behavior: "instant" }); glKey = ""; kick();
+        cancelAuto(); stopMove(); window.scrollTo({ top: base + Math.max(0, over), behavior: "instant" }); glKey = ""; kick();
       });
     });
     var rt = 0;
@@ -2372,8 +2812,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
       clearTimeout(rt); rt = setTimeout(function(){
         try {
           var s = -track.getBoundingClientRect().top, i = Math.max(0, Math.min(2, Math.round(cur) - 1)), r = len[i] ? Math.max(0, Math.min(1, (s - st[i]) / len[i])) : 0, inside = cur >= 1 && cur <= 3 && s >= 0 && s <= P;
+          var moving = glideAnim && { fly: glideAnim.m === moves.fly, dir: glideAnim.dir, at: (s - glideAnim.m.a) / (glideAnim.m.b - glideAnim.m.a) }; stopMove();   // a move playing: it carries on in the new layout
           layout();
-          if (inside) window.scrollTo({ top: track.getBoundingClientRect().top + window.scrollY + st[i] + r * len[i], behavior: "instant" });
+          if (moving) { var m = moving.fly ? moves.fly : moves.glide; window.scrollTo({ top: track.getBoundingClientRect().top + window.scrollY + m.a + moving.at * (m.b - m.a), behavior: "instant" }); playTo(m, moving.dir); }
+          else if (inside) window.scrollTo({ top: track.getBoundingClientRect().top + window.scrollY + st[i] + r * len[i], behavior: "instant" });
           glKey = ""; kick();
         } catch(e){ fail(e); }
       }, 180);
@@ -2397,25 +2839,30 @@ window.__zwdIntro3D = function(THREE, intro, on){
     window.addEventListener("load", arrive);
     kick();
     // Get the scenes ready ahead of time, so the room's first frame doesn't stutter: compile in the background, then draw it once unseen.
-    (renderer.compileAsync ? renderer.compileAsync(room, cam).then(function(){ return renderer.compileAsync(studio, cam); }).then(function(){ return renderer.compileAsync(dustScene, dustCam); }) : Promise.resolve())
-      .then(function(){ (window.requestIdleCallback || setTimeout)(function(){ if (dead || cur > 0) return; setPose(poses.I); renderer.render(room, cam); glKey = ""; }); })
+    (renderer.compileAsync ? renderer.compileAsync(room, cam).then(function(){ return renderer.compileAsync(studio, cam); }).then(function(){ return renderer.compileAsync(dustScene, dustCam); })
+      .then(function(){ return renderer.compileAsync(city.scene, cam); }).then(function(){ return renderer.compileAsync(mistScene, dustCam); }) : Promise.resolve())
+      .then(function(){ (window.requestIdleCallback || setTimeout)(function(){   // and draw the start of the flight once, unseen, so its first frame doesn't stutter
+        if (dead || cur > 0) return; var f = flyCam(0); cam.fov = f.fov; cam.near = 20; cam.far = 40000; cam.updateProjectionMatrix(); setPose(f); drawFly({ fly: 0, mist: 1 }); glKey = ""; }); })
       .catch(function(){});
-    window.__zwdDevices = { state: function(){ return { glide: glideAnim ? glideAnim.dir : 0, lean: +lean.toFixed(3), cur: +cur.toFixed(3), under: !!under, flight: flight, s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
+    window.__zwdDevices = { state: function(){ return { glide: glideAnim ? glideAnim.dir : 0, lean: +lean.toFixed(3), cur: +cur.toFixed(3), under: !!under, flight: flight, fly: fly.map(Math.round), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
   }
 })();
 </script>
 
 <script>
-/* Hero film, 3D version: a gold stock-chart line climbs a mountain at sunrise as the visitor scrolls.
-   Drawn with Three.js r170 (media/three.module.min.js). The film script calls render(p) with the scroll progress
-   p (0 → 1); the website frame at the end is the page's own CSS, as it is for a video.
+/* Hero film, 3D version: a gold stock-chart line climbs a mountain in the Smokies at sunrise as the visitor scrolls.
+   Drawn with Three.js r170 (media/three.module.min.js). The film script calls render(p, rise) with the scroll
+   progress p (0 → 1) and, after the summit, how far the camera has risen into the clouds (0 → 1, only with the 3D
+   devices on: the "Devices" script flies the page through it and takes over from the mist, which ends exactly MIST).
    Story: a wide pre-dawn shot · from 0.12 the line climbs the west ridge while the camera follows and the sun comes up ·
-   at 0.78 it reaches the summit as the sun clears the ridge · a wide shot of the whole climb holds while the page
-   frames it. The mountain is generated here (no image files): a summit with four ridges, the west one shaped like
-   the chart. Units are roughly metres; the summit is 260 high at (0, 0); the camera looks north (-z). */
+   at 0.78 it reaches the summit as the sun clears the ridge · a wide shot of the whole climb · the rise: up past the
+   peak, out over ridge behind ridge in the haze, into the morning cloud. The mountain is generated here (no image
+   files): rounded, forested ridges, a summit with four of them, the west one shaped like the chart, and far ranges
+   fading into blue haze. Units are roughly metres; the summit is 260 high at (0, 0); the camera looks north (-z). */
 window.__zwdFilm3D = function(THREE, host, on){
   var V3 = THREE.Vector3;
   var PEAK = 260, LIFT = 2.2, LINE_A = .12, LINE_B = .78, SUN_AZ = .3;
+  var MIST = 0xF2E6D8;   // the cloud the rise ends in; the "Devices" script starts from the same colour
   // The chart the line draws: [share of the way along the ridge, height as a share of the summit]. Up, a dip, up again.
   var CHART = [[0,.07],[.06,.15],[.1,.12],[.17,.22],[.22,.19],[.29,.31],[.34,.27],[.41,.4],[.46,.36],[.53,.5],[.58,.46],
     [.65,.61],[.7,.57],[.78,.73],[.83,.69],[.9,.86],[.94,.83],[1,1]];
@@ -2430,10 +2877,12 @@ window.__zwdFilm3D = function(THREE, host, on){
   var EAST = [[0, 0, PEAK - 4], [55, -10, 212], [150, -30, 186], [300, -20, 140], [470, 40, 90], [640, 60, 30]];
   var NORTH = [[0, 0, PEAK - 4], [-20, -60, 212], [-50, -170, 176], [-40, -340, 115], [-80, -520, 50]];
   var SOUTH = [[0, 0, PEAK - 6], [20, 50, 204], [50, 120, 140], [90, 230, 40]];
-  var PEAKS = [[330,-140,205,170],[-430,-380,220,220],[420,-420,235,240],[-850,-280,210,260],[800,-200,190,250],[-320,-1050,340,360],[500,-1120,360,380],
-    [-1150,-800,300,360],[1050,-800,310,360],[170,400,78,170],[440,330,92,200],[-760,400,52,220],[-1050,620,72,300],[900,640,64,300]];   // the range around: x, z, height, spread
+  // The range around: x, z, height, spread, and how far each one runs out along its crest at what angle (long ridges, like the Smokies)
+  var PEAKS = [[330,-140,190,170,1.6,.3],[-430,-380,215,220,2.2,-.2],[420,-420,225,240,2,.15],[-850,-280,200,260,2.4,.4],[800,-200,180,250,2.2,-.35],[-320,-1050,320,330,2.8,.05],[500,-1120,340,340,2.6,-.12],
+    [-1150,-800,290,330,2.4,.25],[1050,-800,300,330,2.4,-.3],[170,400,78,170,1.4,.5],[440,330,92,200,1.6,-.4],[-760,400,52,220,1.8,.2],[-1050,620,72,300,2,-.2],[900,640,64,300,2,.3]];
+  var FARS = [[-1950, 380, 380], [-2750, 470, 460], [-3750, 560, 560], [-5100, 660, 700], [-7000, 760, 900]];   // ridge behind ridge to the north: z, height, width
   var fine = Math.min(screen.width, screen.height) >= 700;   // computers and tablets get more detail than phones
-  var GRID = fine ? 300 : 180, SEG = fine ? 1400 : 900, RS = 6;
+  var GRID = fine ? 300 : 180, SEG = fine ? 1400 : 900, RS = 6, FC = fine ? 200 : 120, FR = fine ? 130 : 84;
   // Sharpness: up to 4K (and a phone's full pixel ratio) first. If frames can't keep up, step down to 1440p, then 1080p,
   // and stay there. Each step: [most pixels drawn, highest pixel ratio].
   var SIZES = [[3840 * 2160, 3], [2560 * 1440, 2], [1920 * 1080, 1.5]], size = 0;
@@ -2448,7 +2897,7 @@ window.__zwdFilm3D = function(THREE, host, on){
   } catch(e){ on.fail(); return null; }
 
   var api = {ready:false, render:render, resize:resize, stop:stop};
-  var stopped = false, shown = false, timer = 0, textures = [], gaps = [], lastDraw = 0, lastP = 0, steady = false;
+  var stopped = false, shown = false, timer = 0, textures = [], gaps = [], lastDraw = 0, lastP = 0, lastRise = 0, steady = false;
   var MAXD = Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE), gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
   var scene, cam, flareScene, flareCam, a = {}, lastD = 0, lastCrest = 0, tmpA = new THREE.Color(), tmpB = new THREE.Color();
   var perm = new Uint8Array(512);
@@ -2461,7 +2910,8 @@ window.__zwdFilm3D = function(THREE, host, on){
 
   /* ---- building, a few milliseconds at a time so the page (and the opening) never stalls ---- */
   function build(){
-    var N = GRID + 1, pos = new Float32Array(N * N * 3), tone = new Float32Array(N * N * 2), row = 0, cy = 0, q = 0, step = 0;
+    var N = GRID + 1, pos = new Float32Array(N * N * 3), tone = new Float32Array(N * N * 2), row = 0, cy = 0, q = 0, fr = 0, step = 0;
+    a.farPos = new Float32Array((FC + 1) * (FR + 1) * 3);
     a.cloudPx = new Uint8ClampedArray(256 * 256 * 4);
     a.mistGeo = new THREE.PlaneGeometry(2600, 2600, 48, 48); a.mistGeo.rotateX(-Math.PI / 2); a.mistGeo.translate(-150, 0, 150);
     a.mistH = new Float32Array(a.mistGeo.attributes.position.count);
@@ -2481,6 +2931,11 @@ window.__zwdFilm3D = function(THREE, host, on){
       function(){ var end = performance.now() + 6, mp = a.mistGeo.attributes.position;   // the ground under the mist
         for (; q < mp.count && performance.now() < end; q++) a.mistH[q] = height(mp.getX(q), mp.getZ(q));
         return q >= mp.count; },
+      function(){ var end = performance.now() + 6, fp = a.farPos;   // the far ranges, and the hills around the near ones (sunk under them where they overlap)
+        for (; fr <= FR && performance.now() < end; fr++) { var z = -11000 + 12500 * fr / FR;
+          for (var c = 0; c <= FC; c++) { var x = -9000 + 18000 * c / FC, k = (fr * (FC + 1) + c) * 3, inside = x > -1350 && x < 1050 && z > -1300;
+            fp[k] = x; fp[k + 1] = inside ? -400 : smax(height(x, z, true) - 6, fars(x, z), 60); fp[k + 2] = z; } }   // (its big triangles would poke up through narrow valleys)
+        return fr > FR; },
       function(){ landGeometry(N, pos, tone); return true; },
       function(){ setup(); return true; }
     ];
@@ -2507,14 +2962,15 @@ window.__zwdFilm3D = function(THREE, host, on){
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
-    // rock, darker ground low down, snow high up where it can lie
+    // forest all over: deep greens, lighter crowns, blue-green stands of conifers, darker hollows (no bare rock, no snow)
     var nrm = geo.attributes.normal.array, col = new Float32Array(N * N * 3), c1 = new THREE.Color();
-    var ROCK_A = new THREE.Color(0x262E3B), ROCK_B = new THREE.Color(0x48526A), LOW = new THREE.Color(0x161E22), SNOW = new THREE.Color(0xE2EAF4);
+    var DARK = new THREE.Color(0x2A4232), MID = new THREE.Color(0x3F5C38), SUNNY = new THREE.Color(0x667538), CONIFER = new THREE.Color(0x29433F), LOW = new THREE.Color(0x18261E);
     for (var v = 0; v < N * N; v++) {
-      var x = pos[v * 3], y = pos[v * 3 + 1], z = pos[v * 3 + 2], ny = nrm[v * 3 + 1];
-      c1.copy(ROCK_A).lerp(ROCK_B, tone[v * 2] * .5 + .5);
-      c1.lerp(LOW, smooth(55, 15, y) * smooth(.6, .85, ny) * .8);
-      c1.lerp(SNOW, smooth(148, 185, y + tone[v * 2 + 1] * 34) * smooth(.42, .66, ny));
+      var y = pos[v * 3 + 1], ny = nrm[v * 3 + 1];
+      c1.copy(DARK).lerp(MID, tone[v * 2] * .5 + .5);
+      c1.lerp(SUNNY, smooth(.25, .75, tone[v * 2]) * .55);
+      c1.lerp(CONIFER, smooth(-.1, .45, tone[v * 2 + 1]) * .7);
+      c1.lerp(LOW, smooth(55, 12, y) * smooth(.6, .85, ny) * .6);
       col[v * 3] = c1.r; col[v * 3 + 1] = c1.g; col[v * 3 + 2] = c1.b;
     }
     geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
@@ -2527,10 +2983,11 @@ window.__zwdFilm3D = function(THREE, host, on){
     renderer.autoClear = false;
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, .001);
-    cam = new THREE.PerspectiveCamera(40, 1, 2, 9000);
+    cam = new THREE.PerspectiveCamera(40, 1, 2, 15000);
+    a.fogBlue = {value:new THREE.Color()}; a.hazeK = {value:.0003};
 
     var land = new THREE.Mesh(a.landGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:.92, metalness:0, flatShading:true}));
-    land.castShadow = land.receiveShadow = true; scene.add(land);
+    land.castShadow = land.receiveShadow = true; haze(land.material); scene.add(land);
 
     // light: the sun (with long sunrise shadows), the sky's fill, and a warm light that travels with the line
     a.hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1); scene.add(a.hemi);
@@ -2560,12 +3017,39 @@ window.__zwdFilm3D = function(THREE, host, on){
     a.stars.renderOrder = -1; a.stars.frustumCulled = false; scene.add(a.stars);
     function rnd(){ seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; }
 
+    // the far ranges: ridge behind ridge, paler and bluer the further they are and warmer toward the sun, until they
+    // match the sky at the horizon (their own shading and haze, no shadows)
+    var fidx = new Uint32Array(FC * FR * 6), k = 0;
+    for (var fr = 0; fr < FR; fr++) for (var fc = 0; fc < FC; fc++) { var i0 = fr * (FC + 1) + fc;
+      fidx[k++] = i0; fidx[k++] = i0 + FC + 1; fidx[k++] = i0 + 1; fidx[k++] = i0 + 1; fidx[k++] = i0 + FC + 1; fidx[k++] = i0 + FC + 2; }
+    var fg = new THREE.BufferGeometry(); fg.setAttribute("position", new THREE.BufferAttribute(a.farPos, 3)); fg.setIndex(new THREE.BufferAttribute(fidx, 1)); fg.computeVertexNormals();
+    a.farU = {uAlb:{value:new THREE.Color(0x1B2A36)}, uSky:{value:new THREE.Color()}, uGround:{value:new THREE.Color()}, uSunCol:{value:new THREE.Color()},
+      uFogBlue:a.fogBlue, uFogWarm:{value:scene.fog.color}, uHazeK:a.hazeK, uSunDir:a.skyU.uSunDir};
+    a.far = new THREE.Mesh(fg, new THREE.ShaderMaterial({uniforms:a.farU,
+      vertexShader:"varying vec3 vW;varying vec3 vN;void main(){vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;vN=normal;gl_Position=projectionMatrix*viewMatrix*w;}",
+      fragmentShader:"uniform vec3 uAlb,uSky,uGround,uSunCol,uFogBlue,uFogWarm,uSunDir;uniform float uHazeK;varying vec3 vW;varying vec3 vN;" +
+        "void main(){vec3 n=normalize(vN);vec3 col=uAlb*(mix(uGround,uSky,n.y*.5+.5)+uSunCol*max(dot(n,uSunDir),0.0));" +
+        "vec3 v=vW-cameraPosition;float d=length(v);float s=max(dot(v/d,uSunDir),0.0);" +
+        "float f=1.0-exp(-d*uHazeK);f=mix(f,1.0,smoothstep(170.0,0.0,vW.y)*.3);" +
+        "gl_FragColor=vec4(mix(col,mix(uFogBlue,uFogWarm,pow(s,4.0)),f),1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}"}));
+    a.far.frustumCulled = false; scene.add(a.far); a.farPos = null;
+
     // mist lying in the valleys (it thins out where the ground comes up to it)
     var cloud = new THREE.DataTexture(new Uint8Array(a.cloudPx.buffer), 256, 256); textures.push(cloud);
     cloud.magFilter = THREE.LinearFilter; cloud.minFilter = THREE.LinearMipmapLinearFilter; cloud.generateMipmaps = true; cloud.needsUpdate = true;
     cloud.wrapS = cloud.wrapT = THREE.RepeatWrapping; cloud.repeat.set(3, 3);
-    a.mist = [mist(30, .4), mist(58, .2)];
+    a.mist = [mist(30, .6), mist(58, .36), mist(92, .16)];
     a.mistGeo = a.mistH = a.cloudPx = null;   // only needed while building
+    // and a sea of cloud in the far valleys, kept off the near mountain
+    var fm = new THREE.PlaneGeometry(18000, 12500, 36, 25); fm.rotateX(-Math.PI / 2); fm.translate(0, 80, -4750);
+    var fmp = fm.attributes.position, fuv = fm.attributes.uv, fcol = new Float32Array(fmp.count * 4);
+    for (i = 0; i < fmp.count; i++) { var mx = fmp.getX(i), mz = fmp.getZ(i);
+      fcol[i * 4] = fcol[i * 4 + 1] = fcol[i * 4 + 2] = 1;
+      fcol[i * 4 + 3] = Math.max(smooth(-1000, -1600, mz), smooth(-1050, -1700, mx), smooth(750, 1400, mx));
+      fuv.setXY(i, fuv.getX(i) * 7, fuv.getY(i) * 5); }
+    fm.setAttribute("color", new THREE.BufferAttribute(fcol, 4));
+    a.farMist = new THREE.Mesh(fm, new THREE.MeshBasicMaterial({map:cloud, transparent:true, opacity:.55, depthWrite:false, vertexColors:true}));
+    haze(a.farMist.material); scene.add(a.farMist);
     function mist(y, op){
       var geo = a.mistGeo.clone(); geo.translate(0, y, 0);
       var p = geo.attributes.position, cols = new Float32Array(p.count * 4);
@@ -2574,7 +3058,7 @@ window.__zwdFilm3D = function(THREE, host, on){
         cols[j * 4 + 3] = clamp01((y - a.mistH[j] - 3) / 30) * smooth(1300, 900, Math.max(Math.abs(x + 150), Math.abs(z - 150))); }
       geo.setAttribute("color", new THREE.BufferAttribute(cols, 4));
       var m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:cloud, transparent:true, opacity:op, depthWrite:false, vertexColors:true}));
-      m.userData.op = op; scene.add(m); return m;
+      m.userData.op = op; haze(m.material); scene.add(m); return m;
     }
 
     // the line: a bright core, a soft glow around it, a point at each turn, and a head that leads the climb
@@ -2611,10 +3095,22 @@ window.__zwdFilm3D = function(THREE, host, on){
     });
     a.flare[1].userData.streak = true; a.flare[1].userData.op = .35;
     a.cloud = cloud;
+
+    // the rise: a bank of morning cloud above the summit, and the mist it ends in, drawn over everything
+    var puff = glowTex(128, function(u, v){ var n = fbm(u * 2.2 + 5, v * 2.2, 3) * .5 + .5; return smooth(1, .15, Math.sqrt(u * u + v * v) + (n - .5) * .5) * (.55 + .45 * n); });
+    a.mistC = new THREE.Color(MIST);
+    a.puffs = [];
+    for (i = 0; i < 16; i++) {
+      var s = new THREE.Sprite(new THREE.SpriteMaterial({map:puff, color:MIST, transparent:true, opacity:0, depthWrite:false, toneMapped:false, fog:false}));
+      s.position.set(-450 + rnd() * 750, 820 + rnd() * 380, -500 + rnd() * 1200); s.scale.setScalar(260 + rnd() * 260);
+      s.userData.op = .55 + rnd() * .35; s.frustumCulled = false; scene.add(s); a.puffs.push(s);
+    }
+    a.veil = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({color:MIST, transparent:true, opacity:0, toneMapped:false, depthTest:false, depthWrite:false}));
+    a.veil.renderOrder = 9; flareScene.add(a.veil);
   }
 
   /* ---- one frame for scroll progress p ---- */
-  function update(p){
+  function update(p, rise){
     var W = host.clientWidth || 1, H = host.clientHeight || 1, tall = H > W * 1.1;
     // sun and sky, from before dawn to full sunrise
     var el = keys(p, [[0, -6], [.35, -1.2], [.6, 2.4], [.8, 6.5], [1, 8]]) * Math.PI / 180;
@@ -2624,16 +3120,20 @@ window.__zwdFilm3D = function(THREE, host, on){
     pal(a.skyU.uGlow.value, p, [[0, 0x4A2E3C], [.4, 0xFF7A3D], [.78, 0xFFA850], [1, 0xFFC27A]]);
     pal(a.skyU.uSun.value, p, [[0, 0xFFD9A6], [1, 0xFFF0D2]]).multiplyScalar(9);
     pal(scene.fog.color, p, [[0, 0x141D30], [.4, 0x4E4560], [.78, 0xB07A62], [1, 0xC98C68]]);
-    scene.fog.density = keys(p, [[0, .0008], [1, .00065]]);
+    a.hazeK.value = keys(p, [[0, .00046], [.6, .00044], [1, .00056]]);   // haze: about a third at 1 km, half at 1.7 km; bluer still by the summit
     pal(a.hemi.color, p, [[0, 0x3A4D78], [.4, 0x5A6F9A], [.78, 0x8FA7CF], [1, 0xA9BFE0]]);
     pal(a.hemi.groundColor, p, [[0, 0x120F12], [.4, 0x2A1D1C], [.78, 0x4A3428], [1, 0x5A4232]]);
-    a.hemi.intensity = keys(p, [[0, 1.8], [.4, 1.35], [.78, 1.1], [1, 1.15]]);
+    a.hemi.intensity = keys(p, [[0, 1.8], [.4, 1.7], [.78, 2.1], [1, 2.2]]);
     pal(a.sun.color, p, [[.35, 0xFF7A3D], [.6, 0xFF9A52], [.8, 0xFFC27A], [1, 0xFFD8A0]]);
     a.sun.intensity = 3.8 * smooth(-.02, .1, el);
     a.sun.position.copy(a.sun.target.position).addScaledVector(a.sunDir, 2000);
     a.stars.material.opacity = 1 - smooth(.12, .38, p);
     a.mist.forEach(function(m){ pal(m.material.color, p, [[0, 0x39445E], [.4, 0x6E6A88], [.78, 0xC9A493], [1, 0xD8B9A5]]); });
+    a.farMist.material.color.copy(a.mist[0].material.color);
     a.cloud.offset.set(p * .12, p * .05);
+    pal(a.fogBlue.value, p, [[0, 0x121A2C], [.4, 0x2E3B62], [.78, 0x6676AE], [1, 0x7086C2]]);
+    a.farU.uSky.value.copy(a.hemi.color).multiplyScalar(a.hemi.intensity / Math.PI); a.farU.uGround.value.copy(a.hemi.groundColor).multiplyScalar(a.hemi.intensity / Math.PI);
+    a.farU.uSunCol.value.copy(a.sun.color).multiplyScalar(a.sun.intensity / Math.PI);
 
     // the line, its points and the summit burst
     var L = Math.pow(seg(p, LINE_A, LINE_B), 1.1), n = Math.floor(L * SEG) * RS * 6;
@@ -2658,6 +3158,16 @@ window.__zwdFilm3D = function(THREE, host, on){
     var pos = new V3().addScaledVector(E, wE).addScaledVector(Fp, wF).addScaledVector(Hp, wH);
     var tgt = new V3().addScaledVector(Et, wE).addScaledVector(Ft, wF).addScaledVector(Ht, wH);
     if (tall) { tgt.x += 155 * wH + 70 * wE; pos.x += 60 * wH; pos.sub(tgt).multiplyScalar(1.5).add(tgt); }   // phones: pull back, and centre the wide shots on the summit
+    if (rise > 0) {   // after the summit: straight up past the peak, then on over the ranges and into the cloud
+      var e1 = inOut(rise), e2 = inOut(seg(rise, .1, 1)), m = smooth(.68, 1, rise), m2 = m * m;
+      pos.set(pos.x + ((tall ? -40 : -60) - pos.x) * e2, pos.y + (1050 - pos.y) * e1, pos.z + ((tall ? 420 : 260) - pos.z) * e2);
+      tgt.lerp(new V3(-20, 380, -2600), smooth(0, .7, rise));
+      a.hazeK.value *= 1 + 7 * m2;
+      a.fogBlue.value.lerp(a.mistC, m); scene.fog.color.lerp(a.mistC, m);
+      a.skyU.uZenith.value.lerp(a.mistC, m); a.skyU.uHorizon.value.lerp(a.mistC, m); a.skyU.uGlow.value.multiplyScalar(1 - m);
+    }
+    a.puffs.forEach(function(s){ s.material.opacity = s.userData.op * smooth(.6, .85, rise); s.visible = rise > .6; });
+    a.veil.material.opacity = smooth(.84, 1, rise);
     pos.y = Math.max(pos.y, height(pos.x, pos.z) + 12);
     cam.fov = tall ? 56 : 40; cam.aspect = W / H; cam.updateProjectionMatrix();
     cam.position.copy(pos); cam.lookAt(tgt);
@@ -2673,7 +3183,7 @@ window.__zwdFilm3D = function(THREE, host, on){
     }
     a.flareVis = vis;
     var asp = W / H;
-    flareCam.left = -asp; flareCam.right = asp; flareCam.updateProjectionMatrix();
+    flareCam.left = -asp; flareCam.right = asp; flareCam.updateProjectionMatrix(); a.veil.scale.set(asp, 1, 1);
     a.flare.forEach(function(s){ var u = s.userData, x = sp.x * asp, y = sp.y, t = u.along;
       s.position.set(x * (1 + t * 2), y * (1 + t * 2), 0);   // ghosts lie on the line from the sun through the centre
       if (u.streak) s.scale.set(2.6, .025, 1); else s.scale.setScalar(u.size);
@@ -2681,12 +3191,12 @@ window.__zwdFilm3D = function(THREE, host, on){
     });
   }
 
-  function render(p){
+  function render(p, rise){
     if (!api.ready || stopped) return;
-    lastP = p;
-    update(p);
+    lastP = p; lastRise = rise || 0;
+    update(p, lastRise);
     renderer.clear(); renderer.render(scene, cam);
-    if (a.flareVis > .004) { renderer.clearDepth(); renderer.render(flareScene, flareCam); }
+    if (a.flareVis > .004 || lastRise > .84) { renderer.clearDepth(); renderer.render(flareScene, flareCam); }
     if (!shown) { shown = true; canvas.classList.add("is-on"); }
     pace();
   }
@@ -2712,7 +3222,7 @@ window.__zwdFilm3D = function(THREE, host, on){
     gaps.length = 0;
     if (!slow) { steady = true; return; }
     size++; lastDraw = 0; steady = size >= SIZES.length - 1;   // at the smallest size there's nothing left to decide
-    resize(); render(lastP);
+    resize(); render(lastP, lastRise);
   }
   function covered(){ return document.documentElement.classList.contains("intro-on"); }
   function probe(){   // once the picture shows: a short burst of frames to find a size this device keeps up with
@@ -2720,7 +3230,7 @@ window.__zwdFilm3D = function(THREE, host, on){
     if (covered()) { timer = setTimeout(probe, 300); return; }
     if (size && !steady) { size = 0; lastDraw = 0; resize(); }   // the opening is gone: back to the sharpest size, then check it
     var n = 0;
-    (function step(){ if (stopped || steady || n++ > 90) return; render(lastP); requestAnimationFrame(step); })();
+    (function step(){ if (stopped || steady || n++ > 90) return; render(lastP, lastRise); requestAnimationFrame(step); })();
   }
   function stop(){
     if (stopped) return; stopped = true; clearTimeout(timer);
@@ -2730,22 +3240,29 @@ window.__zwdFilm3D = function(THREE, host, on){
     if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
   }
 
-  /* ---- the mountain ---- */
-  function height(x, z){
+  /* ---- the mountain: rounded, forested ridges, like the Smokies ---- */
+  function height(x, z, coarse){
     var h = ridge(WEST, x, z, .78, .0042), dW = lastD, cW = lastCrest;
     h = smax(h, ridge(EAST, x, z, .66, .0036), 16);
     h = smax(h, ridge(NORTH, x, z, .62, .004), 16);
     h = smax(h, ridge(SOUTH, x, z, .9, .005), 14);
-    var r = Math.sqrt(x * x + z * z), rug = ridged(x / 240, z / 240, 4);
+    var r = Math.sqrt(x * x + z * z), roll = fbm(x / 300, z / 300, 3) * .5 + .5;
     h = smax(h, 75 * Math.exp(-Math.pow(r / 440, 1.6)), 30);
-    for (var i = 0; i < PEAKS.length; i++) { var P = PEAKS[i], dx = x - P[0], dz = z - P[1], d2 = dx * dx + dz * dz;
-      if (d2 < 9 * P[3] * P[3]) h = smax(h, P[2] * (.7 + .6 * rug) * Math.exp(-Math.pow(Math.sqrt(d2) / P[3], 1.3)), 28); }   // further out it adds nothing
-    var m = smooth(2, 26, dW);   // rugged faces, calmer rock right under the line
-    h += ((ridged(x / 150, z / 150, 5) - .42) * (12 + h * .24) + (ridged(x / 48 + 3.1, z / 48, 4) - .4) * (5 + h * .12) + fbm(x / 22, z / 22, 3) * 3.5) * m;
+    for (var i = 0; i < PEAKS.length; i++) { var P = PEAKS[i], dx = x - P[0], dz = z - P[1], ca = Math.cos(P[5]), sa = Math.sin(P[5]);
+      var u = (dx * ca + dz * sa) / P[4], w = dz * ca - dx * sa, d2 = u * u + w * w;
+      if (d2 < 9 * P[3] * P[3]) h = smax(h, P[2] * (.78 + .4 * roll) * Math.exp(-Math.pow(Math.sqrt(d2) / P[3], 1.9)), 34); }   // rounded crests; further out they add nothing
+    var m = smooth(2, 26, dW);   // spur ridges and hollows down every slope, and the forest's canopy; calmer right under the line
+    h += ((ridged(x / 210, z / 210, 3) - .45) * (6 + h * .07) + fbm(x / 120, z / 120, 3) * (4 + h * .05) + (coarse ? 0 : fbm(x / 45 + 3.1, z / 45, 2) * (2 + h * .03) + fbm(x / 9, z / 9, 2) * 2.4)) * m;
     // Near the line the ground always falls away from it, so it rides the crest; the limit lifts off further out.
     var limit = cW - 1.2 - (dW < 75 ? .55 * Math.max(0, dW - 5) : 38.5 - 2.5 * (dW - 75));
     if (dW < 160) limit -= ridged(x / 36 - 7.7, z / 36, 3) * (5 + .1 * dW) * smooth(4, 22, dW);   // gullies cut into that slope, never above it
     return Math.min(h, limit);
+  }
+  function fars(x, z){   // the far ridges: long and rounded, wandering a little, each one a bit higher than the one before
+    var h = 0;
+    for (var i = 0; i < FARS.length; i++) { var F = FARS[i], dz = (z - F[0] - 380 * fbm(x / 2600 + i * 3.7, i * 1.3, 2)) / F[2];
+      if (dz > -3 && dz < 3) h = smax(h, F[1] * (.72 + .5 * (fbm(x / 1100 + i * 9.1, i * 2.7, 3) * .5 + .5)) * Math.exp(-dz * dz), 60); }
+    return h;
   }
   function ridge(R, x, z, a1, a2){   // a ridge: its crest height, falling away with distance from the crest line
     var best = 1e12, crest = 0;
@@ -2756,7 +3273,8 @@ window.__zwdFilm3D = function(THREE, host, on){
       if (d2 < best) { best = d2; crest = R[i][2] + (R[i + 1][2] - R[i][2]) * t; }
     }
     lastD = Math.sqrt(best); lastCrest = crest;
-    return crest - lastD * a1 - lastD * lastD * a2;
+    var d = Math.sqrt(best + 900) - 30;   // a rounded crest, then the slopes
+    return crest - d * a1 - d * d * a2;
   }
   function trend(L){   // a smooth version of the climb, for the camera to follow without the zigzags
     var q = a.path.getPointAt(Math.min(Math.max(L, 0), 1));
@@ -2781,6 +3299,7 @@ window.__zwdFilm3D = function(THREE, host, on){
   function smooth(e0, e1, x){ var t = clamp01((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t); }
   function clamp01(x){ return x < 0 ? 0 : x > 1 ? 1 : x; }
   function seg(p, p0, p1){ return clamp01((p - p0) / (p1 - p0)); }
+  function inOut(x){ return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
   function backOut(x){ return x <= 0 ? 0 : 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2); }
   function warp(u, lo, c, hi){ var t = u * 2 - 1, w = (t + 1.2 * t * t * t) / 2.2; return w < 0 ? c + (c - lo) * w : c + (hi - c) * w; }   // grid lines bunch up near the climb
   function mixV(p, q, t){ return p.clone().lerp(q, t); }
@@ -2801,6 +3320,16 @@ window.__zwdFilm3D = function(THREE, host, on){
   }
   function ramp(r, stops){ for (var i = 1; i < stops.length; i++) if (r <= stops[i][0]) { var A = stops[i - 1], B = stops[i]; return A[1] + (B[1] - A[1]) * (r - A[0]) / (B[0] - A[0]); } return 0; }
   function sprite(tex, color, op){ var s = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, color:color, transparent:true, opacity:op, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false, fog:false})); s.frustumCulled = false; return s; }
+  function haze(mat){   // the fog, as haze: blue away from the sun, warm toward it (the scene's fog colour)
+    mat.onBeforeCompile = function(sh){
+      sh.uniforms.uFogBlue = a.fogBlue; sh.uniforms.uHazeSun = a.skyU.uSunDir; sh.uniforms.uHazeK = a.hazeK;
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vHazeW;")
+        .replace("#include <fog_vertex>", "#include <fog_vertex>\nvHazeW = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec3 uFogBlue, uHazeSun;\nuniform float uHazeK;\nvarying vec3 vHazeW;")
+        .replace("#include <fog_fragment>", "#ifdef USE_FOG\nvec3 hzV = vHazeW - cameraPosition; float hzD = length(hzV);\n" +
+          "gl_FragColor.rgb = mix(gl_FragColor.rgb, mix(uFogBlue, fogColor, pow(max(dot(hzV / hzD, uHazeSun), 0.0), 4.0)), 1.0 - exp(-hzD * uHazeK));\n#endif");
+    };
+  }
 };
 </script>
 
@@ -3115,15 +3644,15 @@ var SITE = {
     }
   }
 
-  /* ---- the end: the picture shrinks into a website, drawn by the page around it ---- */
-  var webFrame = doc.getElementById("web-frame");
-  function frameMedia(p){
-    var f = ease(p, 0.80, 0.97), s = 1 - 0.2*f, inset = ((1-s)/2*100).toFixed(2) + "%";
-    media.style.transform = f > 0 ? "scale(" + s.toFixed(4) + ")" : "";
-    media.style.borderRadius = f > 0 ? "14px" : "";
-    media.style.overflow = "hidden";
-    webFrame.style.inset = inset;
-    webFrame.style.opacity = f.toFixed(3);
+  /* ---- after the summit: with the 3D devices on, the camera rises into the clouds (the "Devices" script gives the film
+     a tail of scroll for it, film.dataset.tail, the last film.dataset.rise px of which are the rise, and flies the
+     page through it by itself). The words, the shade behind them and the skip link give way as it rises. ---- */
+  var filmStage = film.querySelector(".film-stage"), scrim = film.querySelector(".film-scrim"), skipFilm = film.querySelector(".skip-film"), rise = 0;
+  function readRise(){
+    var len = +film.dataset.rise || 0;
+    if (!len) return 0;
+    var r = film.getBoundingClientRect(), end = r.height - filmStage.offsetHeight;   // where the film's stage lets go
+    return clamp((-r.top - (end - len)) / len, 0, 1);
   }
 
   /* ---- text beats and meter ---- */
@@ -3135,13 +3664,16 @@ var SITE = {
     return 1 - (p - r[2]) / (r[3] - r[2]);
   }
   function updateBeats(p){
+    var away = 1 - ease(rise, 0, 0.3);
     beats.forEach(function(el){
-      var o = clamp(beatOpacity(p, RANGES[el.getAttribute("data-beat")]), 0, 1);
+      var o = clamp(beatOpacity(p, RANGES[el.getAttribute("data-beat")]), 0, 1) * away;
       el.style.opacity = o.toFixed(3);
       el.style.transform = "translateY(" + ((1-o)*18).toFixed(1) + "px)";
       el.style.visibility = o < 0.02 ? "hidden" : "visible";
       el.style.pointerEvents = o < 0.5 ? "none" : "auto";
     });
+    scrim.style.opacity = rise ? (1 - ease(rise, 0, 0.5)).toFixed(3) : "";
+    if (skipFilm) { skipFilm.style.opacity = rise ? (0.85 * away).toFixed(3) : ""; skipFilm.style.visibility = away < 0.02 ? "hidden" : ""; }
     if (!meter) return;                // the stage meter was removed from the hero on 2026-10-20
     meter.style.opacity = (1 - ease(p, 0.80, 0.9)).toFixed(3);
     var stage = p < 0.36 ? 1 : p < 0.58 ? 2 : p < 0.79 ? 3 : 4;
@@ -3152,7 +3684,7 @@ var SITE = {
   /* ---- scroll → progress, eased so the film glides ---- */
   function readProgress(){
     var r = film.getBoundingClientRect();
-    var span = r.height - win.innerHeight;
+    var span = r.height - win.innerHeight - (+film.dataset.tail || 0);
     return span > 0 ? clamp(-r.top / span, 0, 1) : 0;
   }
   function tick(){
@@ -3160,9 +3692,9 @@ var SITE = {
     if (isStatic) return;
     var diff = target - current;
     current = Math.abs(diff) < 0.0005 ? target : current + diff * 0.14;
+    rise = readRise();                 // not eased: the flight that drives it is smooth already, and the hand-over must be exact
     updateBeats(current);
-    if (videoReady) seekTo(current); else if (film3d && film3d.ready) film3d.render(current);
-    frameMedia(current);
+    if (videoReady) seekTo(current); else if (film3d && film3d.ready) film3d.render(current, rise);
     if (current !== target) requestFrame();
   }
   function requestFrame(){ if (!rafId) rafId = win.requestAnimationFrame(tick); }
@@ -3175,7 +3707,7 @@ var SITE = {
   if (pickVideoSrc()) setupVideo(); else setup3D();
   if (!isStatic) {
     target = current = readProgress();
-    updateBeats(current); frameMedia(current);
+    updateBeats(current);
     win.addEventListener("scroll", onScroll, {passive:true});
     win.addEventListener("resize", function(){ if (film3d) film3d.resize(); onScroll(); requestFrame(); });
   }
@@ -3183,7 +3715,7 @@ var SITE = {
   // If the viewer switches "reduce motion" on while the page is open, move to the still version.
   if (win.matchMedia) {
     var mq = win.matchMedia("(prefers-reduced-motion: reduce)");
-    var onChange = function(e){ if (e.matches && !isStatic) { isStatic = true; film.classList.add("is-static"); win.removeEventListener("scroll", onScroll); if (video) { video.remove(); video = null; videoReady = false; } if (film3d) { film3d.stop(); film3d = null; } frameMedia(0); useStill(); } };
+    var onChange = function(e){ if (e.matches && !isStatic) { isStatic = true; film.classList.add("is-static"); win.removeEventListener("scroll", onScroll); if (video) { video.remove(); video = null; videoReady = false; } if (film3d) { film3d.stop(); film3d = null; } useStill(); } };
     if (mq.addEventListener) mq.addEventListener("change", onChange);
   }
 })();
