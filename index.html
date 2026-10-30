@@ -1813,22 +1813,25 @@ window.__zwdIntro3D = function(THREE, intro, on){
 <script>
 /* Devices: Services, Why it matters and Why choose us? on three devices in a 3D room (Three.js, like the film).
    Right after the mountain film a warm room appears: a laptop on a short wood desk against a white wall in amber light,
-   close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. After each section and a
-   short pause, the camera moves on: along the desk to a desktop display (Why it matters), then into that display and
+   close up, with Services full-screen on its screen. Scrolling scrolls the page on the screen. After Services comes a
+   generous pause (the camera leans a little toward what's next); once the visitor clearly scrolls on, the camera glides
+   along the desk to a desktop display (Why it matters) at its own pace, then (after a pause) into that display and
    out to a tablet floating on white (Why choose us?). At the end of that the tablet turns to dust that drifts off to the
    upper right, and the ordinary page carries on with The process. Every move follows the scroll, so nothing can skip or
    lag and scrolling up plays it all backwards; a move left partway finishes by itself, in the direction it was going.
    The pages on the screens are the real page (links, search engines, screen readers): each section is moved into a box
    that is fitted onto its 3D screen every frame. Without this script (reduced motion, Data Saver, slow connection, no
    WebGL 2, software graphics, opened from the folder) the three sections stay ordinary page sections.
-   Tune: ZONE and HOLD (scroll room, in screen heights), AUTO (seconds a move takes when it finishes by itself), FILL (how
+   Tune: ZONE and HOLD (scroll room, in screen heights), PAN (the glide: its pause, bands, travel and seconds), AUTO
+   (seconds a move takes when it finishes by itself), FILL (how
    much of the window a screen fills), the lights in "the room", and the dust in DUST_VS. The devices are look-alikes
    with no logos. */
 (function(){
   "use strict";
-  var ZONE = [.8, 1, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / along the desk / into the tablet / to dust
+  var ZONE = [.8, 0, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / (the glide: PAN) / into the tablet / to dust
   var HOLD = .6, TAIL = .15;                  // after each page, a pause before the next move; after the dust, before the page carries on
-  var AUTO = [1.2, 1.4, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
+  var AUTO = [1.2, 1.8, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
+  var PAN = { hold: .8, band: .3, travel: .9, secs: 1.8 };   // laptop to display: a generous pause after Services, then, once the visitor clearly scrolls on, a 1.8-second glide
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
   var FOV = 28, T = Math.tan(FOV * Math.PI / 360);
   var IDS = ["services", "benefits", "why-us"];
@@ -1896,11 +1899,11 @@ window.__zwdIntro3D = function(THREE, intro, on){
     function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
     function woodTex(){                                   // walnut-brown grain running along the desk
       var c = document.createElement("canvas"); c.width = 1024; c.height = 512; var x = c.getContext("2d");
-      var g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, "#4C3625"); g.addColorStop(.45, "#57402C"); g.addColorStop(1, "#4A3324");
+      var g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, "#86664B"); g.addColorStop(.45, "#927151"); g.addColorStop(1, "#826147");
       x.fillStyle = g; x.fillRect(0, 0, 1024, 512);
       for (var i = 0; i < 420; i++) {
         var y0 = rnd() * 512, a = 1 + rnd() * 6, f = .003 + rnd() * .006, ph = rnd() * 6.3, dark = rnd() < .72;
-        x.strokeStyle = dark ? "rgba(38,25,15," + (.05 + rnd() * .18).toFixed(3) + ")" : "rgba(140,104,72," + (.04 + rnd() * .1).toFixed(3) + ")";
+        x.strokeStyle = dark ? "rgba(62,40,23," + (.05 + rnd() * .18).toFixed(3) + ")" : "rgba(198,160,124," + (.04 + rnd() * .1).toFixed(3) + ")";
         x.lineWidth = .5 + rnd() * 1.8; x.beginPath();
         for (var px = 0; px <= 1024; px += 12) { var py = y0 + Math.sin(px * f + ph) * a + Math.sin(px * f * 3.3 + ph * 2) * a * .35; if (px) x.lineTo(px, py); else x.moveTo(px, py); }
         x.stroke();
@@ -1914,8 +1917,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
     room.environment = envMap([[[6, 3.3, 1.3], 3, 2, [-3.2, 2.3, 1.8]], [[1.5, 1.42, 1.3], 4, 1.6, [3.4, 2, 2.6]], [[.9, .84, .76], 6, 3, [0, 3, 0]]], 0x9E9182);
     var wall = new THREE.Mesh(new THREE.PlaneGeometry(7, 4), new THREE.MeshStandardMaterial({ color: 0xF1EDE6, roughness: .94 }));
     wall.position.set(.4, 1.2, -.55); wall.receiveShadow = true; room.add(wall);
-    var desk = new THREE.Mesh(new THREE.BoxGeometry(2.2, .036, .8), new THREE.MeshPhysicalMaterial({ map: woodTex(), roughness: .5, clearcoat: .3, clearcoatRoughness: .45 }));
-    desk.position.set(.42, -.018, -.15); desk.receiveShadow = true; desk.castShadow = true; room.add(desk);
+    var desk = new THREE.Mesh(new THREE.BoxGeometry(2.9, .036, .8), new THREE.MeshPhysicalMaterial({ map: woodTex(), roughness: .5, clearcoat: .3, clearcoatRoughness: .45 }));
+    desk.position.set(.6, -.018, -.15); desk.receiveShadow = true; desk.castShadow = true; room.add(desk);
     var floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshStandardMaterial({ color: 0x4A3B2F, roughness: .9 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = -.74; room.add(floor);
     room.add(new THREE.HemisphereLight(0xFFF0DC, 0x4B3626, .5));
@@ -1949,7 +1952,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var macScreen = new THREE.Mesh(new THREE.PlaneGeometry(MAC.dw, MAC.dh), off); macScreen.position.set(0, MAC.chin + MAC.dh / 2, .0004); lid.add(macScreen);
 
     // desktop display, already on the desk to the right
-    var SD = { w: .6232, h: .3625, t: .03, dw: .5966, dh: .3356, x: .64, z: -.3, y: .3, tilt: .06 };
+    var SD = { w: .6232, h: .3625, t: .03, dw: .5966, dh: .3356, x: 1.2, z: -.3, y: .3, tilt: .06 };   // far enough along the desk to stay out of the first view of the laptop
     var sd = new THREE.Group(); sd.position.set(SD.x, 0, SD.z); room.add(sd);
     var panel = new THREE.Group(); panel.position.y = SD.y; panel.rotation.x = -SD.tilt; sd.add(panel);
     var back = slab(SD.w, SD.h, SD.t, .011, .002, alu); back.position.z = -SD.t / 2; panel.add(back);
@@ -2026,7 +2029,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     };
 
     // ---------- layout: where the camera stands for each device, and how much scrolling each part gets ----------
-    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], poses = {}, lastW = 0, lastH = 0;
+    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], poses = {}, lastW = 0, lastH = 0;
     function pose(mesh, w, h){
       mesh.updateWorldMatrix(true, false);
       var c = mesh.getWorldPosition(new V3()), q = mesh.getWorldQuaternion(new THREE.Quaternion());
@@ -2045,6 +2048,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       var A = poses.A, dir = A.n.clone().add(new V3(-.5, .34, .12)).normalize();
       poses.I = { pos: A.c.clone().addScaledVector(dir, A.d * 2.7).add(new V3(0, .02, 0)), target: A.c.clone().add(new V3(.05, -.03, 0)), up: new V3(0, 1, 0) };
       poses.BC = closer(poses.B, .42); poses.CC = closer(poses.C, .5);
+      poses.back = poses.A.n.clone().add(poses.B.n).normalize();
+      poses.right = poses.A.target.clone().sub(poses.A.pos).cross(poses.A.up).normalize();
       [poses.A, poses.B, poses.C].forEach(function(p, i){        // each screen box gets the screen's size at rest, so the page is sharp there
         setPose(p); var q = corners(screens[i].mesh, screens[i].w, screens[i].h), sc = screens[i];
         sc.W = Math.max(200, Math.round(q[1][0] - q[0][0])); sc.H = Math.max(120, Math.round(q[3][1] - q[0][1]));
@@ -2056,7 +2061,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
       // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust / tail
       var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; };
       zones[0] = zone(0, 0); st[0] = zones[0][1];
-      zones[1] = zone(st[0] + len[0] + HOLD * vpH, 1); st[1] = zones[1][1];
+      var pa = st[0] + len[0] + PAN.hold * vpH;                   // the glide: a still band, the travel, a still band
+      zones[1] = [pa, pa + (2 * PAN.band + PAN.travel) * vpH]; st[1] = zones[1][1]; glide = [pa + PAN.band * vpH, zones[1][1] - PAN.band * vpH];
       zones[2] = zone(st[1] + len[1] + HOLD * vpH, 2); st[2] = zones[2][1];
       zones[3] = zone(st[2] + len[2] + HOLD * vpH, 3);
       P = zones[3][1] + TAIL * vpH;
@@ -2069,7 +2075,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
       for (var k = 0; k < 4; k++) {
         var z = zones[k];
         if (s < z[0]) return k;
-        if (s < z[1]) return k + (s - z[0]) / (z[1] - z[0]);
+        if (s < z[1]) return k === 1 ? (s < glide[0] ? 1 : s > glide[1] ? 2 : 1 + (s - glide[0]) / (glide[1] - glide[0])) : k + (s - z[0]) / (z[1] - z[0]);
       }
       return 4;
     }
@@ -2077,6 +2083,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
     // ---------- camera and screens ----------
     var tv = new V3();
     function setPose(p){ cam.position.copy(p.pos); cam.up.copy(p.up); cam.lookAt(p.target); cam.updateMatrixWorld(); }
+    function leaned(){                                    // the laptop view, nudged toward the display while the visitor scrolls on past Services
+      var A = poses.A; if (lean <= 0) return A;
+      return { pos: A.pos.clone().addScaledVector(poses.right, lean * .025), target: A.target.clone().addScaledVector(poses.right, lean * .045), up: A.up };
+    }
     function mixPose(a, b, t){ return { pos: a.pos.clone().lerp(b.pos, t), target: a.target.clone().lerp(b.target, t), up: a.up.clone().lerp(b.up, t).normalize() }; }
     function corners(mesh, w, h){                         // the screen's corners on the stage, in px: top left, top right, bottom right, bottom left
       var out = [], pts = [[-w / 2, h / 2], [w / 2, h / 2], [w / 2, -h / 2], [-w / 2, -h / 2]];
@@ -2102,9 +2112,9 @@ window.__zwdIntro3D = function(THREE, intro, on){
       var v = { scene: room, pose: poses.I, scr: [0, 0, 0], veil: 0, stage: 1, dust: -1 };
       if (c <= 0) { v.stage = 0; return v; }
       if (c < 1) { v.pose = mixPose(poses.I, poses.A, ease(c)); v.stage = clamp(c / .2); v.scr[0] = clamp((c - .55) / .3); return v; }
-      if (c < 2) {
-        var e = ease(c - 1), arc = Math.sin(e * Math.PI);
-        v.pose = mixPose(poses.A, poses.B, e); v.pose.pos.y += arc * .035; v.pose.pos.z += arc * .06;
+      if (c < 2) {                                          // the glide along the desk: eased in and out, pulling back a little mid-way, looking ahead
+        var t = c - 1, e = t < .5 ? 16 * Math.pow(t, 5) : 1 - Math.pow(-2 * t + 2, 5) / 2, arc = Math.sin(e * Math.PI), A = leaned(), B = poses.B;
+        v.pose = { pos: A.pos.clone().lerp(B.pos, e).addScaledVector(poses.back, arc * .75).add(new V3(0, arc * .08, 0)), target: A.target.clone().lerp(B.target, ease(t)), up: A.up.clone().lerp(B.up, e).normalize() };
         v.scr[0] = 1; v.scr[1] = 1; return v;
       }
       if (c < 2.5) { var t3 = clamp((c - 2) / .5); v.pose = mixPose(poses.B, poses.BC, t3 * t3 * t3); v.scr[1] = 1; v.veil = smooth(2.36, 2.5, c); return v; }
@@ -2202,7 +2212,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
         renderer.render(dustScene, dustCam); glKey = "";
       } else {
         dust = null;
-        var gk = cur.toFixed(5) + "|" + bob.toFixed(6) + "|" + vpW + "x" + vpH;
+        var gk = cur.toFixed(5) + "|" + bob.toFixed(6) + "|" + lean.toFixed(4) + "|" + vpW + "x" + vpH;
         if (gk !== glKey) { renderer.render(v.scene, cam); glKey = gk; }
       }
       for (var i = 0; i < 3; i++) {
@@ -2224,10 +2234,16 @@ window.__zwdIntro3D = function(THREE, intro, on){
           window.scrollTo({ top: auto.y0 + (auto.y1 - auto.y0) * e, behavior: "instant" });
           if (t >= 1) auto = null;
         }
+        if (glideAnim) {                                                // the glide plays at its own pace (its easing is in view())
+          var g = glideAnim, tg = Math.min(1, (now - g.t0) / Math.max(1, g.d));
+          window.scrollTo({ top: g.base + (tg < 1 ? g.from + (g.to - g.from) * tg : g.land), behavior: "instant" });
+          if (tg >= 1) { glideAnim = null; lastY = window.scrollY; }
+        }
+        if (lean > 0) { lean *= Math.exp(-dt / .45); if (lean < .002) lean = 0; }
         var s = -track.getBoundingClientRect().top;
         cur = curAt(s);
         draw(s, now);
-        var going = !!auto || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating tablet keeps bobbing
+        var going = !!auto || !!glideAnim || lean > 0 || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating tablet keeps bobbing
         if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
         if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
       } catch(e){ fail(e); }
@@ -2235,14 +2251,21 @@ window.__zwdIntro3D = function(THREE, intro, on){
     function kick(){ if (!raf && !dead) raf = requestAnimationFrame(tick); }
 
     // ---------- a move left partway finishes by itself, in the direction the visitor was going ----------
-    var auto = null, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, wheelAt = 0;
+    var auto = null, glideAnim = null, lean = 0, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, mouseHeld = false, wheelAt = 0;
     function cancelAuto(){ auto = null; }
+    function glideTo(dir){                                // laptop to display (or back): once started it plays through, unless the visitor firmly scrolls the other way
+      clearTimeout(quiet); auto = null;
+      var s = -track.getBoundingClientRect().top, from = Math.max(glide[0], Math.min(glide[1], s)), to = dir > 0 ? glide[1] : glide[0];
+      glideAnim = { base: window.scrollY - s, from: from, to: to, land: dir > 0 ? zones[1][1] : glide[0] - 4, dir: dir, push: 0, t0: performance.now(),
+                    d: PAN.secs * 1000 * Math.abs(to - from) / (glide[1] - glide[0]) };
+      kick();
+    }
     function settle(){
-      if (auto || held || dead) return;
+      if (auto || glideAnim || held || dead) return;
       if (performance.now() - wheelAt < 150) { quiet = setTimeout(settle, 150); return; }   // trackpad momentum still coming
       var s = -track.getBoundingClientRect().top;
       for (var k = 0; k < 4; k++) {
-        var z = zones[k];
+        var z = k === 1 ? glide : zones[k];                          // the glide's still bands are places to rest
         if (s > z[0] + 2 && s < z[1] - 2) {
           var p = (s - z[0]) / (z[1] - z[0]), on = dirY > 0 ? p > .2 : p > .8, to = on ? z[1] : z[0];   // only nudged in (under a fifth of the move): settle back
           auto = { y0: window.scrollY, y1: window.scrollY + (to - s), t0: performance.now(), d: Math.max(250, AUTO[k] * 1000 * Math.abs(to - s) / (z[1] - z[0])) };
@@ -2251,22 +2274,32 @@ window.__zwdIntro3D = function(THREE, intro, on){
       }
     }
     function onScroll(){
-      var y = window.scrollY;
-      if (!auto) { if (Math.abs(y - lastY) > .5) dirY = y > lastY ? 1 : -1; clearTimeout(quiet); quiet = setTimeout(settle, 160); }
+      var y = window.scrollY, dy = y - lastY;
+      if (!auto && !glideAnim && !mouseHeld) {                      // dragging the scroll bar just scrubs
+        if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
+        clearTimeout(quiet); quiet = setTimeout(settle, 160);
+        var s = -track.getBoundingClientRect().top, z = zones[1], half = PAN.band * vpH / 2;
+        if (z && dy > 0 && s > st[0] + len[0] && s < z[0] + half) lean = Math.min(1, lean + dy / (.5 * vpH));   // scrolling on past Services: lean toward the display
+        if (z && dy > 0 && s >= z[0] + half && s < glide[1]) glideTo(1);           // clearly moving on: the glide plays
+        else if (z && dy < 0 && s <= z[1] - half && s > glide[0]) glideTo(-1);     // clearly going back
+      }
       lastY = y; kick();
     }
-    window.addEventListener("wheel", function(){ wheelAt = performance.now(); cancelAuto(); }, { passive: true });
+    window.addEventListener("wheel", function(e){
+      wheelAt = performance.now(); cancelAuto();
+      if (glideAnim && e.deltaY * glideAnim.dir < 0 && (glideAnim.push += Math.abs(e.deltaY)) > 240) glideTo(-glideAnim.dir);   // a firm scroll the other way turns it around
+    }, { passive: true });
     window.addEventListener("touchstart", function(){ held = true; cancelAuto(); }, { passive: true });
     window.addEventListener("touchend", function(){ held = false; clearTimeout(quiet); quiet = setTimeout(settle, 220); }, { passive: true });
     window.addEventListener("touchcancel", function(){ held = false; }, { passive: true });
-    window.addEventListener("mousedown", function(){ held = true; cancelAuto(); });
-    window.addEventListener("mouseup", function(){ held = false; clearTimeout(quiet); quiet = setTimeout(settle, 160); });
+    window.addEventListener("mousedown", function(){ held = mouseHeld = true; cancelAuto(); glideAnim = null; });   // grabbing the scroll bar takes over
+    window.addEventListener("mouseup", function(){ held = mouseHeld = false; clearTimeout(quiet); quiet = setTimeout(settle, 160); });
     window.addEventListener("keydown", cancelAuto);
 
     // ---------- menu links, focus, resizing ----------
     function jump(i, push){
       var top = track.getBoundingClientRect().top + window.scrollY + st[i] + 1;
-      cancelAuto(); window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
+      cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
       if (push && history.pushState) history.pushState(null, "", "#" + IDS[i]);
     }
     document.addEventListener("click", function(e){
@@ -2284,7 +2317,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
           var sc = screens[i], y = 0, el = target;
           while (el && el !== sc.page) { y += el.offsetTop || 0; el = el.offsetParent; if (el === sc.el) break; }
           var top = track.getBoundingClientRect().top + window.scrollY + st[i] + Math.max(0, Math.min(len[i], y - sc.H * .35));
-          if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); window.scrollTo({ top: top, behavior: "instant" }); }
+          if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); }
           sc.el.scrollTop = 0; sc.el.scrollLeft = 0; glKey = ""; kick();
         }
       });
@@ -2316,7 +2349,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     (renderer.compileAsync ? renderer.compileAsync(room, cam).then(function(){ return renderer.compileAsync(studio, cam); }).then(function(){ return renderer.compileAsync(dustScene, dustCam); }) : Promise.resolve())
       .then(function(){ (window.requestIdleCallback || setTimeout)(function(){ if (dead || cur > 0) return; setPose(poses.I); renderer.render(room, cam); glKey = ""; }); })
       .catch(function(){});
-    window.__zwdDevices = { state: function(){ return { cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
+    window.__zwdDevices = { state: function(){ return { glide: glideAnim ? glideAnim.dir : 0, lean: +lean.toFixed(3), cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
   }
 })();
 </script>
