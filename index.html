@@ -194,9 +194,10 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 
 
 /* ---------- devices (see the "Devices" script) ----------
-   Services, Why it matters and Why choose us? on a laptop, a desktop display and a phone in a 3D room. The script
-   moves the three sections onto the device screens and fits each screen onto its 3D screen every frame. Without the
-   script they stay ordinary page sections. Inside a screen, sizes follow the screen's width (cqw), not the window's (vw). */
+   Services, Why it matters and Why choose us? on a laptop, a desktop display and a tablet in a 3D room. The script
+   moves the three sections onto the device screens and fits each screen onto its 3D screen every frame, and pins The
+   process under the tablet's dust (.dev-next). Without the script they stay ordinary page sections. Inside a screen,
+   sizes follow the screen's width (cqw), not the window's (vw). */
 .devices{position:relative;z-index:2}
 .dev-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#E6DED3;opacity:0;pointer-events:none}   /* see-through, not hidden: keyboards and screen readers can still reach the pages */
 .dev-stage canvas{position:absolute;inset:0;width:100%;height:100%;max-width:none}
@@ -205,6 +206,8 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 .dev-screen.is-on{pointer-events:auto}
 .dev-screen::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(118deg,rgba(255,255,255,.08),rgba(255,255,255,0) 34%)}   /* faint glass glare */
 .dev-page{will-change:transform}
+.dev-stage.is-dust{background:transparent}   /* the dust is see-through: The process waits underneath */
+.dev-next>section{position:sticky}            /* The process, held in place under the dust (the script sets its top) */
 .dev-screen section.block{padding-block:clamp(48px,7cqw,96px)!important}
 .dev-screen .section-head{margin-bottom:clamp(36px,5cqw,64px)}
 .dev-screen .section-title{font-size:clamp(36px,4.8cqw,66px)!important}
@@ -224,7 +227,7 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 @container (max-width:980px){.dev-screen .compare{grid-template-columns:1fr}.dev-screen .cmp-us{order:-1;margin-top:0}}
 @container (max-width:860px){.dev-screen .cards3{grid-template-columns:1fr}}
 @container (max-width:620px){.dev-screen .benefits-grid{grid-template-columns:1fr}}
-@media print{.devices{height:auto!important;margin-top:0!important}.dev-stage{position:static;height:auto;opacity:1!important}.dev-stage canvas,.dev-veil{display:none}.dev-screen{position:static;transform:none!important;width:auto!important;height:auto!important;opacity:1!important}.dev-page{transform:none!important}}
+@media print{.devices{height:auto!important;margin-top:0!important}.dev-stage{position:static;height:auto;opacity:1!important}.dev-stage canvas,.dev-veil{display:none}.dev-screen{position:static;transform:none!important;width:auto!important;height:auto!important;opacity:1!important}.dev-page{transform:none!important}.dev-next{margin-top:0!important}.dev-next>section{position:static}.dev-next-pin{display:none}}
 
 /* ---------- the film (pinned scroll section) ---------- */
 .film{position:relative;height:460vh;background:var(--ink);color:#F4F6F3}
@@ -1790,8 +1793,9 @@ window.__zwdIntro3D = function(THREE, intro, on){
 
 <script>
 /* Process steps: the first time the steps scroll into view, the gold line draws from 01 to 05 and each number turns
-   gold as the line reaches it. Plays once. Without this script, with reduced motion, or if the steps are already on
-   screen when the page opens, they simply show finished. */
+   gold as the line reaches it. Plays once. While the tablet's dust still covers the steps (the "Devices" script marks
+   the section .dev-under), it waits for the dust to clear. Without this script, with reduced motion, or if the steps
+   are already on screen when the page opens, they simply show finished. */
 (function(){
   "use strict";
   var steps = document.querySelector("#process .steps");
@@ -1802,11 +1806,12 @@ window.__zwdIntro3D = function(THREE, intro, on){
     if (r.top < window.innerHeight && r.bottom > 0) return;
     steps.classList.add("steps-anim");
     var io = new IntersectionObserver(function(es){
-      if (!es[es.length - 1].isIntersecting) return;
+      if (!es[es.length - 1].isIntersecting || steps.closest(".dev-under")) return;
       io.disconnect();
       requestAnimationFrame(function(){ steps.classList.add("is-in"); });
     }, { threshold: .45 });
     io.observe(steps);
+    document.addEventListener("zwd:uncovered", function(){ if (!steps.classList.contains("is-in")) { io.unobserve(steps); io.observe(steps); } });   // the dust has cleared: look again
   } catch(e){ if (steps) steps.classList.remove("steps-anim"); }
 })();
 </script>
@@ -1817,8 +1822,9 @@ window.__zwdIntro3D = function(THREE, intro, on){
    generous pause (the camera leans a little toward what's next); once the visitor clearly scrolls on, the camera glides
    along the desk to a desktop display (Why it matters) at its own pace, then (after a pause) into that display and
    out to a tablet floating on white (Why choose us?). At the end of that the tablet turns to dust that drifts off to the
-   upper right, and the ordinary page carries on with The process. Every move follows the scroll, so nothing can skip or
-   lag and scrolling up plays it all backwards; a move left partway finishes by itself, in the direction it was going.
+   upper right, uncovering The process, which waits underneath already in place; from there the ordinary page carries
+   on. Every move follows the scroll, so nothing can skip or lag and scrolling up plays it all backwards; a move left
+   partway finishes by itself, in the direction it was going.
    The pages on the screens are the real page (links, search engines, screen readers): each section is moved into a box
    that is fitted onto its 3D screen every frame. Without this script (reduced motion, Data Saver, slow connection, no
    WebGL 2, software graphics, opened from the folder) the three sections stay ordinary page sections.
@@ -1829,7 +1835,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
 (function(){
   "use strict";
   var ZONE = [.8, 0, 1.1, 1.2];               // scroll room for each move, in screen heights: the room appears / (the glide: PAN) / into the tablet / to dust
-  var HOLD = .6, TAIL = .15;                  // after each page, a pause before the next move; after the dust, before the page carries on
+  var HOLD = .6;                              // after each page, a pause before the next move
   var AUTO = [1.2, 1.8, 1.6, 2.2];            // seconds a whole move takes when it finishes by itself
   var PAN = { hold: .8, band: .3, travel: .9, secs: 1.8 };   // laptop to display: a generous pause after Services, then, once the visitor clearly scrolls on, a 1.8-second glide
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
@@ -1864,7 +1870,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
     var V3 = THREE.Vector3;
     // ---------- renderer ----------
     var canvas = document.createElement("canvas"); canvas.setAttribute("aria-hidden", "true");
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });   // alpha: the dust is see-through
     var gl = renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info");
     if (info && /swiftshader|llvmpipe|software|basic render/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { renderer.dispose(); return; }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1995,10 +2001,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
       "void main(){ vec2 cell = floor(vUv * uGrid); if (uQ > delayAt((cell + .5) / uGrid, hash(cell))) discard; gl_FragColor = texture2D(uSrc, vec2(vUv.x, 1. - vUv.y)); }";
     var dustScene = new THREE.Scene(), dustCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     var quadGeo = new THREE.BufferGeometry(); quadGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0], 3));
-    var dustQuad = new THREE.Mesh(quadGeo, new THREE.ShaderMaterial({ uniforms: dustU, vertexShader: QUAD_VS, fragmentShader: QUAD_FS, transparent: true, depthTest: false, depthWrite: false }));
+    var dustQuad = new THREE.Mesh(quadGeo, new THREE.ShaderMaterial({ uniforms: dustU, vertexShader: QUAD_VS, fragmentShader: QUAD_FS, transparent: true, depthTest: false, depthWrite: false, side: THREE.DoubleSide }));   // both sides: the y flip in QUAD_VS turns it away from the camera
     dustQuad.frustumCulled = false; dustScene.add(dustQuad);
     var dustPts = null, dust = null;
-    var WHITE = new THREE.Color(0xF3F2EE), PAPER = new THREE.Color(0xEEF1EE);
+    var WHITE = new THREE.Color(0xF3F2EE);              // the tablet's white backdrop, which clears as it turns to dust
 
     // ---------- the page: the three sections move onto three screens ----------
     var header = document.querySelector(".site-header");
@@ -2022,14 +2028,25 @@ window.__zwdIntro3D = function(THREE, intro, on){
     stage.appendChild(veil); track.appendChild(stage);
     secs[0].parentNode.insertBefore(track, secs[0]);
     screens.forEach(function(sc){ sc.page.appendChild(sc.sec); });
+    var next = after && after.tagName === "SECTION" ? after : null, hold = null, pin = null;   // The process: it waits under the dust, held in place by a wrapper
+    if (next) {
+      hold = document.createElement("div"); hold.className = "dev-next";
+      pin = document.createElement("div"); pin.className = "dev-next-pin"; pin.setAttribute("aria-hidden", "true");
+      next.parentNode.insertBefore(hold, next); hold.appendChild(next); hold.appendChild(pin);
+    }
+    var HASHES = IDS.concat(next && next.id ? [next.id] : []);
     restore = function(){
+      if (hold && hold.parentNode) {
+        hold.parentNode.insertBefore(next, hold); hold.parentNode.removeChild(hold);
+        next.style.top = ""; next.classList.remove("dev-under"); document.dispatchEvent(new Event("zwd:uncovered"));
+      }
       screens.forEach(function(sc){ after.parentNode.insertBefore(sc.sec, after); });
       if (track.parentNode) track.parentNode.removeChild(track);
       restore = null;
     };
 
     // ---------- layout: where the camera stands for each device, and how much scrolling each part gets ----------
-    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], poses = {}, lastW = 0, lastH = 0;
+    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], poses = {}, lastW = 0, lastH = 0, nextTop = 88;
     function pose(mesh, w, h){
       mesh.updateWorldMatrix(true, false);
       var c = mesh.getWorldPosition(new V3()), q = mesh.getWorldQuaternion(new THREE.Quaternion());
@@ -2058,15 +2075,19 @@ window.__zwdIntro3D = function(THREE, intro, on){
         sc.el.style.borderRadius = sc.rad.map(function(x){ return (x * k).toFixed(1) + "px"; }).join(" ");
       });
       screens.forEach(function(sc, i){ len[i] = Math.max(0, sc.page.offsetHeight - sc.H); });
-      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust / tail
+      // the scroll, in order: the room appears / Services / pause / along the desk / Why it matters / pause / into the tablet / Why choose us? / pause / dust
       var zone = function(a, k){ return [a, a + ZONE[k] * vpH]; };
       zones[0] = zone(0, 0); st[0] = zones[0][1];
       var pa = st[0] + len[0] + PAN.hold * vpH;                   // the glide: a still band, the travel, a still band
       zones[1] = [pa, pa + (2 * PAN.band + PAN.travel) * vpH]; st[1] = zones[1][1]; glide = [pa + PAN.band * vpH, zones[1][1] - PAN.band * vpH];
       zones[2] = zone(st[1] + len[1] + HOLD * vpH, 2); st[2] = zones[2][1];
       zones[3] = zone(st[2] + len[2] + HOLD * vpH, 3);
-      P = zones[3][1] + TAIL * vpH;
+      P = zones[3][1];
       track.style.marginTop = -vpH + "px"; track.style.height = (vpH + P) + "px";
+      if (hold) {                                                 // The process sits still under the dust, just below the header, then carries on with the page
+        var dz = zones[3][1] - zones[3][0]; nextTop = hdr + 24;
+        next.style.top = nextTop + "px"; pin.style.height = dz + "px"; hold.style.marginTop = -(vpH + dz - nextTop) + "px";
+      }
       renderer.shadowMap.needsUpdate = true; glKey = "";
       lastW = window.innerWidth; lastH = window.innerHeight;
     }
@@ -2119,6 +2140,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
       }
       if (c < 2.5) { var t3 = clamp((c - 2) / .5); v.pose = mixPose(poses.B, poses.BC, t3 * t3 * t3); v.scr[1] = 1; v.veil = smooth(2.36, 2.5, c); return v; }
       if (c <= 3) { var t4 = clamp((c - 2.5) / .5); v.scene = studio; v.pose = mixPose(poses.CC, poses.C, 1 - Math.pow(1 - t4, 3)); v.scr[2] = 1; v.veil = 1 - smooth(2.5, 2.64, c); return v; }
+      if (c >= 4) { v.stage = 0; return v; }               // the dust has cleared: only The process is left
       v.scene = null; v.pose = poses.C; v.dust = clamp(c - 3); return v;
     }
 
@@ -2196,22 +2218,23 @@ window.__zwdIntro3D = function(THREE, intro, on){
     }
 
     // ---------- each frame ----------
-    var cur = 0, raf = 0, last = 0, near = false, glKey = "", slow = 0;
+    var cur = 0, raf = 0, last = 0, near = false, glKey = "", slow = 0, under = null;
     function draw(s, now){
-      var v = view(cur);
-      stage.style.opacity = v.stage.toFixed(3); stage.style.pointerEvents = v.stage > .5 ? "auto" : "none";
-      if (v.stage <= 0) return;
+      var v = view(cur), dusting = v.dust >= 0;
+      stage.style.opacity = v.stage.toFixed(3); stage.style.pointerEvents = v.stage > .5 && !dusting ? "auto" : "none";   // during the dust, clicks go through to The process
+      stage.classList.toggle("is-dust", dusting);
+      if (!dusting) dust = null;
+      if (v.stage <= 0) { screens.forEach(function(sc){ sc.el.style.opacity = "0"; sc.el.classList.remove("is-on"); }); return; }
       var bob = (cur > 2.5 && cur <= 3) ? Math.sin(now / 900) * .003 : 0;
       if (tablet.position.y !== bob) { tablet.position.y = bob; tablet.updateMatrixWorld(true); }
       setPose(v.pose);
-      if (v.dust >= 0) {
-        if (!dust && v.dust < 1) dust = dustStart() ? 1 : null;
+      if (dusting) {
+        if (!dust) dust = dustStart() ? 1 : null;
         dustU.uQ.value = v.dust * 1.3;
-        dustScene.background = WHITE.clone().lerp(PAPER, smooth(.15, .85, v.dust));
+        renderer.setClearColor(WHITE, 1 - smooth(.1, .6, v.dust));   // the white clears, and The process shows through
         dustQuad.visible = !!dust; if (dustPts) dustPts.visible = !!dust;
         renderer.render(dustScene, dustCam); glKey = "";
       } else {
-        dust = null;
         var gk = cur.toFixed(5) + "|" + bob.toFixed(6) + "|" + lean.toFixed(4) + "|" + vpW + "x" + vpH;
         if (gk !== glKey) { renderer.render(v.scene, cam); glKey = gk; }
       }
@@ -2242,6 +2265,10 @@ window.__zwdIntro3D = function(THREE, intro, on){
         if (lean > 0) { lean *= Math.exp(-dt / .45); if (lean < .002) lean = 0; }
         var s = -track.getBoundingClientRect().top;
         cur = curAt(s);
+        if (next && (cur < 3.7) !== under) {                            // The process's steps wait to draw their line until the dust has mostly cleared
+          under = cur < 3.7; next.classList.toggle("dev-under", under);
+          if (!under) document.dispatchEvent(new Event("zwd:uncovered"));
+        }
         draw(s, now);
         var going = !!auto || !!glideAnim || lean > 0 || (cur > 2.5 && cur <= 3 && s > -vpH && s < P + vpH);   // the floating tablet keeps bobbing
         if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
@@ -2251,8 +2278,13 @@ window.__zwdIntro3D = function(THREE, intro, on){
     function kick(){ if (!raf && !dead) raf = requestAnimationFrame(tick); }
 
     // ---------- a move left partway finishes by itself, in the direction the visitor was going ----------
-    var auto = null, glideAnim = null, lean = 0, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, mouseHeld = false, wheelAt = 0;
-    function cancelAuto(){ auto = null; }
+    var auto = null, glideAnim = null, lean = 0, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, mouseHeld = false, wheelAt = 0, flight = false, flightT = 0, reland = null;
+    function cancelAuto(){ auto = null; flight = false; reland = null; }
+    function landed(){                                    // a scroll the visitor didn't make (a menu link, the browser opening a link) has come to rest
+      flight = false;
+      if (reland) { var r = reland; reland = null; r(); }
+      settle();
+    }
     function glideTo(dir){                                // laptop to display (or back): once started it plays through, unless the visitor firmly scrolls the other way
       clearTimeout(quiet); auto = null;
       var s = -track.getBoundingClientRect().top, from = Math.max(glide[0], Math.min(glide[1], s)), to = dir > 0 ? glide[1] : glide[0];
@@ -2261,7 +2293,7 @@ window.__zwdIntro3D = function(THREE, intro, on){
       kick();
     }
     function settle(){
-      if (auto || glideAnim || held || dead) return;
+      if (auto || glideAnim || held || flight || dead) return;
       if (performance.now() - wheelAt < 150) { quiet = setTimeout(settle, 150); return; }   // trackpad momentum still coming
       var s = -track.getBoundingClientRect().top;
       for (var k = 0; k < 4; k++) {
@@ -2275,7 +2307,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
     }
     function onScroll(){
       var y = window.scrollY, dy = y - lastY;
-      if (!auto && !glideAnim && !mouseHeld) {                      // dragging the scroll bar just scrubs
+      if (flight) { clearTimeout(flightT); flightT = setTimeout(landed, 200); }   // a scroll the visitor didn't make, passing through: leave it be
+      else if (!auto && !glideAnim && !mouseHeld) {                 // dragging the scroll bar just scrubs
         if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
         clearTimeout(quiet); quiet = setTimeout(settle, 160);
         var s = -track.getBoundingClientRect().top, z = zones[1], half = PAN.band * vpH / 2;
@@ -2297,19 +2330,21 @@ window.__zwdIntro3D = function(THREE, intro, on){
     window.addEventListener("keydown", cancelAuto);
 
     // ---------- menu links, focus, resizing ----------
-    function jump(i, push){
-      var top = track.getBoundingClientRect().top + window.scrollY + st[i] + 1;
+    function jump(i, push){                               // straight to that page; The process: where the dust has cleared
+      var top = track.getBoundingClientRect().top + window.scrollY + (i < 3 ? st[i] + 1 : P);
       cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); glKey = ""; kick();
-      if (push && history.pushState) history.pushState(null, "", "#" + IDS[i]);
+      if (push && history.pushState) history.pushState(null, "", "#" + HASHES[i]);
     }
     document.addEventListener("click", function(e){
+      if (e.defaultPrevented) return;
       var a = e.target && e.target.closest && e.target.closest("a[href]"); if (!a) return;
       var u; try { u = new URL(a.href, location.href); } catch(_){ return; }
-      var i = IDS.indexOf(u.hash.slice(1));
-      if (i < 0 || u.pathname !== location.pathname) return;
-      e.preventDefault(); jump(i, true);
+      if (!u.hash || u.pathname !== location.pathname) return;
+      var i = HASHES.indexOf(u.hash.slice(1));
+      if (i >= 0) { e.preventDefault(); jump(i, true); return; }
+      flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400); auto = null; glideAnim = null; lean = 0;   // anywhere else on the page: the browser's smooth scroll passes the devices untouched
     });
-    window.addEventListener("hashchange", function(){ var i = IDS.indexOf(location.hash.slice(1)); if (i >= 0) jump(i, false); });
+    window.addEventListener("hashchange", function(){ var i = HASHES.indexOf(location.hash.slice(1)); if (i >= 0) jump(i, false); });
     stage.addEventListener("focusin", function(e){                  // tabbing into a page that isn't on screen yet: go there
       var target = e.target;
       requestAnimationFrame(function(){                             // after the browser's own scroll-into-view, which would undo this
@@ -2320,6 +2355,15 @@ window.__zwdIntro3D = function(THREE, intro, on){
           if (Math.abs(top - window.scrollY) > 2) { cancelAuto(); glideAnim = null; window.scrollTo({ top: top, behavior: "instant" }); }
           sc.el.scrollTop = 0; sc.el.scrollLeft = 0; glKey = ""; kick();
         }
+      });
+    });
+    if (next) next.addEventListener("focusin", function(e){         // tabbing into The process while the tablet still covers it: go to where the dust has cleared
+      var target = e.target;
+      requestAnimationFrame(function(){
+        var base = track.getBoundingClientRect().top + window.scrollY + P;
+        if (window.scrollY >= base - 1) return;
+        var over = target.getBoundingClientRect().bottom - next.getBoundingClientRect().top + nextTop + 24 - window.innerHeight;
+        cancelAuto(); glideAnim = null; window.scrollTo({ top: base + Math.max(0, over), behavior: "instant" }); glKey = ""; kick();
       });
     });
     var rt = 0;
@@ -2338,18 +2382,25 @@ window.__zwdIntro3D = function(THREE, intro, on){
     window.addEventListener("scroll", onScroll, { passive: true });
     new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) kick(); }, { rootMargin: "50% 0px" }).observe(track);
 
+    function arrive(){                                    // opened at a link to part of the page: the browser may still be scrolling there, so let it finish, then put it right
+      var h = location.hash.slice(1), i = HASHES.indexOf(h), el = i < 0 && h ? document.getElementById(h) : null;
+      if (el && track.contains(el)) el = null;
+      if (i < 0 && !el) return false;
+      if (i >= 0) jump(i, false);
+      reland = function(){ if (i >= 0) jump(i, false); else if (el.isConnected) el.scrollIntoView({ block: "start", behavior: "instant" }); };
+      flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400);
+      return true;
+    }
     layout();
-    if (below) window.scrollTo({ top: after.getBoundingClientRect().top + window.scrollY - keepY, behavior: "instant" });   // opened further down: stay put
-    var h0 = IDS.indexOf(location.hash.slice(1));
-    if (h0 >= 0) jump(h0, false);
+    if (!arrive() && below) window.scrollTo({ top: hold ? track.getBoundingClientRect().top + window.scrollY + P + Math.max(0, nextTop - keepY) : after.getBoundingClientRect().top + window.scrollY - keepY, behavior: "instant" });   // opened further down: stay put
     cur = curAt(-track.getBoundingClientRect().top);
-    window.addEventListener("load", function(){ var i = IDS.indexOf(location.hash.slice(1)); if (i >= 0) jump(i, false); });
+    window.addEventListener("load", arrive);
     kick();
     // Get the scenes ready ahead of time, so the room's first frame doesn't stutter: compile in the background, then draw it once unseen.
     (renderer.compileAsync ? renderer.compileAsync(room, cam).then(function(){ return renderer.compileAsync(studio, cam); }).then(function(){ return renderer.compileAsync(dustScene, dustCam); }) : Promise.resolve())
       .then(function(){ (window.requestIdleCallback || setTimeout)(function(){ if (dead || cur > 0) return; setPose(poses.I); renderer.render(room, cam); glKey = ""; }); })
       .catch(function(){});
-    window.__zwdDevices = { state: function(){ return { glide: glideAnim ? glideAnim.dir : 0, lean: +lean.toFixed(3), cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
+    window.__zwdDevices = { state: function(){ return { glide: glideAnim ? glideAnim.dir : 0, lean: +lean.toFixed(3), cur: +cur.toFixed(3), under: !!under, flight: flight, s: Math.round(-track.getBoundingClientRect().top), P: Math.round(P), st: st.map(Math.round), len: len.map(Math.round), zones: zones.map(function(z){ return z.map(Math.round); }), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr }; } };
   }
 })();
 </script>
