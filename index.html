@@ -50,6 +50,11 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
   var c = navigator.connection, still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.__zwd3dOK = location.protocol !== "file:" && "WebGL2RenderingContext" in window && !(c && (c.saveData || /2g|3g/.test(c.effectiveType || "")));
   if (document.documentElement.classList.contains("intro-3d") || (window.__zwd3dOK && !still)) window.__zwdThreeLoad();
+  // Before the first paint: the film's lines wait for the film script to place them (they would all show at once), and a
+  // page opened at a section on the 3D devices shows nothing below the header until the devices are in place (the
+  // "Devices" script lifts it; so does a timer, in case the 3D never arrives).
+  var d = document.documentElement; d.classList.add("film-wait");
+  if (window.__zwd3dOK && !still && /^#(services|benefits|why-us)$/.test(location.hash)) { d.classList.add("dev-arriving"); setTimeout(function(){ d.classList.remove("dev-arriving"); }, 6000); }
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -231,6 +236,8 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the flight or
 @media print{.devices{height:auto!important;margin-top:0!important}.dev-stage{position:static;height:auto;opacity:1!important}.dev-stage canvas,.dev-veil{display:none}.dev-screen{position:static;transform:none!important;width:auto!important;height:auto!important;opacity:1!important}.dev-page{transform:none!important}.dev-next{margin-top:0!important}.dev-next>section{position:static}.dev-next-pin{display:none}}
 
 /* ---------- the film (pinned scroll section) ---------- */
+html.film-wait .film .beat:not(.hero-block){visibility:hidden}   /* until the film script has placed them (see the <head>) */
+html.dev-arriving .film,html.dev-arriving #services,html.dev-arriving #benefits,html.dev-arriving #why-us{visibility:hidden}   /* opened at a device section: nothing until the devices are in place */
 .film{position:relative;height:calc(460vh + var(--film-tail,0px));background:var(--ink);color:#F4F6F3}   /* the tail: the rise after the summit ("Devices" script) */
 @media (max-width:700px){.film{height:calc(400vh + var(--film-tail,0px))}}
 .film-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
@@ -2208,15 +2215,16 @@ window.__zwdNashville = function(THREE, o){
   var FOV = 28, T = Math.tan(FOV * Math.PI / 360);
   var IDS = ["services", "benefits", "why-us"];
   var root = document.documentElement, dead = false, restore = null;
+  function shown(){ root.classList.remove("dev-arriving"); }   // opened at a device section: show the page (see the <head>)
 
   try {
-    if (!window.__zwd3dOK || !window.__zwdThreeLoad) return;
-    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!(window.CSS && CSS.supports && CSS.supports("container-type", "inline-size"))) return;
+    if (!window.__zwd3dOK || !window.__zwdThreeLoad) return shown();
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return shown();
+    if (!(window.CSS && CSS.supports && CSS.supports("container-type", "inline-size"))) return shown();
     var film = document.querySelector(".film"), filmStage = film && film.querySelector(".film-stage");
     var secs = IDS.map(function(id){ return document.getElementById(id); });
-    if (!filmStage || secs.some(function(x){ return !x; })) return;
-    var go = function(){ window.__zwdThreeLoad().then(function(THREE){ try { if (!dead) build(THREE); } catch(e){ fail(e); } }, function(){}); };
+    if (!filmStage || secs.some(function(x){ return !x; })) return shown();
+    var go = function(){ window.__zwdThreeLoad().then(function(THREE){ try { if (!dead) build(THREE); else shown(); } catch(e){ fail(e); } }, shown); };
     // Build when the opening animation has finished and the page is quiet, or at once if the page opens at one of these sections.
     if (IDS.indexOf(location.hash.slice(1)) >= 0) go();
     else (function wait(n){
@@ -2224,10 +2232,10 @@ window.__zwdNashville = function(THREE, o){
       else if (n < 60) setTimeout(function(){ wait(n + 1); }, 250);
       else go();
     })(0);
-  } catch(e){ return; }
+  } catch(e){ return shown(); }
 
   function fail(e){
-    dead = true;
+    dead = true; shown();
     try { if (restore) restore(); } catch(_){}
     if (e && window.console) console.warn("Devices are off:", e);
   }
@@ -2238,7 +2246,7 @@ window.__zwdNashville = function(THREE, o){
     var canvas = document.createElement("canvas"); canvas.setAttribute("aria-hidden", "true");
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });   // alpha: the dust is see-through
     var gl = renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info");
-    if (info && /swiftshader|llvmpipe|software|basic render/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { renderer.dispose(); return; }
+    if (info && /swiftshader|llvmpipe|software|basic render/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { renderer.dispose(); shown(); return; }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
@@ -2846,6 +2854,7 @@ window.__zwdNashville = function(THREE, o){
     layout();
     if (!arrive() && below) window.scrollTo({ top: hold ? track.getBoundingClientRect().top + window.scrollY + P + Math.max(0, nextTop - keepY) : after.getBoundingClientRect().top + window.scrollY - keepY, behavior: "instant" });   // opened further down: stay put
     cur = curAt(-track.getBoundingClientRect().top);
+    shown();                                              // the device is drawn in the same frame the page appears
     window.addEventListener("load", arrive);
     kick();
     // Get the scenes ready ahead of time, so the room's first frame doesn't stutter: compile in the background, then draw it once unseen.
@@ -3721,6 +3730,7 @@ var SITE = {
     win.addEventListener("scroll", onScroll, {passive:true});
     win.addEventListener("resize", function(){ if (film3d) film3d.resize(); onScroll(); requestFrame(); });
   }
+  doc.documentElement.classList.remove("film-wait");
 
   // If the viewer switches "reduce motion" on while the page is open, move to the still version.
   if (win.matchMedia) {
