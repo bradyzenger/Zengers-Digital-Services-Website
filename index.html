@@ -204,8 +204,9 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
    process under the tablet's dust (.dev-next). Without the script they stay ordinary page sections. Inside a screen,
    sizes follow the screen's width (cqw), not the window's (vw). */
 .devices{position:relative;z-index:2}
-.dev-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#E6DED3;opacity:0;pointer-events:none}   /* see-through, not hidden: keyboards and screen readers can still reach the pages */
+.dev-stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;background:#E6DED3;opacity:0;pointer-events:none}   /* see-through, not hidden: keyboards and screen readers can still reach the pages */
 .dev-stage canvas{position:absolute;inset:0;width:100%;height:100%;max-width:none}
+.dev-svh{position:absolute;top:0;left:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none}   /* measures the part of the screen that stays clear of a phone's toolbars */
 .dev-veil{position:absolute;inset:0;background:var(--paper);opacity:0;pointer-events:none;z-index:3}
 .dev-screen{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;background:var(--paper);opacity:0;pointer-events:none;container-type:inline-size;--gutter:clamp(16px,4cqw,48px)}
 .dev-screen.is-on{pointer-events:auto}
@@ -240,7 +241,7 @@ html.film-wait .film .beat:not(.hero-block){visibility:hidden}   /* until the fi
 html.dev-arriving .film,html.dev-arriving #services,html.dev-arriving #benefits,html.dev-arriving #why-us{visibility:hidden}   /* opened at a device section: nothing until the devices are in place */
 .film{position:relative;height:calc(460vh + var(--film-tail,0px));background:var(--ink);color:#F4F6F3}   /* the tail: the rise after the summit ("Devices" script) */
 @media (max-width:700px){.film{height:calc(400vh + var(--film-tail,0px))}}
-.film-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.film-stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden}   /* the whole screen even with a phone's toolbars shrunk away (100svh left a bar at the bottom) */
 .film-media{position:absolute;inset:0;background:linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%)}   /* pre-dawn, until the picture is ready */
 .film-media canvas,.film-media video,.film-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .film-media .film-3d{opacity:0;transition:opacity .9s ease}
@@ -248,7 +249,7 @@ html.dev-arriving .film,html.dev-arriving #services,html.dev-arriving #benefits,
 .film-scrim{position:absolute;inset:0;pointer-events:none;background:
   linear-gradient(to top,rgba(14,24,34,.92) 0%,rgba(14,24,34,.55) 30%,rgba(14,24,34,0) 58%),
   linear-gradient(to right,rgba(14,24,34,.55) 0%,rgba(14,24,34,0) 55%)}
-.film-copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(40px,9vh,96px)}
+.film-copy{position:absolute;left:0;right:0;bottom:0;padding-bottom:clamp(40px,9vh,96px);padding-bottom:calc(clamp(40px,9vh,96px) + 100lvh - 100svh)}   /* clear of a phone's toolbars when they show */
 .film-copy .wrap{position:relative;min-height:clamp(300px,46vh,440px)}
 .beat{position:absolute;left:var(--gutter);right:var(--gutter);bottom:0;max-width:760px;will-change:opacity,transform}
 .hero-kicker{color:var(--lamp);margin-bottom:18px}
@@ -265,7 +266,7 @@ html.dev-arriving .film,html.dev-arriving #services,html.dev-arriving #benefits,
 .scroll-hint{display:inline-flex;align-items:center;gap:10px;margin-top:26px;color:var(--mist)}
 .scroll-hint span{display:block;width:1px;height:28px;background:linear-gradient(var(--lamp),transparent);animation:drip 1.8s ease-in-out infinite}
 @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-.skip-film{position:absolute;right:var(--gutter);bottom:18px;color:var(--mist);font-size:13px;opacity:.85}
+.skip-film{position:absolute;right:var(--gutter);bottom:18px;bottom:calc(18px + 100lvh - 100svh);color:var(--mist);font-size:13px;opacity:.85}
 .skip-film:hover{color:var(--lamp)}
 
 /* Static version: reduced motion, or when the scroll film is switched off */
@@ -2392,6 +2393,7 @@ window.__zwdNashville = function(THREE, o){
     var stage = document.createElement("div"); stage.className = "dev-stage";
     var veil = document.createElement("div"); veil.className = "dev-veil"; veil.setAttribute("aria-hidden", "true");
     stage.appendChild(canvas);
+    var svh = document.createElement("div"); svh.className = "dev-svh"; stage.appendChild(svh);
     var after = secs[2].nextElementSibling, keepY = after ? after.getBoundingClientRect().top : 0, below = after && keepY < window.innerHeight;
     var screens = [
       { mesh: macScreen, w: MAC.dw, h: MAC.dh, rad: [.006, .006, 0, 0] },
@@ -2427,20 +2429,22 @@ window.__zwdNashville = function(THREE, o){
     };
 
     // ---------- layout: where the camera stands for each device, and how much scrolling each part gets ----------
-    var vpW = 1, vpH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], fly = [0, 1], moves = {}, poses = {}, lastW = 0, lastH = 0, nextTop = 88;
+    var vpW = 1, vpH = 1, frameH = 1, hdr = 64, fillW = .86, fillH = .86, P = 0, st = [0, 0, 0], len = [0, 0, 0], zones = [], glide = [0, 0], fly = [0, 1], moves = {}, poses = {}, lastW = 0, lastH = 0, nextTop = 88;
     function pose(mesh, w, h){
       mesh.updateWorldMatrix(true, false);
       var c = mesh.getWorldPosition(new V3()), q = mesh.getWorldQuaternion(new THREE.Quaternion());
       var n = new V3(0, 0, 1).applyQuaternion(q), u = new V3(0, 1, 0).applyQuaternion(q);
-      var d = Math.max(h * vpH / ((vpH - hdr) * fillH), w * vpH / (vpW * fillW)) / (2 * T);
-      var target = c.clone().addScaledVector(u, (hdr / 2) / vpH * 2 * d * T);   // aim a touch high, so the screen sits centered below the header
+      var d = Math.max(h * frameH / ((frameH - hdr) * fillH), w * frameH / (vpW * fillW)) / (2 * T);
+      var target = c.clone().addScaledVector(u, (hdr / 2) / frameH * 2 * d * T);   // aim a touch high, so the screen sits centered below the header
       return { pos: target.clone().addScaledVector(n, d), target: target, up: u, d: d, c: c, n: n };
     }
     function closer(p, f){ return { pos: p.target.clone().addScaledVector(p.n, p.d * f), target: p.target.clone(), up: p.up.clone() }; }
     function layout(){
       vpW = stage.clientWidth || window.innerWidth; vpH = filmStage.offsetHeight || window.innerHeight; hdr = header ? header.offsetHeight : 64;
-      var tall = vpW < vpH; fillW = FILL[tall ? "tall" : "wide"][0]; fillH = FILL[tall ? "tall" : "wide"][1];
-      renderer.setSize(vpW, vpH, false); cam.aspect = vpW / vpH; cam.fov = FOV; cam.near = .01; cam.far = 30; cam.updateProjectionMatrix();   // (the room's lens, even mid-flight)
+      frameH = Math.min(vpH, svh.offsetHeight || vpH);           // on a phone, the screen less its toolbars: the devices are framed in that, and the picture carries on below it
+      var tall = vpW < frameH; fillW = FILL[tall ? "tall" : "wide"][0]; fillH = FILL[tall ? "tall" : "wide"][1];
+      renderer.setSize(vpW, vpH, false); cam.aspect = vpW / frameH; cam.fov = FOV; cam.near = .01; cam.far = 30;   // (the room's lens, even mid-flight)
+      if (frameH < vpH) cam.setViewOffset(vpW, frameH, 0, 0, vpW, vpH); else cam.clearViewOffset();   // (either way it updates the projection)
       tablet.position.y = 0; studio.updateMatrixWorld(true);
       poses.A = pose(macScreen, MAC.dw, MAC.dh); poses.B = pose(sdScreen, SD.dw, SD.dh); poses.C = pose(tbScreen, TB.w + .004, TB.h + .004);   // framed by the whole tablet, so its wide bezel stays in view
       poses.BC = closer(poses.B, .42); poses.CC = closer(poses.C, .5);
@@ -2540,7 +2544,7 @@ window.__zwdNashville = function(THREE, o){
       return WC.clone().addScaledVector(P0.clone().sub(WC).normalize().lerp(D1, smooth(0, 1, v)).normalize(), D);
     }
     function flyCam(k){
-      var A = poses.A, wide = vpW < vpH ? 58 : 40, aside = vpW < vpH ? 0 : 1;   // (on a tall screen the display is out of view anyway)
+      var A = poses.A, wide = vpW < frameH ? 58 : 40, aside = vpW < frameH ? 0 : 1;   // (on a tall screen the display is out of view anyway)
       if (k < UW) {
         var v = k / UW;
         return { pos: outside(v), target: TD.clone().lerp(A.target.clone().addScaledVector(ASIDE, aside), smooth(.3, .8, v)), up: new V3(0, 1, 0), fov: wide + (FOV - wide) * smooth(.35, 1, v) };
@@ -3703,7 +3707,7 @@ var SITE = {
   /* ---- scroll → progress, eased so the film glides ---- */
   function readProgress(){
     var r = film.getBoundingClientRect();
-    var span = r.height - win.innerHeight - (+film.dataset.tail || 0);
+    var span = r.height - filmStage.offsetHeight - (+film.dataset.tail || 0);
     return span > 0 ? clamp(-r.top / span, 0, 1) : 0;
   }
   function tick(){
