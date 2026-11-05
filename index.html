@@ -3464,7 +3464,7 @@ window.__zwdRooms = function(THREE, o){
       else if (s >= fly[1] - 2 && s < st0 - 2) { auto = { y0: window.scrollY, y1: window.scrollY + (st0 - s), t0: performance.now(), d: 400 }; kick(); }   // in the still band before the street: on to it
     }
     function onScroll(){
-      var y = window.scrollY, dy = y - lastY;
+      var y = window.scrollY, dy = y - lastY; stirred = performance.now();
       if (flight) { clearTimeout(flightT); flightT = setTimeout(landed, 200); }   // a scroll the visitor didn't make, passing through: leave it be
       else if (!auto && !glideAnim && !mouseHeld && mode === "scroll") {   // dragging the scroll bar just scrubs
         if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
@@ -3693,7 +3693,17 @@ window.__zwdRooms = function(THREE, o){
     window.addEventListener("load", function(){ if (mode === "room") toTop(st0); else arriveAt(); });
     kick();
     // Get things ready ahead of time, so nothing stutters: compile the city, draw the start of the flight once unseen, then build and compile the rooms one by one.
-    var spare = new THREE.WebGLRenderTarget(4, 4);
+    // Each of those pieces can take a tenth of a second, so after the city's compiling they wait for a pause in the scrolling,
+    // and never run during a flight or a move (a room not ready yet is built when it's first opened).
+    var spare = new THREE.WebGLRenderTarget(4, 4), stirred = 0;
+    function whenQuiet(fn){
+      (function wait(){
+        if (dead) return;
+        var still = function(){ return performance.now() - stirred > 450 && !glideAnim && !move && !auto && !held; };
+        if (still()) (window.requestIdleCallback || setTimeout)(function(){ if (still()) fn(); else wait(); }, { timeout: 400 });
+        else setTimeout(wait, 200);
+      })();
+    }
     function prep(){                                      // lay each page out once, off screen, and fetch its pictures, so a screen doesn't stall the moment it appears
       screens.forEach(function(sc){
         if (sc.el.classList.contains("is-open")) return;
@@ -3712,13 +3722,13 @@ window.__zwdRooms = function(THREE, o){
         if (i >= IDS.length) { prep(); return; }
         var R = room(i++), done2 = function(){   // and draw it once, off screen, so its shadows are ready too
           try { if (!dead && !shadowed[R.scene.uuid]) { renderer.setRenderTarget(spare); drawScene(R.scene); renderer.setRenderTarget(null); } } catch(_){}
-          (window.requestIdleCallback || setTimeout)(one, { timeout: 800 });
+          whenQuiet(one);
         };
         if (renderer.compileAsync) renderer.compileAsync(R.scene, cam).then(done2, done2); else done2();
       })();
     };
     (renderer.compileAsync ? renderer.compileAsync(city.scene, cam).then(function(){ return renderer.compileAsync(mistScene, flatCam); }) : Promise.resolve())
-      .then(function(){ (window.requestIdleCallback || setTimeout)(warm, { timeout: 1500 }); }, function(){});
+      .then(function(){ whenQuiet(warm); }, function(){});
     window.__zwdDevices = { pick: function(x, y){ return houseAt(x, y); }, state: function(){ return { mode: mode, room: inRoom, move: move ? { i: move.i, k: +move.k.toFixed(3) } : null, fly: glideAnim ? glideAnim.dir : 0, cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top),
       P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length }; } };
   }
@@ -3766,11 +3776,11 @@ window.__zwdRooms = function(THREE, o){
     if (posterFor !== k) { posterFor = k; poster = new Image(); poster.onload = ask; poster.src = "media/about-clouds-" + k + ".webp"; stage.style.backgroundImage = "url(media/about-clouds-" + k + ".webp)"; }
     if (calm || loaded === k) return;
     loaded = k; video.src = "media/about-clouds-" + k + ".mp4"; video.load(); watch();
-    if (seen) play();
+    ask();                                             // it starts playing once the section is showing (place)
   }
   function play(){ if (!calm && loaded) { var p = video.play(); if (p && p.catch) p.catch(function(){}); } }
   new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) load(); }, { rootMargin: "150% 0px" }).observe(sec);
-  new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; if (seen) { play(); ask(); } else video.pause(); }).observe(stage);
+  new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; if (seen) ask(); else video.pause(); }).observe(stage);   // plays once it's really showing (place)
   var fresh = false, rvfc = !!video.requestVideoFrameCallback, vfc = 0;   // a new frame of the video to show
   function watch(){                                    // told of each new frame (loading a video drops the request, so ask again then)
     if (!rvfc) return;
@@ -3781,14 +3791,17 @@ window.__zwdRooms = function(THREE, o){
 
   // ---------- where the section is: with the street on, it starts and ends in the cloud, and shows once it's up ----------
   function flow(){ return sec.classList.contains("ab-flow"); }
-  function place(){
+  function place(){                                    // true while the section is showing: only then does it play and draw
     var p = -sec.getBoundingClientRect().top, A = sec.offsetHeight - stage.offsetHeight, Z = parseFloat(getComputedStyle(text).paddingTop) || 1;
-    if (!flow()) { sec.style.visibility = ""; veil.style.opacity = "0"; return; }
-    var out = p < -1 || p > A + stage.offsetHeight;
-    sec.style.visibility = out ? "hidden" : "";
-    if (out && !video.paused) video.pause(); else if (!out && seen && video.paused) play();   // under the end of the film: wait
-    var x = Math.max(1 - smooth(0, Z * .9, p), smooth(A - Z * .9, A, p));
-    veil.style.opacity = x.toFixed(3);
+    var on = seen;
+    if (!flow()) { sec.style.visibility = ""; veil.style.opacity = "0"; }
+    else {
+      var out = p < -1 || p > A + stage.offsetHeight;   // still under the end of the film, or gone by under the street
+      sec.style.visibility = out ? "hidden" : ""; on = seen && !out;
+      veil.style.opacity = Math.max(1 - smooth(0, Z * .9, p), smooth(A - Z * .9, A, p)).toFixed(3);
+    }
+    if (!on && !video.paused) video.pause(); else if (on && video.paused) play();
+    return on;
   }
   function smooth(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
 
@@ -3896,48 +3909,70 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- each heading and paragraph: its letters as a distance field ----------
-  var INF = 1e20, items = [].slice.call(sec.querySelectorAll(".ab-block h3, .ab-block p")).map(function(el){ return { el: el, tex: null, para: el.tagName === "P" }; });
-  function edt1d(grid, offset, stride, length, f, v, z){   // squared distances along one row or column (Felzenszwalb and Huttenlocher)
-    var q, k = 0, r, s;
-    v[0] = 0; z[0] = -INF; z[1] = INF; f[0] = grid[offset];
-    for (q = 1; q < length; q++) {
-      f[q] = grid[offset + q * stride];
-      var q2 = q * q;
-      do { r = v[k]; s = (f[q] - f[r] + q2 - r * r) / (q - r) / 2; } while (s <= z[k] && --k > -1);
-      k++; v[k] = q; z[k] = s; z[k + 1] = INF;
-    }
-    for (q = 0, k = 0; q < length; q++) {
-      while (z[k + 1] < q) k++;
-      r = v[k]; grid[offset + q * stride] = f[r] + (q - r) * (q - r);
-    }
-  }
-  function edt(grid, W, H){
-    var n = Math.max(W, H), f = new Float64Array(n), v = new Uint32Array(n), z = new Float64Array(n + 1);
-    for (var x = 0; x < W; x++) edt1d(grid, x, W, H, f, v, z);
-    for (var y = 0; y < H; y++) edt1d(grid, y * W, 1, W, f, v, z);
-  }
-  function soften(a, W, H, r){                         // two box blurs across and down: the bevels' creases round off, so the glass looks poured, not cut
-    var tmp = new Float32Array(Math.max(W, H)), k, x, y, sum, at;
-    for (var pass = 0; pass < 2; pass++) {
-      for (y = 0; y < H; y++) {
-        at = y * W; sum = 0;
-        for (k = -r; k <= r; k++) sum += a[at + Math.min(W - 1, Math.max(0, k))];
-        for (x = 0; x < W; x++) { tmp[x] = sum / (2 * r + 1); sum += a[at + Math.min(W - 1, x + r + 1)] - a[at + Math.max(0, x - r)]; }
-        for (x = 0; x < W; x++) a[at + x] = tmp[x];
+  // The page draws the words once (a few milliseconds); the distance field, the slow part, is worked out on a background
+  // thread (a Web Worker), so the page never stalls while it's made, even with the mountain film playing.
+  var items = [].slice.call(sec.querySelectorAll(".ab-block h3, .ab-block p")).map(function(el){ return { el: el, tex: null, para: el.tagName === "P" }; });
+  function fieldOf(alpha, W, H, s, M, round){          // the letters' alpha (0-255) -> how far each point is inside (+) or outside (-) a letter, in px
+    var INF = 1e20, n = W * H, outer = new Float64Array(n), inner = new Float64Array(n), i;
+    function edt1d(grid, offset, stride, length, f, v, z){   // squared distances along one row or column (Felzenszwalb and Huttenlocher)
+      var q, k = 0, r, s2;
+      v[0] = 0; z[0] = -INF; z[1] = INF; f[0] = grid[offset];
+      for (q = 1; q < length; q++) {
+        f[q] = grid[offset + q * stride];
+        var q2 = q * q;
+        do { r = v[k]; s2 = (f[q] - f[r] + q2 - r * r) / (q - r) / 2; } while (s2 <= z[k] && --k > -1);
+        k++; v[k] = q; z[k] = s2; z[k + 1] = INF;
       }
-      for (x = 0; x < W; x++) {
-        sum = 0;
-        for (k = -r; k <= r; k++) sum += a[Math.min(H - 1, Math.max(0, k)) * W + x];
-        for (y = 0; y < H; y++) { tmp[y] = sum / (2 * r + 1); sum += a[Math.min(H - 1, y + r + 1) * W + x] - a[Math.max(0, y - r) * W + x]; }
-        for (y = 0; y < H; y++) a[y * W + x] = tmp[y];
+      for (q = 0, k = 0; q < length; q++) {
+        while (z[k + 1] < q) k++;
+        r = v[k]; grid[offset + q * stride] = f[r] + (q - r) * (q - r);
       }
     }
+    function edt(grid){
+      var m = Math.max(W, H), f = new Float64Array(m), v = new Uint32Array(m), z = new Float64Array(m + 1);
+      for (var x = 0; x < W; x++) edt1d(grid, x, W, H, f, v, z);
+      for (var y = 0; y < H; y++) edt1d(grid, y * W, 1, W, f, v, z);
+    }
+    function soften(a, r){                             // two box blurs across and down: the bevels' creases round off, so the glass looks poured, not cut
+      var tmp = new Float32Array(Math.max(W, H)), k, x, y, sum, at;
+      for (var pass = 0; pass < 2; pass++) {
+        for (y = 0; y < H; y++) {
+          at = y * W; sum = 0;
+          for (k = -r; k <= r; k++) sum += a[at + Math.min(W - 1, Math.max(0, k))];
+          for (x = 0; x < W; x++) { tmp[x] = sum / (2 * r + 1); sum += a[at + Math.min(W - 1, x + r + 1)] - a[at + Math.max(0, x - r)]; }
+          for (x = 0; x < W; x++) a[at + x] = tmp[x];
+        }
+        for (x = 0; x < W; x++) {
+          sum = 0;
+          for (k = -r; k <= r; k++) sum += a[Math.min(H - 1, Math.max(0, k)) * W + x];
+          for (y = 0; y < H; y++) { tmp[y] = sum / (2 * r + 1); sum += a[Math.min(H - 1, y + r + 1) * W + x] - a[Math.max(0, y - r) * W + x]; }
+          for (y = 0; y < H; y++) a[y * W + x] = tmp[y];
+        }
+      }
+    }
+    for (i = 0; i < n; i++) {
+      var a = alpha[i] / 255;
+      outer[i] = a >= 1 ? 0 : a <= 0 ? INF : Math.pow(Math.max(0, .5 - a), 2);
+      inner[i] = a >= 1 ? INF : a <= 0 ? 0 : Math.pow(Math.max(0, a - .5), 2);
+    }
+    edt(outer); edt(inner);
+    var field = new Float32Array(n), half = 0;
+    for (i = 0; i < n; i++) { var d = (Math.sqrt(inner[i]) - Math.sqrt(outer[i])) / s; field[i] = Math.max(-M, Math.min(M, d)); if (d > half) half = d; }
+    soften(field, Math.max(1, Math.round(half * s * round)));
+    half = 0; for (i = 0; i < n; i++) if (field[i] > half) half = field[i];
+    return { field: field, half: half };
   }
+  var helper = null, jobs = {}, nextJob = 1, gen = 0;
+  try {
+    helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nself.onmessage = function(e){ var d = e.data, r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
+    helper.onmessage = function(e){ var done = jobs[e.data.id]; delete jobs[e.data.id]; if (done) done(e.data.field, e.data.half); };
+    helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
+  } catch(e){ helper = null; }
   function build(it){
     var el = it.el, cs = getComputedStyle(el), r = el.getBoundingClientRect();
     if (!r.width || !r.height) return;
     var fs = parseFloat(cs.fontSize), M = Math.ceil(Math.max(12, fs * .12));          // room around the words for the shadow
-    var s = Math.min(window.devicePixelRatio || 1, 2), max = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    var s = fs >= 48 ? 1 : Math.min(window.devicePixelRatio || 1, 1.5), max = gl.getParameter(gl.MAX_TEXTURE_SIZE);   // a distance field scales up cleanly: big letters need no more than 1 per px
     s = Math.min(s, max / (r.width + 2 * M), max / (r.height + 2 * M));
     var W = Math.ceil((r.width + 2 * M) * s), H = Math.ceil((r.height + 2 * M) * s);
     var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
@@ -3959,51 +3994,69 @@ window.__zwdRooms = function(THREE, o){
         }
       }
     }
-    var px = x.getImageData(0, 0, W, H).data, n = W * H, outer = new Float64Array(n), inner = new Float64Array(n);
-    for (var i = 0; i < n; i++) {
-      var a = px[i * 4 + 3] / 255;
-      outer[i] = a >= 1 ? 0 : a <= 0 ? INF : Math.pow(Math.max(0, .5 - a), 2);
-      inner[i] = a >= 1 ? INF : a <= 0 ? 0 : Math.pow(Math.max(0, a - .5), 2);
+    var px = x.getImageData(0, 0, W, H).data, n = W * H, alpha = new Uint8Array(n);
+    for (var i = 0; i < n; i++) alpha[i] = px[i * 4 + 3];
+    var g = gen, w = r.width;
+    function use(field, half){                         // the field is ready: on to the graphics chip
+      it.busy = false;
+      if (g !== gen || !gl) return;                    // laid out again since: this one is stale
+      if (!it.tex) it.tex = texture(gl.LINEAR);
+      gl.bindTexture(gl.TEXTURE_2D, it.tex); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, W, H, 0, gl.RED, gl.FLOAT, field);
+      it.tw = W / s; it.th = H / s; it.m = M; it.half = half; it.w = w;     // the field's extent in px (a touch over the box and its margin)
+      ask();
     }
-    edt(outer, W, H); edt(inner, W, H);
-    var field = new Float32Array(n), half = 0;
-    for (i = 0; i < n; i++) { var d = (Math.sqrt(inner[i]) - Math.sqrt(outer[i])) / s; field[i] = Math.max(-M, Math.min(M, d)); if (d > half) half = d; }
-    soften(field, W, H, Math.max(1, Math.round(half * s * LENS.round)));
-    half = 0; for (i = 0; i < n; i++) if (field[i] > half) half = field[i];
-    if (!it.tex) it.tex = texture(gl.LINEAR);
-    gl.bindTexture(gl.TEXTURE_2D, it.tex); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, W, H, 0, gl.RED, gl.FLOAT, field);
-    it.tw = W / s; it.th = H / s; it.m = M; it.half = half; it.w = r.width;     // the field's extent in px (a touch over the box and its margin)
+    it.busy = true;
+    if (helper) { var id = nextJob++; jobs[id] = use; helper.postMessage({ id: id, alpha: alpha, W: W, H: H, s: s, M: M, round: LENS.round }, [alpha.buffer]); }
+    else { var f = fieldOf(alpha, W, H, s, M, LENS.round); use(f.field, f.half); }
   }
-  var queue = [], built = 0, vw = 0, working = false;
+  var queue = [], built = 0, vw = 0, pending = false;
   function rebuild(){
     if (!gl) return;
-    vw = window.innerWidth; queue = items.slice(); built = 1; work();
+    gen++; vw = window.innerWidth; queue = items.slice(); built = 1; work();
   }
-  function work(){                                     // a few at a time, nearest the screen first, so the page never stalls
-    if (!gl || working) return;
-    if (!near) return;
-    working = true;
+  function work(){                                     // one at a time in idle moments, nearest the screen first
+    pending = false;
+    if (!gl || !near || !queue.length) return;
     queue.sort(function(a, b){ return Math.abs(a.el.getBoundingClientRect().top) - Math.abs(b.el.getBoundingClientRect().top); });
-    var t0 = performance.now();
-    while (queue.length && performance.now() - t0 < 24) build(queue.shift());
-    working = false; ask();
-    if (queue.length) (window.requestIdleCallback || setTimeout)(work, { timeout: 200 });
+    var it = queue.shift(); if (!it.busy) build(it); else queue.push(it);
+    if (queue.length) { pending = true; (window.requestIdleCallback || setTimeout)(work, { timeout: 300 }); }
   }
 
   // ---------- drawing ----------
-  var asked = false;
+  var asked = false, warmed = false, slow = { sky: 0, size: 0, draw: 0, warm: 0 }, blank = null;
+  function fitCanvas(W, H){                            // the canvas's size in pixels: sharp, but at most about 4 million of them
+    var s = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(4.2e6 / (W * H))), cw = Math.round(W * s), ch = Math.round(H * s);
+    if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+    return s;
+  }
+  function warm(){                                     // while still hidden, at full size, draw once into a single pixel: the graphics chip makes its drawing buffer,
+    var W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();   // prepares its programs and takes the first picture now, not in the frame the section first shows
+    if (!W || !H || !useSky()) return;
+    warmed = true;
+    fitCanvas(W, H);
+    if (!blank) { blank = texture(gl.NEAREST); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, 1, 1, 0, gl.RED, gl.FLOAT, new Float32Array([-1])); }
+    var it = items.filter(function(x){ return x.tex; })[0];
+    gl.viewport(0, 0, 1, 1);
+    gl.disable(gl.BLEND); gl.useProgram(bgProg.p); gl.bindBuffer(gl.ARRAY_BUFFER, full); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex); gl.uniform1i(bgProg.u.uSky, 0); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(glassProg.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, it ? it.tex : blank); gl.uniform1i(glassProg.u.uSky, 0); gl.uniform1i(glassProg.u.uSdf, 1);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    slow.warm = performance.now() - t0;
+  }
   function ask(){ if (!asked) { asked = true; requestAnimationFrame(draw); } }
   function draw(){
     asked = false; draws++;
-    place();
+    var on = place();
     if (!gl || !near) return;
     if (!built && (!document.fonts || document.fonts.status === "loaded")) rebuild();
-    if (queue.length) work();
-    var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight;
+    if (queue.length && !pending) work();
+    if (!on) { if (!warmed) warm(); return; }          // not showing (under the end of the film, or gone by): nothing to draw
+    var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
     if (!W || !H || !useSky()) return;
-    var s = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(4.2e6 / (W * H))), cw = Math.round(W * s), ch = Math.round(H * s);
-    if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+    var t1 = performance.now(), s = fitCanvas(W, H), cw = canvas.width, ch = canvas.height, t2 = performance.now();
     gl.viewport(0, 0, cw, ch);
     var sc = Math.max(W / skyW, H / skyH), mx = 1 / (skyW * sc), my = 1 / (skyH * sc), map = [mx, my, .5 - W / 2 * mx, .5 - H / 2 * my];   // the video fills the stage
     gl.disable(gl.BLEND);
@@ -4031,6 +4084,7 @@ window.__zwdRooms = function(THREE, o){
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
     });
     canvas.classList.add("is-on");
+    var t3 = performance.now(); slow.sky = Math.max(slow.sky, t1 - t0); slow.size = Math.max(slow.size, t2 - t1); slow.draw = Math.max(slow.draw, t3 - t2);
     if (seen && !video.paused && !calm) ask();          // the video keeps moving: draw again next frame
   }
   window.addEventListener("scroll", ask, { passive: true });
@@ -4042,7 +4096,7 @@ window.__zwdRooms = function(THREE, o){
   var fonts = document.fonts ? document.fonts.ready : Promise.resolve();
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
-  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, draws: draws, uploads: uploads }; } };
+  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, draws: draws, uploads: uploads, slowest: slow }; } };
 })();
 </script>
 
