@@ -327,9 +327,27 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 .ab-veil{background:#F2E6D8;opacity:0;pointer-events:none}   /* with the street on, the section starts and ends in the cloud */
 .ab-text{position:relative;margin-top:-100vh;margin-top:-100lvh;padding:50vh 16px;padding:50lvh 16px}
 .ab-block{min-height:100vh;min-height:100lvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.ab-copy{width:100%}
 .ab-block h3{margin:0;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(64px,13vw,190px);line-height:.88;letter-spacing:.01em;text-wrap:balance}
-.ab-block p{margin:.55em 0 0;max-width:24em;font-family:var(--body);font-weight:600;font-size:clamp(20px,2.3vw,30px);line-height:1.38}
+.ab-block p{margin:.55em auto 0;max-width:24em;font-family:var(--body);font-weight:600;font-size:clamp(20px,2.3vw,30px);line-height:1.38}
 .ab-block .is-glass{color:transparent}   /* the glass draws these; the words stay in the page for reading aloud and selecting */
+/* The ZENGERS Z beside the first heading: drawn in 3D glass by the "About" script over the SVG's box (the SVG shows
+   without WebGL 2). Above the heading on narrow screens. */
+.ab-logo{order:-1;width:min(72vw,340px);margin:0 auto clamp(20px,4vh,36px)}
+.ab-logo svg{display:block;width:100%;height:auto}
+.ab-logo.is-glass svg{visibility:hidden}
+/* From 900 px wide: the words in the left half of the site's column (lined up with the logo), the right half for
+   the block's .ab-side (the Z in the first block). The heading size fills the half: "PLACEHOLDER" is 4.77 times its
+   size wide. Narrower screens keep the centred words. */
+@media (min-width:900px){
+  .ab-text{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+  .ab-block{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(32px,4vw,64px);align-items:center;align-content:center;text-align:left}
+  .ab-copy{grid-column:1;grid-row:1}
+  .ab-side{grid-column:2;grid-row:1;justify-self:center}
+  .ab-logo{order:0;width:min(100%,480px);margin:0}
+  .ab-block h3{font-size:clamp(56px,8.6vw,104px)}
+  .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(20px,1.9vw,26px)}
+}
 
 /* ---------- the film (pinned scroll section) ---------- */
 html.film-wait .film .beat:not(.hero-block){visibility:hidden}   /* until the film script has placed them (see the <head>) */
@@ -863,7 +881,9 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 <!-- ============================ ABOUT US ============================
      In the cloud between the mountain film and the street (the "About" script and the "about us" styles). Six
      headings and paragraphs, placeholders until the words are written, drawn in liquid glass letters over a looping
-     video of clouds at sunset. -->
+     video of clouds at sunset. The first block is ZENGERS, with the ZENGERS Z beside it in 3D glass (drawn by a line of
+     light the first time it shows); the SVG is the logo for browsers without WebGL 2, traced from the logo Jason sent
+     on 2026-11-05 (black top piece #101113, blue bottom piece #11448E). -->
 <section class="about" id="about" aria-labelledby="about-title">
   <div class="ab-stage" aria-hidden="true">
     <video class="ab-video" muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback></video>
@@ -872,12 +892,13 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
   </div>
   <div class="ab-text">
     <h2 class="sr-only" id="about-title">About us</h2>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
-    <div class="ab-block"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3>ZENGERS</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
+      <div class="ab-side ab-logo" aria-hidden="true"><svg viewBox="0 0 1000 587.2" focusable="false"><polygon fill="#101113" points="313.5,0.0 1000.0,0.0 609.2,390.8 471.5,390.8 764.6,97.7 215.8,97.7"/><polygon fill="#11448E" points="686.5,587.2 0.0,587.2 390.8,196.4 528.5,196.4 235.4,489.5 784.2,489.5"/></svg></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
   </div>
 </section>
 
@@ -3441,6 +3462,7 @@ window.__zwdRooms = function(THREE, o){
 
     // ---------- the flight: once started it plays through, unless the visitor firmly scrolls the other way ----------
     var auto = null, glideAnim = null, lastY = window.scrollY, dirY = 1, quiet = 0, held = false, mouseHeld = false, wheelAt = 0, flight = false, flightT = 0, reland = null;
+    var abAt = -1, sizing = false;                       // where the visitor is in About us (0 its first words, 1 its last; -1 elsewhere), noted at each scroll: a resize has moved everything by the time it's handled
     function cancelAuto(){ auto = null; flight = false; reland = null; }
     function stopFly(){ glideAnim = null; root.classList.remove("dev-moving"); }
     function landed(){                                    // a scroll the visitor didn't make (a menu link, the browser opening a link) has come to rest
@@ -3463,8 +3485,13 @@ window.__zwdRooms = function(THREE, o){
       if (m) { var f = (s - m.a) / (m.b - m.a); playTo(m, dirY > 0 ? (f > .2 ? 1 : -1) : (f > .8 ? 1 : -1)); }   // left part-way through a move: it finishes, one way or the other
       else if (s >= fly[1] - 2 && s < st0 - 2) { auto = { y0: window.scrollY, y1: window.scrollY + (st0 - s), t0: performance.now(), d: 400 }; kick(); }   // in the still band before the street: on to it
     }
+    function notePlace(){
+      var s = -track.getBoundingClientRect().top, a = moves.rise.b, b = moves.city.a;
+      abAt = !glideAnim && mode === "scroll" && s >= a - 2 && s <= b + 2 ? Math.max(0, Math.min(1, (s - a) / Math.max(1, b - a))) : -1;
+    }
     function onScroll(){
       var y = window.scrollY, dy = y - lastY; stirred = performance.now();
+      if (sizing) { lastY = y; kick(); return; }          // the window is changing size: the browser moving the page, not the visitor
       if (flight) { clearTimeout(flightT); flightT = setTimeout(landed, 200); }   // a scroll the visitor didn't make, passing through: leave it be
       else if (!auto && !glideAnim && !mouseHeld && mode === "scroll") {   // dragging the scroll bar just scrubs
         if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
@@ -3476,7 +3503,7 @@ window.__zwdRooms = function(THREE, o){
         else if (dy > 0 && s >= c.a + give && s < c.b) playTo(c, 1);                                // on from its last words: out over Nashville to the street
         else if (dy < 0 && s <= st0 - FLY.band * vpH / 2 && s > c.a) playTo(c, -1);                // back up from the street: into the cloud again
       }
-      lastY = y; kick();
+      notePlace(); lastY = y; kick();
     }
     window.addEventListener("wheel", function(e){
       wheelAt = performance.now(); cancelAuto();
@@ -3660,15 +3687,18 @@ window.__zwdRooms = function(THREE, o){
     var rt = 0;
     window.addEventListener("resize", function(){
       if (Math.abs(window.innerWidth - lastW) < 2 && Math.abs(window.innerHeight - lastH) < 120) return;   // phone toolbars coming and going
-      clearTimeout(rt); rt = setTimeout(function(){
+      sizing = true; clearTimeout(rt); rt = setTimeout(function(){
         try {
           var flying = glideAnim && { name: glideAnim.m.name, dir: glideAnim.dir, at: (-track.getBoundingClientRect().top - glideAnim.m.a) / (glideAnim.m.b - glideAnim.m.a) }, s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s >= st0 - 2 && s <= P;
+          var at = flying || mode !== "scroll" ? -1 : abAt;   // reading About us: back to the same place in it
           stopFly(); layout();
           if (flying) { var fm = moves[flying.name]; toTop(fm.a + flying.at * (fm.b - fm.a)); playTo(fm, flying.dir); }
           else if (mode !== "scroll" || onStreet) toTop(st0);
+          else if (at >= 0) toTop(moves.rise.b + at * (moves.city.a - moves.rise.b));
           if (mode === "room") { var sc = screens[inRoom]; back.style.top = Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - back.offsetHeight) / 2)) + "px"; }
           glKey = ""; kick();
         } catch(e){ fail(e); }
+        sizing = false; if (!dead) notePlace();
       }, 180);
     });
     canvas.addEventListener("webglcontextlost", function(e){ e.preventDefault(); fail(new Error("WebGL context lost")); });
@@ -3751,7 +3781,8 @@ window.__zwdRooms = function(THREE, o){
    section starts and ends in the cloud's colour (the veil) and shows only once its top reaches the top of the screen;
    the street script flies the page in from the summit and on to Nashville. The video loads only as the visitor nears
    the section and plays only while it's on screen; with reduced motion, Data Saver or a slow connection the still shows instead. Without
-   WebGL 2 the video plays behind the plain words. Tune: LENS. */
+   WebGL 2 the video plays behind the plain words. The first block, ZENGERS, has the ZENGERS Z beside it in 3D glass, drawn by
+   a line of light the first time it shows (see "the logo"; the SVG in the page shows without WebGL 2). Tune: LENS, LOGO. */
 (function(){
   "use strict";
   var LENS = {
@@ -3763,10 +3794,23 @@ window.__zwdRooms = function(THREE, o){
     shadow: [.22, .28],    // the soft, warm shadow under the letters
     light: 30              // degrees: where the light comes from (top left), as in Glisse
   };
+  var LOGO = {             // the ZENGERS Z beside the first heading, in 3D glass (see "the logo" below)
+    depth: .088,           // its thickness, as a share of its width (a little under one stroke)
+    bevel: .04,            // how round its edges are: nearly all of the half-stroke, so it looks poured, not cut
+    ior: 1.5,              // how much it bends light: glass, as the letters
+    dispersion: .022,      // how much more blue bends than red: its rainbow edges
+    tint: [[19, 18.5, 17], [26, 12.5, 3.2]],   // how much of red, green and blue its glass holds back, per logo width: smoky black, sapphire blue (the logo's #101113 and #11448E)
+    frost: .05,            // white in the glass, as the headings
+    turn: [-21, 9],        // degrees: where it settles (turned toward the words, tipped forward a little)
+    sway: [4, 2.5],        // degrees: its slow sway after that
+    tilt: 6,               // degrees: how far it tips as the page scrolls it past
+    timing: { draw: .85, fill: [.5, 1.25], swell: .55, turn: [.95, 1.9], glint: [1.15, 1.95], line: [1.05, 1.6] }   // seconds from when it first shows
+  };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text");
   var header = document.querySelector(".site-header");
-  var net = navigator.connection || {}, calm = !!((window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || net.saveData || /(^|-)(2g|3g)$/.test(net.effectiveType || ""));   // the still, not the video
+  var still = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);   // nothing moves: the logo is simply there
+  var net = navigator.connection || {}, calm = !!(still || net.saveData || /(^|-)(2g|3g)$/.test(net.effectiveType || ""));   // the still, not the video
   var shape = function(){ return stage.clientHeight > stage.clientWidth ? "tall" : "wide"; };
   var near = false, seen = false, loaded = "", poster = new Image(), posterFor = "";
 
@@ -3864,19 +3908,151 @@ window.__zwdRooms = function(THREE, o){
     "  o = vec4((c * cov + shade * sh) * fade, (cov + sh) * fade);",
     "}"
   ].join("\n");
-  function program(vs, fs){
-    var p = gl.createProgram();
+  // The logo: a solid of glass in the Z's shape, as thick as a stroke, its edges rounded like the letters' rims. Each
+  // pixel follows the eye's ray into it (ray marching: the shape is a field of distances), bends at the front as glass
+  // does (Snell's law, index 1.5), crosses the glass, bends again at the back, red, green and blue each a little
+  // differently, and shows the clouds where it comes out; the glass's colour holds back light by how far it went
+  // through (smoky black, sapphire blue), the surface reflects the sunset by Fresnel's law, and the rim gets the
+  // letters' lit edge and Glisse's chromatic bands. The line that draws it runs along the outline on its front face.
+  var FS_LOGO = [
+    "#version 300 es",
+    "precision highp float;",
+    "uniform sampler2D uSky, uShape;",
+    "uniform vec4 uMap, uBox, uShapeMap;   // stage px -> background uv; the logo's box (px; its width is 1 logo unit); logo units -> field uv",
+    "uniform vec2 uView, uLight, uDrawn;   // the stage's size; the light (from the top left); how far each piece's line has got along its outline (logo units)",
+    "uniform vec2 uPoly[12];               // the two outlines, six corners each (logo space, y up), from where each line starts",
+    "uniform float uDpr, uTop, uCam, uBack, uHalf, uH, uR, uW, uFill, uIor, uDisp, uFrost, uLine, uGlint, uShadow;",
+    "uniform mat3 uRot;                    // the logo's turn: its own space -> the view (x right, y up, z toward the eye)",
+    "uniform vec3 uTint0, uTint1;          // what each piece's glass holds back, per logo unit",
+    "in vec2 vPx; out vec4 o;",
+    "float px1;                            // one canvas pixel, in logo units",
+    "vec2 shapeAt(vec2 p){                 // each piece's distance from its outline (+ outside), at p (y up)",
+    "  vec2 uv = vec2(p.x, -p.y) * uShapeMap.xy + uShapeMap.zw;",
+    "  return texture(uShape, clamp(uv, 0., 1.)).rg + length(max(abs(uv - .5) - .5, 0.) / uShapeMap.xy);",
+    "}",
+    "float body(vec3 p){                   // the glass: filled from the outline inward (uFill), uH each side of the middle, edges rounded",
+    "  vec2 s = shapeAt(p.xy);",
+    "  float d = min(s.x, s.y);",
+    "  d = max(d, -d - 2. * uW * uFill);",
+    "  vec2 w = vec2(d + uR, abs(p.z) - uH + uR), m = max(w, 0.);",
+    "  return min(max(w.x, w.y), 0.) + pow(m.x * m.x * m.x + m.y * m.y * m.y, 1. / 3.) - uR;   // rounder than a squircle, flatter than a circle",
+    "}",
+    "vec3 nrm(vec3 p){",
+    "  vec2 k = vec2(1., -1.) * px1 * 1.5;",
+    "  return normalize(k.xyy * body(p + k.xyy) + k.yyx * body(p + k.yyx) + k.yxy * body(p + k.yxy) + k.xxx * body(p + k.xxx));",
+    "}",
+    "vec3 sky(vec2 px){ return texture(uSky, px * uMap.xy + uMap.zw).rgb; }",
+    "vec2 toPx(vec3 v){ return uBox.xy + uBox.zw * .5 + vec2(v.x, -v.y) * (uCam / (uCam - v.z)) * uBox.z; }   // a point in the view -> stage px, as the eye sees it",
+    "vec3 behind(vec3 p, vec3 d){          // the clouds seen from p along d (view): as if on a screen uBack behind the logo",
+    "  return sky(toPx(p + d * ((-uBack - p.z) / min(d.z, -.2))));",
+    "}",
+    "vec3 env(vec3 d){                     // the sunset all round, for reflections (view)",
+    "  vec3 c = d.y > 0. ? mix(vec3(1., .87, .68), vec3(.86, .56, .74), smoothstep(0., .6, d.y)) : mix(vec3(.99, .92, .87), vec3(.82, .62, .7), smoothstep(0., -.7, d.y));",
+    "  float s = max(dot(d, normalize(vec3(.42, .16, -1.))), 0.), b = max(dot(d, normalize(vec3(-.55, .55, .63))), 0.);   // the low sun, ahead and to the right; a soft bright sky above the eye, to the left",
+    "  return c + vec3(1., .88, .66) * (pow(s, 400.) * 3. + pow(s, 12.) * .25) + vec3(1., .97, .93) * (pow(b, 5.) * .55 + pow(b, 40.) * .6);",
+    "}",
+    "float traced(vec2 p, int base, float hd, out float gap, out float head){   // how far p is from the part of an outline drawn so far; how far behind the line's head that nearest point is; how far p is from the head",
+    "  float best = 1e9, cum = 0.; gap = 1e9; head = 1e9;",
+    "  for (int e = 0; e < 6; e++) {",
+    "    vec2 a = uPoly[base + e], b = uPoly[base + (e + 1) % 6];",
+    "    float len = length(b - a), part = clamp((hd - cum) / len, 0., 1.);",
+    "    if (part > 0.) {",
+    "      vec2 v = (b - a) * part;",
+    "      float t = clamp(dot(p - a, v) / max(dot(v, v), 1e-12), 0., 1.), d = length(p - a - v * t);",
+    "      if (d < best) { best = d; gap = hd - cum - t * part * len; }",
+    "      if (part < 1.) head = length(p - a - v);",
+    "    }",
+    "    cum += len;",
+    "  }",
+    "  return best;",
+    "}",
+    "vec3 exitAt(vec3 d1, vec3 n1, vec3 p2, vec3 n2, float eta){   // one colour's way through: in at the front, out at the back",
+    "  vec3 a1 = refract(d1, n1, 1. / eta);",
+    "  if (dot(a1, a1) < 1e-6) a1 = reflect(d1, n1);",
+    "  vec3 a2 = refract(a1, -n2, eta);",
+    "  return dot(a2, a2) < 1e-6 ? env(uRot * reflect(a1, -n2)) : behind(uRot * p2, uRot * a2);   // held inside (total internal reflection): it shows the sunset",
+    "}",
+    "void main(){",
+    "  px1 = 1. / (uBox.z * uDpr);",
+    "  vec2 c = uBox.xy + uBox.zw * .5;",
+    "  vec3 P = vec3((vPx.x - c.x) / uBox.z, -(vPx.y - c.y) / uBox.z, 0.), eye = vec3(0., 0., uCam), rd = normalize(P - eye);",
+    "  mat3 back = transpose(uRot);",
+    "  vec3 ro = back * eye, d1 = back * rd;   // the eye's ray, in the logo's own space",
+    "  float fade = smoothstep(uTop, uTop + .12 * uView.y, vPx.y) * smoothstep(uView.y, .86 * uView.y, vPx.y);",
+    "  vec3 col = vec3(0.); float a = 0.;",
+    "  if (uFill > .001) {",
+    "    vec3 bmax = vec3(.5, uHalf, uH) + px1 * 4., inv = 1. / d1, ta = (-bmax - ro) * inv, tb = (bmax - ro) * inv, tn = min(ta, tb), tf = max(ta, tb);",
+    "    float t0 = max(max(tn.x, tn.y), tn.z), t1 = min(min(tf.x, tf.y), tf.z);",
+    "    if (t0 < t1 && t1 > 0.) {",
+    "      float t = max(t0, 0.), dmin = 1e9, tmin = t; bool hit = false;",
+    "      for (int i = 0; i < 80; i++) {",
+    "        float d = body(ro + d1 * t);",
+    "        if (d < dmin) { dmin = d; tmin = t; }",
+    "        if (d < px1 * .2) { hit = true; break; }",
+    "        t += max(d * .85, px1 * .25);",
+    "        if (t > t1) break;",
+    "      }",
+    "      a = hit ? 1. : clamp(1. - dmin / px1, 0., 1.);       // a ray that just misses: the edge, smoothed",
+    "      if (a > 0.) {",
+    "        vec3 p1 = ro + d1 * (hit ? t : tmin), n1 = nrm(p1);",
+    "        vec2 s = shapeAt(p1.xy);",
+    "        vec3 r1 = refract(d1, n1, 1. / uIor);",
+    "        if (dot(r1, r1) < 1e-6) r1 = reflect(d1, n1);",
+    "        vec3 q = p1 - n1 * px1 * 2.; float k = 0.;",
+    "        for (int i = 0; i < 48; i++) { float d = -body(q + r1 * k); if (d < px1 * .2) break; k += max(d * .9, px1 * .25); }",
+    "        vec3 p2 = q + r1 * k, n2 = nrm(p2);",
+    "        vec3 eta = uIor + vec3(-1., 0., 1.5) * uDisp;",
+    "        vec3 through = vec3(exitAt(d1, n1, p2, n2, eta.r).r, exitAt(d1, n1, p2, n2, eta.g).g, exitAt(d1, n1, p2, n2, eta.b).b);",
+    "        through *= exp(-(s.x < s.y ? uTint0 : uTint1) * length(p2 - p1));",
+    "        float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.3), 0., 1.);",
+    "        through = mix(through, vec3(1.), uFrost);",
+    "        vec3 nv = uRot * n1, rv = reflect(rd, nv);",
+    "        float F = .04 + .96 * pow(1. - max(dot(-rd, nv), 0.), 5.);",
+    "        col = mix(through, env(rv), F);",
+    "        vec2 ns = vec2(nv.x, -nv.y); float tip = length(ns); ns /= max(tip, 1e-4);   // the slope, on the screen",
+    "        float lit = -dot(ns, uLight) * min(tip * 2., 1.), glint = pow(max(lit, 0.), 3.), away = pow(max(-lit, 0.), 3.);",
+    "        float dd = max(-min(s.x, s.y), 0.) / max(uR, 1e-4);",
+    "        vec3 bq = (dd - vec3(.18, .42, .66) * 1.3) / .26, bands = exp(-bq * bq);   // Glisse's chromatic bands along the rim",
+    "        float peak = max(bands.r, max(bands.g, bands.b));",
+    "        col = mix(col, .65 + .35 * bands / max(peak, 1e-4), clamp(peak * (.05 + .75 * glint + .3 * away) * .8, 0., 1.));",
+    "        col = 1. - (1. - col) * (1. - .55 * exp(-dd * 2.5) * abs(lit));                // the thin lit edge",
+    "        col += vec3(1., .97, .9) * pow(max(dot(rv, normalize(vec3(-.5, .62, .6))), 0.), 60.) * .9;   // a sparkle from the light",
+    "        col += vec3(1., .95, .85) * exp(-pow((dot(p1.xy, vec2(.876, .482)) - uGlint) / .05, 2.)) * (.25 + .75 * min(tip * 1.5, 1.)) * .9;   // the glint that crosses it once",
+    "      }",
+    "    }",
+    "  }",
+    "  vec3 lc = vec3(0.);                   // the line of light that draws it, on its front face",
+    "  if (uLine > .001) {",
+    "    vec2 q = (ro + d1 * ((uH - ro.z) / d1.z)).xy;",
+    "    for (int i = 0; i < 2; i++) {",
+    "      float gap, head, d = traced(q, i * 6, i == 0 ? uDrawn.x : uDrawn.y, gap, head);",
+    "      float dpx = d * uBox.z, hpx = head * uBox.z, tail = exp(-gap * gap / .012);   // px from the line; px from its head; its bright tail",
+    "      float core = exp(-dpx * dpx / 1.6), near = exp(-dpx * dpx / 40.), far = exp(-dpx * dpx / 420.);",
+    "      lc += vec3(1., .97, .9) * core * (.8 + 1.3 * tail) + vec3(1., .74, .3) * (near * (.3 + .9 * tail) + far * (.08 + .32 * tail));",
+    "      lc += vec3(1., .9, .72) * (exp(-hpx * hpx / 26.) * 1.5 + exp(-hpx * hpx / 700.) * .45);   // the head: a bright point and its halo",
+    "    }",
+    "    lc *= uLine;",
+    "  }",
+    "  float sh = 0.;                        // a soft warm shadow below, as under the words",
+    "  if (uShadow > 0.) { vec2 f = shapeAt(P.xy + vec2(0., .022)); sh = uShadow * pow(smoothstep(.045, -.005, min(f.x, f.y)), 2.) * (1. - a); }",
+    "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
+    "}"
+  ].join("\n");
+  function link(vs, fs){                               // starts making a program (the graphics chip may do it in the background)
+    var p = gl.createProgram(), shaders = [];
     [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(function(s){
-      var sh = gl.createShader(s[0]); gl.shaderSource(sh, s[1]); gl.compileShader(sh);
-      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
-      gl.attachShader(p, sh);
+      var sh = gl.createShader(s[0]); gl.shaderSource(sh, s[1]); gl.compileShader(sh); gl.attachShader(p, sh); shaders.push(sh);
     });
     gl.bindAttribLocation(p, 0, "a"); gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
-    var u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
-    for (var i = 0; i < n; i++) { var name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
-    return { p: p, u: u };
+    return { p: p, shaders: shaders };
   }
+  function finish(l){                                  // the program, ready (waits for it if it isn't)
+    if (!gl.getProgramParameter(l.p, gl.LINK_STATUS)) throw new Error(l.shaders.map(function(sh){ return gl.getShaderInfoLog(sh) || ""; }).join(" ") + " " + gl.getProgramInfoLog(l.p));
+    var u = {}, n = gl.getProgramParameter(l.p, gl.ACTIVE_UNIFORMS);
+    for (var i = 0; i < n; i++) { var name = gl.getActiveUniform(l.p, i).name; u[name] = gl.getUniformLocation(l.p, name); }
+    return { p: l.p, u: u };
+  }
+  function program(vs, fs){ return finish(link(vs, fs)); }
   var bgProg, glassProg;
   if (gl) try { bgProg = program(VS_BG, FS_BG); glassProg = program(VS_GLASS, FS_GLASS); } catch(e){ if (window.console) console.warn("About: plain words, no glass:", e); gl = null; }
   if (!gl) { canvas.remove(); canvas = null; }
@@ -3897,6 +4073,7 @@ window.__zwdRooms = function(THREE, o){
   function off(){                                      // the glass is gone (the graphics chip reset): back to the video and plain words
     gl = null; if (canvas) { canvas.remove(); canvas = null; }
     items.forEach(function(it){ it.el.classList.remove("is-glass"); });
+    if (logo.el) logo.el.classList.remove("is-glass");
   }
   function useSky(){                                   // the video's newest frame, or the still until it plays
     var src = !calm && video.readyState >= 2 && video.videoWidth ? video : poster.complete && poster.naturalWidth ? poster : null;
@@ -3962,11 +4139,40 @@ window.__zwdRooms = function(THREE, o){
     half = 0; for (i = 0; i < n; i++) if (field[i] > half) half = field[i];
     return { field: field, half: half };
   }
+  // The Z's two pieces, traced from the logo Jason sent (2026-11-05): x across the logo from -.5 to .5, y down. Each
+  // starts at its corner nearest the middle, where its line starts; the blue piece is the black one turned round.
+  var Z_PIECES = [
+    [[-.02849, .0972], [.26459, -.19588], [-.28418, -.19588], [-.18647, -.2936], [.5, -.2936], [.1092, .0972]],
+    [[.02849, -.0972], [-.26459, .19588], [.28418, .19588], [.18647, .2936], [-.5, .2936], [-.1092, -.0972]]
+  ], Z_HALF = .2936, Z_STROKE = .0488, Z_PAD = .1;   // half its height; half a stroke; the room around it in the field
+  var Z_POLY = [], Z_ROUND = Z_PIECES.map(function(pts){   // the outlines for the line (y up), and how long each is
+    var l = 0; pts.forEach(function(q, i){ var r = pts[(i + 1) % pts.length]; Z_POLY.push(q[0], -q[1]); l += Math.sqrt((r[0] - q[0]) * (r[0] - q[0]) + (r[1] - q[1]) * (r[1] - q[1])); }); return l;
+  });
+  function shapeOf(pieces, W, H, sx, sy){             // the Z as a field: each piece's distance from its outline (+ outside, in logo widths)
+    var out = new Float32Array(W * H * 2);
+    for (var j = 0; j < H; j++) {
+      var y = ((j + .5) / H - .5) * sy;
+      for (var i = 0; i < W; i++) {
+        var x = ((i + .5) / W - .5) * sx;
+        for (var p = 0; p < pieces.length; p++) {
+          var pts = pieces[p], n = pts.length, best = 1e9, inside = false;
+          for (var e = 0; e < n; e++) {
+            var a = pts[e], b = pts[(e + 1) % n], vx = b[0] - a[0], vy = b[1] - a[1], wx = x - a[0], wy = y - a[1];
+            var t = Math.max(0, Math.min(1, (wx * vx + wy * vy) / (vx * vx + vy * vy))), dx = wx - t * vx, dy = wy - t * vy;
+            best = Math.min(best, dx * dx + dy * dy);
+            if ((a[1] > y) !== (b[1] > y) && x < a[0] + (y - a[1]) * vx / vy) inside = !inside;
+          }
+          out[(j * W + i) * 2 + p] = (inside ? -1 : 1) * Math.sqrt(best);
+        }
+      }
+    }
+    return out;
+  }
   var helper = null, jobs = {}, nextJob = 1, gen = 0;
   try {
-    helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nself.onmessage = function(e){ var d = e.data, r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
+    helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nvar shapeOf = " + shapeOf.toString() + ";\nself.onmessage = function(e){ var d = e.data; if (d.shape) { var f = shapeOf(d.shape.pieces, d.shape.W, d.shape.H, d.shape.sx, d.shape.sy); self.postMessage({ id: d.id, field: f }, [f.buffer]); return; } var r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
     helper.onmessage = function(e){ var done = jobs[e.data.id]; delete jobs[e.data.id]; if (done) done(e.data.field, e.data.half); };
-    helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
+    helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); logo.busy = false; if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
   } catch(e){ helper = null; }
   function build(it){
     var el = it.el, cs = getComputedStyle(el), r = el.getBoundingClientRect();
@@ -4023,6 +4229,84 @@ window.__zwdRooms = function(THREE, o){
     if (queue.length) { pending = true; (window.requestIdleCallback || setTimeout)(work, { timeout: 300 }); }
   }
 
+  // ---------- the logo: the ZENGERS Z in 3D glass, drawn by a line of light the first time it shows ----------
+  // Its shape becomes a field of distances once, on the background thread (it doesn't change with the window: the box
+  // only scales it); its program is made in the background too where the browser can (KHR_parallel_shader_compile).
+  // The first time it's mostly on screen: two lines of light race round the two pieces from the middle (draw), the
+  // outlines fill with glass from the edge inward (fill) as it swells to full thickness (swell), it turns a little to
+  // show its depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced
+  // motion it is simply there. The SVG under it shows where there's no WebGL 2.
+  var logo = { el: sec.querySelector(".ab-logo"), tex: null, busy: false, prog: null, making: null, failed: false, warm: false, t0: 0, at: null, shown: false, draws: 0 };
+  var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
+  if (logo.el && gl) logo.el.classList.add("is-glass");      // the glass will draw it (the line, from nothing): the flat logo never shows first
+  function logoFail(e){
+    logo.failed = true; logo.making = null;
+    if (logo.el) logo.el.classList.remove("is-glass");
+    if (window.console) console.warn("About: the plain logo, not glass:", e);
+  }
+  function prepareLogo(){                              // near the section: its shape and its program
+    if (!logo.el || logo.failed || !gl) return;
+    if (!logo.tex && !logo.busy) {
+      logo.busy = true;
+      var sx = 1 + 2 * Z_PAD, sy = 2 * Z_HALF + 2 * Z_PAD;
+      var use = function(field){
+        logo.busy = false; if (!gl) return;
+        logo.tex = texture(gl.LINEAR); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16F, Z_TW, Z_TH, 0, gl.RG, gl.FLOAT, field); ask();
+      };
+      if (helper) { var id = nextJob++; jobs[id] = use; helper.postMessage({ id: id, shape: { pieces: Z_PIECES, W: Z_TW, H: Z_TH, sx: sx, sy: sy } }); }
+      else use(shapeOf(Z_PIECES, Z_TW, Z_TH, sx, sy));
+    }
+    if (!logo.prog && !logo.making) { try { logo.making = link(VS_GLASS, FS_LOGO); } catch(e){ logoFail(e); } }
+  }
+  function logoReady(){
+    if (logo.making && (!pcx || gl.getProgramParameter(logo.making.p, pcx.COMPLETION_STATUS_KHR))) {
+      try { logo.prog = finish(logo.making); } catch(e){ logoFail(e); }
+      logo.making = null;
+    }
+    return !!(logo.prog && logo.tex);
+  }
+  function drawLogo(cr, W, H, s, map, top, warmOnly){   // returns true while it's moving (draw again next frame)
+    var r = logo.el.getBoundingClientRect(), bx = r.left - cr.left, by = r.top - cr.top, bw = r.width, bh = r.height, pad = bw * .16;
+    if (!bw) return false;
+    if (!warmOnly) {
+      if (by + bh + pad < 0 || by - pad > H) return false;                           // not on screen
+      if (!logo.t0) {                                                                 // showing for the first time: the line draws it, once it's mostly in sight
+        var inSight = (Math.min(by + bh, H) - Math.max(by, top)) / bh;
+        if (!still && (inSight < .6 || (+veil.style.opacity || 0) > .2)) return false;
+        logo.t0 = performance.now();
+      }
+    }
+    var T = LOGO.timing, t = warmOnly ? 0 : logo.at != null ? logo.at : still ? 60 : (performance.now() - logo.t0) / 1000;
+    var step = function(a, b){ var x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
+    var drawn = step(0, T.draw), f = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), fill = warmOnly ? 0 : 1 - Math.pow(1 - f, 3);
+    var w = t - T.swell, swell = w <= 0 ? 0 : 1 - Math.exp(-5.5 * w) * Math.cos(8 * w);   // a little past full, and back: poured, not built
+    var turn = step(T.turn[0], T.turn[1]), sway = still ? 0 : step(T.turn[1] - .1, T.turn[1] + 1.4), deg = Math.PI / 180;
+    var mid = (by + bh / 2 - H / 2) / H;                                            // -.5 above the middle of the screen, .5 below
+    var yaw = (LOGO.turn[0] * turn + LOGO.sway[0] * sway * Math.sin(t * 2 * Math.PI / 9)) * deg;
+    var pitch = (LOGO.turn[1] * turn + LOGO.sway[1] * sway * Math.sin(t * 2 * Math.PI / 7 + 1.3) - (still ? 0 : LOGO.tilt * 2 * mid * turn)) * deg;
+    var g = (t - T.glint[0]) / (T.glint[1] - T.glint[0]), glint = g > 0 && g < 1 ? -.8 + 1.6 * g * g * (3 - 2 * g) : 9;
+    var line = still || warmOnly ? 0 : Math.min(1, t / .05) * (1 - step(T.line[0], T.line[1]));
+    var half = LOGO.depth / 2 * (still ? 1 : .35 + .65 * swell), cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var L = logo.prog, U = L.u;
+    gl.useProgram(L.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, logo.tex);
+    gl.uniform1i(U.uSky, 0); gl.uniform1i(U.uShape, 1); gl.uniform4fv(U.uMap, map); gl.uniform2f(U.uView, W, H); gl.uniform1f(U.uDpr, s); gl.uniform1f(U.uTop, top);
+    gl.uniform2f(U.uLight, Math.cos(LENS.light * deg), Math.sin(LENS.light * deg));
+    gl.uniform4f(U.uRect, bx - pad, by - pad, bw + 2 * pad, bh + 2 * pad); gl.uniform4f(U.uBox, bx, by, bw, bh);
+    gl.uniform4f(U.uShapeMap, 1 / (1 + 2 * Z_PAD), 1 / (2 * Z_HALF + 2 * Z_PAD), .5, .5);
+    gl.uniformMatrix3fv(U.uRot, false, [cy, 0, -sy, sy * sp, cp, cy * sp, sy * cp, -sp, cy * cp]);   // turned (yaw), after tipped (pitch)
+    gl.uniform1f(U.uCam, 3.4); gl.uniform1f(U.uBack, .9); gl.uniform1f(U.uHalf, Z_HALF);   // the eye 3.4 logo widths away; the clouds as if .9 behind
+    gl.uniform1f(U.uH, half); gl.uniform1f(U.uR, Math.min(LOGO.bevel, half * .95)); gl.uniform1f(U.uW, Z_STROKE); gl.uniform1f(U.uFill, fill);
+    gl.uniform1f(U.uIor, LOGO.ior); gl.uniform1f(U.uDisp, LOGO.dispersion); gl.uniform1f(U.uFrost, LOGO.frost);
+    gl.uniform2f(U.uDrawn, drawn * Z_ROUND[0], drawn * Z_ROUND[1]); gl.uniform2fv(U["uPoly[0]"], Z_POLY); gl.uniform1f(U.uLine, line); gl.uniform1f(U.uGlint, glint); gl.uniform1f(U.uShadow, LENS.shadow[0] * fill);
+    gl.uniform3fv(U.uTint0, LOGO.tint[0]); gl.uniform3fv(U.uTint1, LOGO.tint[1]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if (warmOnly) return false;
+    logo.draws++; logo.shown = true;
+    return !still;
+  }
+
   // ---------- drawing ----------
   var asked = false, warmed = false, slow = { sky: 0, size: 0, draw: 0, warm: 0 }, blank = null;
   function fitCanvas(W, H){                            // the canvas's size in pixels: sharp, but at most about 4 million of them
@@ -4053,7 +4337,8 @@ window.__zwdRooms = function(THREE, o){
     if (!gl || !near) return;
     if (!built && (!document.fonts || document.fonts.status === "loaded")) rebuild();
     if (queue.length && !pending) work();
-    if (!on) { if (!warmed) warm(); return; }          // not showing (under the end of the film, or gone by): nothing to draw
+    prepareLogo();
+    if (!on) { if (!warmed) warm(); else if (!logo.warm && !logo.failed && logoReady()) warmLogo(); return; }   // not showing (under the end of the film, or gone by): nothing to draw
     var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
     if (!W || !H || !useSky()) return;
     var t1 = performance.now(), s = fitCanvas(W, H), cw = canvas.width, ch = canvas.height, t2 = performance.now();
@@ -4083,9 +4368,19 @@ window.__zwdRooms = function(THREE, o){
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
     });
+    var moving = !!(logo.el && !logo.failed && logoReady() && drawLogo(cr, W, H, s, map, top));
     canvas.classList.add("is-on");
     var t3 = performance.now(); slow.sky = Math.max(slow.sky, t1 - t0); slow.size = Math.max(slow.size, t2 - t1); slow.draw = Math.max(slow.draw, t3 - t2);
-    if (seen && !video.paused && !calm) ask();          // the video keeps moving: draw again next frame
+    if ((seen && !video.paused && !calm) || moving || logo.making || logo.busy) ask();   // the video or the logo keeps moving (or the logo is nearly ready): draw again next frame
+  }
+  function warmLogo(){                                 // while hidden: the logo drawn once into a single pixel, so it's ready the moment it shows
+    logo.warm = true;
+    var W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
+    if (!W || !H || !skyFrom) return;
+    fitCanvas(W, H); gl.viewport(0, 0, 1, 1); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex);
+    drawLogo(canvas.getBoundingClientRect(), W, H, 1, [1, 1, 0, 0], 0, true);
+    slow.warmLogo = performance.now() - t0;
   }
   window.addEventListener("scroll", ask, { passive: true });
   var rs = 0;
@@ -4096,7 +4391,10 @@ window.__zwdRooms = function(THREE, o){
   var fonts = document.fonts ? document.fonts.ready : Promise.resolve();
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
-  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, draws: draws, uploads: uploads, slowest: slow }; } };
+  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
+      logo: { ready: !!(logo.prog && logo.tex), making: !!logo.making, failed: logo.failed, started: !!logo.t0, t: logo.t0 ? +((performance.now() - logo.t0) / 1000).toFixed(2) : 0, draws: logo.draws } }; },
+    logoAt: function(t){ logo.at = t; ask(); },                     // for checking: hold the logo's animation at t seconds (null lets it run)
+    logoAgain: function(){ logo.t0 = performance.now(); logo.at = null; ask(); } };   // play the line again
 })();
 </script>
 
