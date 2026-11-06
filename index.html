@@ -50,6 +50,17 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
   var c = navigator.connection, still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.__zwd3dOK = location.protocol !== "file:" && "WebGL2RenderingContext" in window && !(c && (c.saveData || /2g|3g/.test(c.effectiveType || "")));
   if (document.documentElement.classList.contains("intro-3d") || (window.__zwd3dOK && !still)) window.__zwdThreeLoad();
+  // A picture of the film's first shot (rendered from the 3D scene, media/film-start-*.webp) shows behind the hero from the
+  // first paint, so the mountain is there at once; the 3D takes over on top of it, matching it, and then it goes (see the
+  // "Hero film, 3D version" script). Only for visitors who get the 3D film (others get the summit still).
+  if (window.__zwd3dOK && !still) {
+    document.documentElement.classList.add("film-pic");
+    [["(min-aspect-ratio: 10/11)", "media/film-start-wide.webp 1x, media/film-start-wide-2x.webp 2x", "media/film-start-wide.webp"], ["(max-aspect-ratio: 10/11)", "media/film-start-tall.webp 1x", "media/film-start-tall.webp"]].forEach(function(q){
+      var l = document.createElement("link"); l.rel = "preload"; l.as = "image"; l.media = q[0];
+      if ("imageSrcset" in l) l.imageSrcset = q[1]; else l.href = q[2];
+      l.setAttribute("fetchpriority", "high"); document.head.appendChild(l);
+    });
+  }
   // Before the first paint: the film's lines wait for the film script to place them (they would all show at once), and a
   // page opened at one of the six houses, the street or About us shows nothing below the header until the street is
   // ready (the "Street" script lifts it; so does a timer, in case the 3D never arrives).
@@ -356,8 +367,10 @@ html.dev-arriving main,html.dev-arriving .site-footer{visibility:hidden}   /* op
 @media (max-width:700px){.film{height:calc(400vh + var(--film-tail,0px))}}
 .film-stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden}   /* the whole screen even with a phone's toolbars shrunk away (100svh left a bar at the bottom) */
 .film-media{position:absolute;inset:0;background:linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%)}   /* pre-dawn, until the picture is ready */
+html.film-pic .film-media{background:url(media/film-start-wide.webp) center/cover no-repeat,linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%);background-image:-webkit-image-set(url(media/film-start-wide.webp) 1x,url(media/film-start-wide-2x.webp) 2x),linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%);background-image:image-set(url(media/film-start-wide.webp) 1x,url(media/film-start-wide-2x.webp) 2x),linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%)}   /* the film's first shot, until the 3D is on (see the <head>); rendered wider than any screen, so "cover" crops only its sides, as the film's camera does */
+@media (max-aspect-ratio:10/11){html.film-pic .film-media{background-image:url(media/film-start-tall.webp),linear-gradient(#090F1E 0%,#141C34 48%,#2A2A48 62%,#0D1424 70%,#090E18 100%)}}   /* the film's tall framing (phones), from 10:11 down, as its camera */
 .film-media canvas,.film-media video,.film-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
-.film-media .film-3d{opacity:0;transition:opacity .9s ease}
+.film-media .film-3d{opacity:0;transition:opacity .3s ease}   /* quick: the picture under it is the same shot */
 .film-media .film-3d.is-on{opacity:1}
 .film-scrim{position:absolute;inset:0;pointer-events:none;background:
   linear-gradient(to top,rgba(14,24,34,.92) 0%,rgba(14,24,34,.55) 30%,rgba(14,24,34,0) 58%),
@@ -4758,7 +4771,11 @@ window.__zwdFilm3D = function(THREE, host, on){
     update(p, lastRise);
     renderer.clear(); renderer.render(scene, cam);
     if (a.flareVis > .004 || lastRise > .84) { renderer.clearDepth(); renderer.render(flareScene, flareCam); }
-    if (!shown) { shown = true; canvas.classList.add("is-on"); }
+    if (!shown) {
+      shown = true; canvas.classList.add("is-on");
+      var drop = function(){ clearTimeout(dropT); canvas.removeEventListener("transitionend", drop); document.documentElement.classList.remove("film-pic"); }, dropT = setTimeout(drop, 2000);   // the first shot's picture under it isn't needed now
+      canvas.addEventListener("transitionend", drop);
+    }
     pace();
   }
   function resize(){
@@ -5140,6 +5157,7 @@ var SITE = {
   /* ---- a still picture: the video's POSTER, or the summit at sunrise ---- */
   function useStill(){
     if (still) return;
+    doc.documentElement.classList.remove("film-pic");
     still = new Image(); still.alt = ""; still.decoding = "async";
     if (SITE.POSTER && pickVideoSrc()) still.src = SITE.POSTER;
     else if (tall()) still.src = STILL_TALL;
