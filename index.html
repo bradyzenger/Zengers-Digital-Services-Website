@@ -1294,7 +1294,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <textarea id="q-message" name="message" required></textarea>
           <p class="field-error" id="q-message-err" hidden></p>
         </div>
-        <div class="hp" aria-hidden="true"><label for="q-website">Leave this empty</label><input id="q-website" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="hp" aria-hidden="true"><label for="q-website">Leave this empty</label><input id="q-website" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></div>
         <div class="form-actions">
           <button class="btn btn-primary" type="submit" id="q-submit">Send question</button>
         </div>
@@ -1357,7 +1357,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
         </div>
         <div class="field"><label for="b-notes">Anything else <span class="opt">(optional)</span></label><textarea id="b-notes" name="notes"></textarea></div>
       </fieldset>
-      <div class="hp" aria-hidden="true"><label for="b-website">Leave this empty</label><input id="b-website" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
+      <div class="hp" aria-hidden="true"><label for="b-website">Leave this empty</label><input id="b-website" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></div>
 
       <div class="form-actions">
         <button class="btn btn-primary" type="submit" id="b-submit">Continue to checkout <span class="arrow" aria-hidden="true">→</span></button>
@@ -4922,9 +4922,10 @@ var SITE = {
   VIDEO_MOBILE: "",        // optional, e.g. "media/zengers-film-720x1280.mp4" (9:16)
   POSTER: "",              // optional, e.g. "media/zengers-film-end.jpg" (last frame)
 
-  // "Send question" form. A private form service or your own backend that accepts a POST
-  // and emails you (for example Formspree, Basin, or Netlify Forms). "" = not connected.
-  INQUIRY_ENDPOINT: "",
+  // "Send question" form. A private form service that accepts a POST and emails you. Connected 2026-11-06: Formspree
+  // (free plan, 50 a month; the form "Website questions" in Jason's Formspree account), which emails the ZWD inbox
+  // (the address is in CLAUDE.md, not here). Never put an email address in this file: anyone can read the page. "" = not connected.
+  INQUIRY_ENDPOINT: "https://formspree.io/f/xyeeakov",
 
   // Purchase onboarding. The customer's details and uploads POST here before checkout.
   // Must store them privately and notify you. "" = not connected.
@@ -4992,7 +4993,7 @@ var SITE = {
     form.addEventListener("input", function(e){ var t=e.target; if (t.hasAttribute && t.hasAttribute("aria-invalid")) checkField(t); });
   }
   function showStatus(el, kind, html){ el.className = "form-status is-" + kind; el.innerHTML = html; el.hidden = false; }
-  function isSpam(form){ var hp = form.querySelector('input[name="company_website"]'); return hp && hp.value; }
+  function isSpam(form){ var hp = form.querySelector('input[name="_gotcha"]'); return hp && hp.value; }   // the hidden spam trap ("_gotcha": Formspree also drops anything with it filled in)
   function postForm(url, data){
     return fetch(url, { method: "POST", body: data, headers: { "Accept": "application/json" } })
       .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.text().then(function(t){ try { return JSON.parse(t); } catch(e){ return {}; } }); });
@@ -5013,6 +5014,7 @@ var SITE = {
     }
     qBtn.disabled = true; qBtn.textContent = "Sending…";
     var data = new FormData(qForm); data.append("form", "question"); data.append("page", location.href);
+    data.append("_subject", "Website question from " + (doc.getElementById("q-name").value.trim() || "a visitor"));   // the email's subject (Formspree)
     postForm(SITE.INQUIRY_ENDPOINT, data).then(function(){
       qForm.reset();
       showStatus(qStatus, "ok", "<strong>Thanks, your question was sent.</strong> We’ll reply by email.");
@@ -5088,6 +5090,7 @@ var SITE = {
     var ref = makeRef();
     var data = new FormData(bForm);
     data.append("plan", buyState.plan); data.append("monthly_price_usd", buyState.price);
+    data.append("_subject", buyState.plan + " plan sign-up from " + (doc.getElementById("b-business").value.trim() || "the website"));   // the email's subject (Formspree)
     data.append("minimum_term", "3 months, then month-to-month"); data.append("reference", ref);
     data.append("checkout_mode", SITE.CHECKOUT_MODE);
     bBtn.disabled = true; bBtn.firstChild.textContent = "Saving… ";
