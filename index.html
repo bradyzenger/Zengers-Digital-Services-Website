@@ -326,7 +326,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 .ab-glass.is-on{opacity:1}   /* shown once it has drawn a frame (opacity, so the section's visibility still hides it); it draws the video itself, bent through the letters */
 .ab-veil{background:#F2E6D8;opacity:0;pointer-events:none}   /* with the street on, the section starts and ends in the cloud */
 .ab-text{position:relative;margin-top:-100vh;margin-top:-100lvh;padding:50vh 16px;padding:50lvh 16px}
-.ab-block{min-height:100vh;min-height:100lvh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.ab-block{min-height:100vh;min-height:100lvh;box-sizing:border-box;padding:calc(var(--header-h) + 12vh) 0 14vh;padding:calc(var(--header-h) + 12lvh) 0 14lvh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}   /* the words stay in the band where the glass shows them fully (it fades them under the header and near the bottom); a block with more words grows */
 .ab-copy{width:100%}
 .ab-block h3{margin:0;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(64px,13vw,190px);line-height:.88;letter-spacing:.01em;text-wrap:balance}
 .ab-block p{margin:.55em auto 0;max-width:24em;font-family:var(--body);font-weight:600;font-size:clamp(20px,2.3vw,30px);line-height:1.38}
@@ -346,7 +346,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
   .ab-side{grid-column:2;grid-row:1;justify-self:center}
   .ab-logo{order:0;width:min(100%,480px);margin:0}
   .ab-block h3{font-size:clamp(56px,8.6vw,104px)}
-  .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(20px,1.9vw,26px)}
+  .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(18px,1.4vw,21px)}   /* a paragraph of about 110 words fits a laptop's screen, about 50 letters a line */
 }
 
 /* ---------- the film (pinned scroll section) ---------- */
@@ -880,7 +880,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 
 <!-- ============================ ABOUT US ============================
      In the cloud between the mountain film and the street (the "About" script and the "about us" styles). Six
-     headings and paragraphs, placeholders until the words are written, drawn in liquid glass letters over a looping
+     headings and paragraphs (the first block's words are Jason's, 2026-11-05; the rest are placeholders until written), drawn in liquid glass letters over a looping
      video of clouds at sunset. The first block is ZENGERS, with the ZENGERS Z beside it in 3D glass (drawn by a line of
      light the first time it shows); the SVG is the logo for browsers without WebGL 2, traced from the logo Jason sent
      on 2026-11-05 (black top piece #101113, blue bottom piece #11448E). -->
@@ -892,7 +892,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
   </div>
   <div class="ab-text">
     <h2 class="sr-only" id="about-title">About us</h2>
-    <div class="ab-block"><div class="ab-copy"><h3>ZENGERS</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3>ZENGERS</h3><p>At ZENGERS, we are in the business of serving our clients well and earning their trust. This family legacy has been consistent since 1951 whether supplying power tools, installing robotic tool crib stations or NOW: powering your business with the best digital web services, so you have the best experience having a business digitally. As we enter our 4th generation, you can depend on us to take your business needs and your success seriously so you can win. We supply a wide range of industrial products, metalworking tooling, electrical supplies, contractor tools, safety/PPE and integrated services along with knowledge and inspiration to meaningfully improve the lives of those who make, build, and create great things for our country.</p></div>
       <div class="ab-side ab-logo" aria-hidden="true"><svg viewBox="0 0 1000 587.2" focusable="false"><polygon fill="#101113" points="313.5,0.0 1000.0,0.0 609.2,390.8 471.5,390.8 764.6,97.7 215.8,97.7"/><polygon fill="#11448E" points="686.5,587.2 0.0,587.2 390.8,196.4 528.5,196.4 235.4,489.5 784.2,489.5"/></svg></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
@@ -3687,7 +3687,14 @@ window.__zwdRooms = function(THREE, o){
     var rt = 0;
     window.addEventListener("resize", function(){
       if (Math.abs(window.innerWidth - lastW) < 2 && Math.abs(window.innerHeight - lastH) < 120) return;   // phone toolbars coming and going
-      sizing = true; clearTimeout(rt); rt = setTimeout(function(){
+      sizing = true; clearTimeout(rt); rt = setTimeout(relayout, 180);
+    });
+    var abH = about.offsetHeight;                          // About us's words can take more or less room once their fonts arrive (or as the window changes): its length sets the flights' places
+    if (window.ResizeObserver) new ResizeObserver(function(){
+      var h = about.offsetHeight; if (Math.abs(h - abH) < 1) return;
+      abH = h; sizing = true; clearTimeout(rt); rt = setTimeout(relayout, 180);
+    }).observe(about);
+    function relayout(){
         try {
           var flying = glideAnim && { name: glideAnim.m.name, dir: glideAnim.dir, at: (-track.getBoundingClientRect().top - glideAnim.m.a) / (glideAnim.m.b - glideAnim.m.a) }, s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s >= st0 - 2 && s <= P;
           var at = flying || mode !== "scroll" ? -1 : abAt;   // reading About us: back to the same place in it
@@ -3699,8 +3706,7 @@ window.__zwdRooms = function(THREE, o){
           glKey = ""; kick();
         } catch(e){ fail(e); }
         sizing = false; if (!dead) notePlace();
-      }, 180);
-    });
+    }
     canvas.addEventListener("webglcontextlost", function(e){ e.preventDefault(); fail(new Error("WebGL context lost")); });
     window.addEventListener("scroll", onScroll, { passive: true });
     new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) kick(); }, { rootMargin: "50% 0px" }).observe(track);
@@ -4236,7 +4242,7 @@ window.__zwdRooms = function(THREE, o){
   // outlines fill with glass from the edge inward (fill) as it swells to full thickness (swell), it turns a little to
   // show its depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced
   // motion it is simply there. The SVG under it shows where there's no WebGL 2.
-  var logo = { el: sec.querySelector(".ab-logo"), tex: null, busy: false, prog: null, making: null, failed: false, warm: false, t0: 0, at: null, shown: false, draws: 0 };
+  var logo = { el: sec.querySelector(".ab-logo"), tex: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
   if (logo.el && gl) logo.el.classList.add("is-glass");      // the glass will draw it (the line, from nothing): the flat logo never shows first
   function logoFail(e){
@@ -4271,10 +4277,14 @@ window.__zwdRooms = function(THREE, o){
     if (!bw) return false;
     if (!warmOnly) {
       if (by + bh + pad < 0 || by - pad > H) return false;                           // not on screen
-      if (!logo.t0) {                                                                 // showing for the first time: the line draws it, once it's mostly in sight
-        var inSight = (Math.min(by + bh, H) - Math.max(by, top)) / bh;
-        if (!still && (inSight < .6 || (+veil.style.opacity || 0) > .2)) return false;
-        logo.t0 = performance.now();
+      if (!logo.t0) {                                                                 // showing for the first time: the line draws it, a moment after it's mostly in sight (the words first)
+        var inSight = (Math.min(by + bh, H) - Math.max(by, top)) / bh, now = performance.now();
+        if (!still) {
+          if (inSight < .6 || (+veil.style.opacity || 0) > .2) { logo.seenAt = 0; return false; }
+          if (!logo.seenAt) logo.seenAt = now;
+          if (now - logo.seenAt < 350) return true;                                   // (true: draw again next frame)
+        }
+        logo.t0 = now;
       }
     }
     var T = LOGO.timing, t = warmOnly ? 0 : logo.at != null ? logo.at : still ? 60 : (performance.now() - logo.t0) / 1000;
