@@ -3799,8 +3799,8 @@ window.__zwdRooms = function(THREE, o){
     bevel: .04,            // how round its edges are: nearly all of the half-stroke, so it looks poured, not cut
     ior: 1.5,              // how much it bends light: glass, as the letters
     dispersion: .022,      // how much more blue bends than red: its rainbow edges
-    tint: [[19, 18.5, 17], [26, 12.5, 3.2]],   // how much of red, green and blue its glass holds back, per logo width: smoky black, sapphire blue (the logo's #101113 and #11448E)
-    frost: .05,            // white in the glass, as the headings
+    tint: [[0, 0, 0], [0, 0, 0]],   // clear glass, as the letters (Jason, 2026-11-05). To colour a piece: how much of red, green and blue it holds back per logo width, e.g. [19, 18.5, 17] smoky black, [26, 12.5, 3.2] sapphire blue (the logo's #101113 and #11448E)
+    frost: .06,            // white in the glass, as the headings (LENS.tint)
     turn: [-21, 9],        // degrees: where it settles (turned toward the words, tipped forward a little)
     sway: [4, 2.5],        // degrees: its slow sway after that
     tilt: 6,               // degrees: how far it tips as the page scrolls it past
@@ -3911,9 +3911,9 @@ window.__zwdRooms = function(THREE, o){
   // The logo: a solid of glass in the Z's shape, as thick as a stroke, its edges rounded like the letters' rims. Each
   // pixel follows the eye's ray into it (ray marching: the shape is a field of distances), bends at the front as glass
   // does (Snell's law, index 1.5), crosses the glass, bends again at the back, red, green and blue each a little
-  // differently, and shows the clouds where it comes out; the glass's colour holds back light by how far it went
-  // through (smoky black, sapphire blue), the surface reflects the sunset by Fresnel's law, and the rim gets the
-  // letters' lit edge and Glisse's chromatic bands. The line that draws it runs along the outline on its front face.
+  // differently, and shows the clouds where it comes out; the glass is clear with the headings' frost (LOGO.tint can
+  // colour it by how far the light went through), the surface reflects the sunset by Fresnel's law, and the rim gets
+  // the letters' lit edge and Glisse's chromatic bands. The line that draws it runs along the outline on its front face.
   var FS_LOGO = [
     "#version 300 es",
     "precision highp float;",
@@ -4004,7 +4004,7 @@ window.__zwdRooms = function(THREE, o){
     "        vec3 eta = uIor + vec3(-1., 0., 1.5) * uDisp;",
     "        vec3 through = vec3(exitAt(d1, n1, p2, n2, eta.r).r, exitAt(d1, n1, p2, n2, eta.g).g, exitAt(d1, n1, p2, n2, eta.b).b);",
     "        through *= exp(-(s.x < s.y ? uTint0 : uTint1) * length(p2 - p1));",
-    "        float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.3), 0., 1.);",
+    "        float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.5), 0., 1.);   // saturate(1.5), as the letters",
     "        through = mix(through, vec3(1.), uFrost);",
     "        vec3 nv = uRot * n1, rv = reflect(rd, nv);",
     "        float F = .04 + .96 * pow(1. - max(dot(-rd, nv), 0.), 5.);",
@@ -4341,6 +4341,8 @@ window.__zwdRooms = function(THREE, o){
     if (!on) { if (!warmed) warm(); else if (!logo.warm && !logo.failed && logoReady()) warmLogo(); return; }   // not showing (under the end of the film, or gone by): nothing to draw
     var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
     if (!W || !H || !useSky()) return;
+    var logoFirst = !!(logo.el && !logo.warm && !logo.failed && logoReady());   // the logo's first drawing takes the graphics chip a moment: done into one pixel, a frame before it may show
+    if (logoFirst) warmLogo();
     var t1 = performance.now(), s = fitCanvas(W, H), cw = canvas.width, ch = canvas.height, t2 = performance.now();
     gl.viewport(0, 0, cw, ch);
     var sc = Math.max(W / skyW, H / skyH), mx = 1 / (skyW * sc), my = 1 / (skyH * sc), map = [mx, my, .5 - W / 2 * mx, .5 - H / 2 * my];   // the video fills the stage
@@ -4368,10 +4370,10 @@ window.__zwdRooms = function(THREE, o){
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
     });
-    var moving = !!(logo.el && !logo.failed && logoReady() && drawLogo(cr, W, H, s, map, top));
+    var moving = !!(logo.el && !logo.failed && !logoFirst && logoReady() && drawLogo(cr, W, H, s, map, top));
     canvas.classList.add("is-on");
     var t3 = performance.now(); slow.sky = Math.max(slow.sky, t1 - t0); slow.size = Math.max(slow.size, t2 - t1); slow.draw = Math.max(slow.draw, t3 - t2);
-    if ((seen && !video.paused && !calm) || moving || logo.making || logo.busy) ask();   // the video or the logo keeps moving (or the logo is nearly ready): draw again next frame
+    if ((seen && !video.paused && !calm) || moving || logoFirst || logo.making || logo.busy) ask();   // the video or the logo keeps moving (or the logo is nearly ready): draw again next frame
   }
   function warmLogo(){                                 // while hidden: the logo drawn once into a single pixel, so it's ready the moment it shows
     logo.warm = true;
