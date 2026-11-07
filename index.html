@@ -361,6 +361,12 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 /* The ZENGERS Digital Services logo beside the second heading (the same, drawn by the "About" script as "the lockup"):
    six times as wide as it's tall, so it takes the width there is. */
 .ab-logo.ab-lockup{width:min(92vw,460px)}
+/* The photo beside the third heading (Brady Zenger): drawn in a block of 3D glass by the "About" script over the
+   picture's box ("the photo"). The picture shows without WebGL 2, and stays in the page, invisible, for screen readers
+   (opacity, not visibility). Above the heading on narrow screens. */
+.ab-photo{order:-1;width:min(64vw,300px);margin:0 auto clamp(20px,4vh,36px)}
+.ab-photo img{display:block;width:100%;height:auto;border-radius:7%}
+.ab-photo.is-glass img{opacity:0}
 /* From 900 px wide: the words in the left half of the site's column (lined up with the logo), the right half for
    the block's .ab-side (the Z in the first block). The heading size fills the half: "PLACEHOLDER" is 4.77 times its
    size wide. Narrower screens keep the centred words. */
@@ -371,6 +377,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
   .ab-side{grid-column:2;grid-row:1;justify-self:center}
   .ab-logo{order:0;width:min(100%,480px);margin:0}
   .ab-logo.ab-lockup{width:min(100%,560px)}
+  .ab-photo{order:0;width:min(100%,380px,calc(50vh - 44px));width:min(100%,380px,calc(50lvh - 44px));margin:0}   /* fits the clear band with room to spare, even on a short laptop screen */
   .ab-block h3{font-size:clamp(56px,8.6vw,104px)}
   .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(18px,1.4vw,21px)}   /* a paragraph of about 110 words fits a laptop's screen, about 50 letters a line */
   /* A heading that would break badly at the full size (.ab-fit) gets the size where its longest line fills the half,
@@ -924,6 +931,9 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
      (resources/zengers-digital-services-logo-full.png) and laid out as in the header's media/zengers-logo-horizontal.webp,
      10,000 units across, x,y pairs; one group per part (the Z, ZENGERS, DIGITAL SERVICES), one path per letter or piece, in the
      order the line of light draws them, each outline starting where its line starts.
+     The third block, Brady Zenger, has a photo of Brady and Jason beside it (Jason, 2026-11-07; media/about-brady.webp,
+     cropped square from his photo, no metadata) in a block of 3D glass, drawn the same way; the img shows without WebGL 2
+     and stays in the page (invisible) for screen readers.
      "I don't want to read" (.ab-skip, Jason, 2026-11-06): shown at the bottom right while the words are on screen (the
      "About" script). With the 3D street, the "Street" script plays the flight over Nashville from its start; without
      it, the link goes on to Services, the next section. -->
@@ -940,7 +950,8 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       <div class="ab-side ab-logo" aria-hidden="true"><svg viewBox="0 0 1000 587.2" focusable="false"><polygon fill="#101113" points="313.5,0.0 1000.0,0.0 609.2,390.8 471.5,390.8 764.6,97.7 215.8,97.7"/><polygon fill="#11448E" points="686.5,587.2 0.0,587.2 390.8,196.4 528.5,196.4 235.4,489.5 784.2,489.5"/></svg></div></div>
     <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.876">ZENGERS Digital Services</h3><p>ZENGERS Digital Services provides stunning web design, functionality, and peace of mind to your online business. We collaborate on the design with you, make mockups, handle integrations, and build your website. We will make your website look great no matter what plan you pick, so you can forget about AI slop or generic templates. After the design is finished, we build the features into your website and walk through the domain and domain ownership with you. You don’t have to stress or even know what anything means. We handle everything about your website. After the website is finished and goes live, all you have to do is text or email us and we will update your site, based on your plan.</p></div>
       <div class="ab-side ab-logo ab-lockup" aria-hidden="true"><svg viewBox="0 0 10000 1666" focusable="false"><g fill="#0A2A5C"><path d="M1186,1064l376,6 1061,-1070 -1891,1 -350,380 1480,-32z"/><path d="M1318,630l-353,-21 -965,1030 2071,27 345,-339 -1737,1z"/></g><g fill="#0A2A5C"><path d="M3340,216l16,-3 698,-1 108,8 9,4 4,19 -1,52 -4,10 -15,17 -113,101 -376,318 -12,15 1,5 16,4 62,-5 73,-2 377,11 6,4 3,16 0,96 -4,16 -314,3 -186,-4 -360,5 -10,-1 -4,-8 3,-61 4,-12 7,-10 141,-120 56,-42 101,-85 130,-115 95,-81 5,-7 -5,-4 -28,-1 -163,1 -309,-10 -9,-6 -3,-11 -2,-106z"/><path d="M4376,219l5,-2 185,-5 428,0 113,9 4,2 3,9 -11,34 -33,78 -3,6 -11,5 -248,5 -157,8 -89,-3 -3,3 -2,11 2,101 4,10 71,-2 152,1 73,4 214,3 10,5 -52,114 -9,11 -320,9 -57,4 -83,-2 -4,12 0,95 5,12 189,-2 242,5 130,9 5,4 2,12 0,90 -3,21 -9,4 -18,1 -338,3 -208,-8 -141,-2 -27,-4 -9,-10 -5,-28 -10,-321 10,-304z"/><path d="M5300,224l15,-5 136,2 21,11 70,62 291,274 101,86 5,-6 1,-17 -3,-202 10,-168 -1,-39 11,-5 56,-2 91,4 6,7 2,29 11,304 -4,95 -3,243 -3,4 -9,2 -119,0 -22,-2 -17,-8 -28,-20 -74,-65 -288,-261 -77,-72 -4,10 0,130 -8,286 -17,4 -112,1 -39,-3 -4,-7 -6,-360 2,-180z"/><path d="M6436,258l44,-20 39,-13 51,-11 74,-7 197,0 229,15 9,10 -2,17 -39,92 -11,10 -389,14 -50,10 -46,21 -29,22 -17,23 -16,33 -13,50 0,74 13,50 20,40 35,34 41,21 28,9 40,6 243,-1 30,-7 14,-11 3,-45 0,-40 -4,-11 -230,-7 -10,-2 -3,-4 2,-12 51,-109 16,-5 158,-1 202,4 5,12 -3,68 0,180 -5,29 -9,22 -15,22 -17,17 -23,16 -39,18 -71,17 -132,6 -179,-1 -68,-7 -58,-13 -55,-24 -28,-16 -51,-41 -34,-40 -25,-44 -20,-49 -11,-58 -6,-68 4,-57 12,-51 17,-44 21,-39 31,-41 34,-33z"/><path d="M7296,219l294,-7 337,0 97,8 6,7 -2,11 -44,105 -12,11 -399,13 -85,-3 -14,5 -2,26 2,85 4,10 207,-2 237,10 56,-2 6,3 1,4 -4,16 -40,85 -14,21 -326,11 -124,-1 -6,3 -2,10 0,79 1,23 7,7 96,-3 107,1 281,9 73,6 6,3 2,16 -2,112 -11,3 -276,0 -451,-12 -9,-8 -4,-21 -10,-321 6,-164 7,-106 -1,-45z"/><path d="M8221,221l162,-3 74,-5 349,0 68,12 50,20 22,13 28,25 23,28 18,34 10,33 8,39 0,86 -7,34 -12,31 -14,25 -20,24 -21,20 -19,12 -33,15 -51,13 -6,6 -1,6 19,27 73,89 67,71 5,9 -1,7 -11,9 -32,4 -142,-2 -9,-7 -181,-201 -17,-4 -113,4 -96,-4 -15,2 -3,6 -4,187 -4,14 -7,3 -34,1 -101,-1 -22,-2 -4,-10 -3,-45 -8,-265 0,-112 10,-237zM8396,368l-2,4 0,23 4,136 4,10 223,2 153,-5 27,-11 17,-13 11,-18 8,-27 0,-30 -6,-22 -7,-14 -23,-20 -32,-12 -46,-2 -259,0 -62,-4z"/><path d="M9279,257l39,-19 39,-13 61,-11 29,-2 445,0 83,4 3,5 -3,11 -55,109 -11,11 -253,8 -220,10 -26,9 -19,14 -7,13 -2,23 2,18 8,14 15,13 17,7 46,6 129,2 187,7 67,12 56,25 28,20 15,17 24,37 14,30 10,69 -6,50 -11,34 -12,24 -16,20 -40,35 -34,17 -67,16 -74,2 -388,-7 -119,1 -22,-4 -5,-7 11,-38 38,-82 6,-6 293,-8 198,-1 28,-8 14,-11 9,-16 3,-23 -5,-21 -9,-12 -34,-14 -51,-4 -288,-4 -74,-12 -40,-12 -27,-13 -23,-16 -29,-27 -17,-23 -17,-33 -12,-68 6,-52 8,-27 13,-28 21,-29 22,-23z"/></g><g fill="#B06E00"><path d="M3710,1217l41,-5 48,0 59,10 33,12 18,11 26,29 7,11 7,22 1,57 -18,39 -30,29 -34,16 -21,6 -46,7 -100,-2 -6,-11 -4,-90 1,-73 7,-52 3,-9zM3766,1257l-6,10 -2,46 2,85 2,9 5,4 28,1 45,-8 23,-15 11,-15 8,-21 0,-40 -16,-28 -26,-22 -45,-9z"/><path d="M4160,1217l24,-2 16,3 6,11 5,39 -2,174 -4,14 -10,4 -28,0 -14,-1 -7,-6 -4,-95 1,-79 7,-50z"/><path d="M4448,1240l22,-11 20,-6 71,-11 32,5 46,18 29,26 5,8 1,10 -7,5 -27,-3 -29,3 -33,-24 -40,-2 -26,5 -26,22 -15,25 -3,37 14,32 23,21 39,11 28,-2 17,-5 19,-12 14,-17 0,-12 -67,-2 -16,-6 -3,-14 1,-16 12,-4 131,1 5,7 1,47 -18,35 -17,16 -17,11 -39,16 -34,7 -29,0 -37,-7 -37,-17 -32,-32 -10,-13 -13,-28 -3,-17 1,-29 7,-28 18,-27z"/><path d="M4898,1217l18,-2 16,2 4,6 10,45 -6,180 -3,8 -10,4 -23,0 -14,-1 -8,-6 -3,-101 1,-73 8,-50z"/><path d="M5147,1219l39,-6 129,-1 28,6 4,6 4,22 -2,6 -62,2 -8,3 -2,5 -4,181 -3,12 -17,4 -28,-1 -11,-5 -1,-4 -3,-85 3,-101 -5,-6 -11,-3 -56,-2 -3,-6 3,-19z"/><path d="M5632,1224l10,-7 28,-4 29,5 21,28 18,33 62,152 2,11 -2,12 -17,6 -34,-3 -6,-3 -5,-10 -9,-23 -14,-5 -96,0 -13,10 -15,29 -12,4 -36,0 -8,-3 -3,-8 2,-12 55,-135 24,-50zM5664,1280l-3,5 -28,73 2,11 6,2 52,0 7,-2 2,-5 -11,-39 -22,-46z"/><path d="M6013,1217l23,-2 16,3 6,11 7,33 -2,113 6,39 6,3 79,2 3,6 -2,29 -10,5 -19,2 -96,0 -28,-6 -3,-12 -1,-79 4,-135z"/><path d="M6666,1233l34,-14 50,-7 33,5 41,17 20,23 2,17 -11,3 -51,-1 -22,-21 -17,-6 -16,4 -11,6 -7,10 -1,11 4,10 8,8 91,30 16,10 15,14 8,17 1,28 -10,28 -30,24 -45,12 -46,0 -39,-12 -11,-7 -11,-10 -17,-23 -2,-12 2,-5 62,-1 17,19 10,6 18,2 12,-2 14,-8 6,-10 1,-12 -6,-11 -27,-13 -68,-20 -13,-7 -22,-22 -7,-34 3,-18 14,-21z"/><path d="M7061,1219l55,-7 68,1 28,5 4,6 4,16 -2,12 -90,2 -9,4 -2,10 1,34 5,7 78,1 9,4 3,10 -5,28 -12,4 -73,1 -5,7 -1,22 1,17 5,11 89,1 11,4 -6,37 -27,5 -134,-3 -4,-10 -4,-90 3,-96 4,-33z"/><path d="M7441,1218l46,-6 46,0 40,5 44,18 13,10 11,17 6,28 -7,28 -25,29 -25,11 -4,6 4,11 40,61 3,12 -5,10 -33,3 -22,-6 -25,-40 -29,-40 -8,-7 -12,-2 -8,4 -1,5 -5,34 -1,45 -17,6 -35,-2 -5,-5 0,-4 -3,-97 1,-79 7,-44zM7493,1257l-4,11 2,45 3,8 62,0 14,-8 8,-15 0,-22 -22,-21 -28,-3 -29,3z"/><path d="M7843,1218l22,-3 17,2 6,6 22,35 49,129 8,11 7,-11 32,-85 29,-63 17,-21 22,-4 20,5 2,26 -5,17 -51,123 -34,71 -22,5 -34,0 -16,-2 -11,-6 -63,-151 -23,-74z"/><path d="M8310,1217l23,-2 16,3 6,11 7,39 -4,180 -3,8 -10,4 -24,1 -19,-2 -5,-5 -5,-96 3,-84 4,-45z"/><path d="M8603,1239l34,-16 62,-11 40,5 35,12 26,15 22,24 3,21 -64,1 -29,-27 -11,-4 -28,-1 -27,5 -29,23 -16,27 0,33 8,23 10,17 20,15 11,4 29,5 28,-6 34,-22 10,-3 52,-1 6,3 0,6 -15,27 -17,17 -19,12 -29,11 -33,7 -41,-1 -27,-6 -30,-12 -16,-11 -21,-21 -24,-40 -5,-34 5,-35 7,-18 22,-30z"/><path d="M9043,1219l55,-7 68,1 28,5 6,11 1,17 -2,6 -90,2 -9,3 -3,11 1,35 5,6 80,2 7,2 2,11 -2,28 -13,4 -73,1 -6,6 -1,23 2,23 5,5 95,2 5,5 0,5 -5,30 -27,5 -134,-2 -6,-11 -4,-90 3,-85 6,-44z"/><path d="M9425,1232l17,-9 67,-11 33,5 41,17 18,22 4,12 -1,6 -10,3 -51,-1 -28,-24 -11,-3 -16,3 -11,5 -8,10 -2,12 3,9 11,10 90,31 17,10 14,14 7,16 2,29 -12,29 -28,22 -45,12 -46,0 -51,-19 -24,-28 -7,-22 61,-3 7,4 10,14 10,7 23,3 12,-2 13,-7 6,-10 0,-12 -8,-12 -22,-12 -68,-20 -14,-7 -22,-22 -8,-28 3,-24 6,-10z"/></g></svg></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.091">Brady Zenger</h3><p>Brady Zenger is the main creator for ZENGERS Digital Services. He is 13, and lives in Brentwood, Tennessee. He started the idea, researched it, and learned how to design and run a business. Jason Zenger, his dad and owner of the million-dollar company, ZENGERS, mentors him on how to run a business and how to have clients. Brady handles everything about the website (basically the whole business), and most communication with customers.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.091">Brady Zenger</h3><p>Brady Zenger is the main creator for ZENGERS Digital Services. He is 13, and lives in Brentwood, Tennessee. He started the idea, researched it, and learned how to design and run a business. Jason Zenger, his dad and owner of the million-dollar company, ZENGERS, mentors him on how to run a business and how to have clients. Brady handles everything about the website (basically the whole business), and most communication with customers.</p></div>
+      <div class="ab-side ab-photo"><img src="media/about-brady.webp" width="1024" height="1024" alt="Brady Zenger and his dad, Jason, on a boat, with a city skyline behind them" loading="lazy" decoding="async"></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
@@ -3854,7 +3865,8 @@ window.__zwdRooms = function(THREE, o){
    WebGL 2 the video plays behind the plain words. The first block, ZENGERS, has the ZENGERS Z beside it in 3D glass, drawn by
    a line of light the first time it shows (see "the logos"; the SVG in the page shows without WebGL 2); the second, ZENGERS
    Digital Services, has the ZENGERS Digital Services logo (the lockup) the same way, its letters written one after
-   another. Tune: LENS, LOGO, LOCKUP. */
+   another; the third, Brady Zenger, has a photo of Brady and Jason in a block of the same glass (the photo). Tune: LENS,
+   LOGO, LOCKUP, PHOTO. */
 (function(){
   "use strict";
   var LENS = {
@@ -3893,6 +3905,14 @@ window.__zwdRooms = function(THREE, o){
       swell: [.48, .62, .8],         // when each part swells to full thickness
       turn: [1.15, 2.1], glint: [1.35, 2.15], line: [1.45, 2.05]
     }
+  };
+  var PHOTO = {            // the photo beside the third heading (Brady Zenger), in a block of the same glass, like a thick acrylic photo block
+    depth: .075,           // its thickness, as a share of its width
+    bevel: .03,            // how round its edges are: the band at the rim where the photo bends
+    corner: .07,           // how round its corners are, as a share of its width
+    frost: .02,            // white in the glass: hardly any, so the photo stays clear
+    turn: [-14, 7], sway: [3, 2], tilt: 5,   // degrees, as the logos
+    timing: { draw: .8, fill: [.45, 1.3], show: [.75, 1.6], swell: .5, turn: [1.05, 1.95], glint: [1.25, 2.05], line: [1.15, 1.75] }   // seconds from when it first shows; show: the photo coming up in the glass
   };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text"), skip = sec.querySelector(".ab-skip");
@@ -4253,6 +4273,122 @@ window.__zwdRooms = function(THREE, o){
     "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
     "}"
   ]).join("\n");
+  // The photo: a block of the same glass with rounded edges and corners, the photo on its back face, seen through the
+  // front as through clear glass; at the rounded rim the light bends hard, so the photo stretches and splits into its
+  // colours there, and where a ray leaves through the side it shows the clouds. The surface reflects the sunset, and
+  // the rim gets the logos' lit edge and Glisse's bands. Its outline is a rounded rectangle, worked out exactly, so the
+  // two lines of light that draw it need no table: how far round the outline the nearest point is (along) is enough.
+  var FS_PHOTO = [
+    "#version 300 es",
+    "precision highp float;",
+    "uniform sampler2D uSky, uPhoto;",
+    "uniform vec4 uMap, uBox;              // stage px -> background uv; the photo's box (px; its width is 1 unit)",
+    "uniform vec2 uView, uLight, uHead0, uHead1;   // the stage's size; the light; where the two lines' heads are (photo units, y up)",
+    "uniform float uDpr, uTop, uCam, uBack, uHalf, uCorner, uH, uR, uW, uFill, uShow, uIor, uDisp, uFrost, uLine, uGlint, uShadow, uDrawn, uPerim;",
+    "uniform mat3 uRot;                    // its turn: its own space -> the view (x right, y up, z toward the eye)",
+    "in vec2 vPx; out vec4 o;",
+    "float px1;                            // one canvas pixel, in photo units",
+    "float rect2(vec2 p){                  // how far p is outside the rounded outline (- inside)",
+    "  vec2 q = abs(p) - vec2(.5, uHalf) + uCorner;",
+    "  return length(max(q, 0.)) + min(max(q.x, q.y), 0.) - uCorner;",
+    "}",
+    "float body(vec3 p){                   // the glass: filled from the outline inward (uFill), uH each side of the middle, edges rounded",
+    "  float d = rect2(p.xy);",
+    "  d = max(d, -d - 2. * uW * uFill);",
+    "  vec2 w = vec2(d + uR, abs(p.z) - uH + uR), m = max(w, 0.);",
+    "  return min(max(w.x, w.y), 0.) + pow(m.x * m.x * m.x + m.y * m.y * m.y, 1. / 3.) - uR;",
+    "}"
+  ].concat(GLASS_3D, [
+    "float along(vec2 q){                  // how far round the outline (clockwise from the top side's left end) the point nearest q is",
+    "  float A = .5 - uCorner, B = uHalf - uCorner, r = max(uCorner, 1e-5), qa = 1.5707963 * r;",
+    "  vec2 c = clamp(q, vec2(-A, -B), vec2(A, B)), v = q - c;",
+    "  if (v.x == 0. && v.y == 0.) { if (uHalf - abs(q.y) < .5 - abs(q.x)) v.y = q.y < 0. ? -1. : 1.; else v.x = q.x < 0. ? -1. : 1.; }   // inside: toward the nearest side",
+    "  if (v.x == 0.) return v.y > 0. ? c.x + A : 2. * A + 2. * qa + 2. * B + (A - c.x);                 // the top or the bottom",
+    "  if (v.y == 0.) return v.x > 0. ? 2. * A + qa + (B - c.y) : 4. * A + 3. * qa + 2. * B + (c.y + B);   // the right or the left",
+    "  float t = atan(v.y, v.x);                                                                         // a corner",
+    "  if (v.x > 0.) return v.y > 0. ? 2. * A + r * (1.5707963 - t) : 2. * A + qa + 2. * B - r * t;",
+    "  return v.y < 0. ? 4. * A + 2. * qa + 2. * B + r * (-1.5707963 - t) : 4. * A + 3. * qa + 4. * B + r * (3.1415927 - t);",
+    "}",
+    "void main(){",
+    "  px1 = 1. / (uBox.z * uDpr);",
+    "  vec2 c = uBox.xy + uBox.zw * .5;",
+    "  vec3 P = vec3((vPx.x - c.x) / uBox.z, -(vPx.y - c.y) / uBox.z, 0.), eye = vec3(0., 0., uCam), rd = normalize(P - eye);",
+    "  mat3 back = transpose(uRot);",
+    "  vec3 ro = back * eye, d1 = back * rd;   // the eye's ray, in the photo's own space",
+    "  float fade = smoothstep(uTop, uTop + .12 * uView.y, vPx.y) * smoothstep(uView.y, .86 * uView.y, vPx.y);",
+    "  vec3 col = vec3(0.); float a = 0.;",
+    "  if (uFill > .001) {",
+    "    vec3 bmax = vec3(.5, uHalf, uH) + px1 * 4., inv = 1. / d1, ta = (-bmax - ro) * inv, tb = (bmax - ro) * inv, tn = min(ta, tb), tf = max(ta, tb);",
+    "    float t0 = max(max(tn.x, tn.y), tn.z), t1 = min(min(tf.x, tf.y), tf.z);",
+    "    if (t0 < t1 && t1 > 0.) {",
+    "      float t = max(t0, 0.), dmin = 1e9, tmin = t; bool hit = false;",
+    "      for (int i = 0; i < 64; i++) {",
+    "        float d = body(ro + d1 * t);",
+    "        if (d < dmin) { dmin = d; tmin = t; }",
+    "        if (d < px1 * .2) { hit = true; break; }",
+    "        t += max(d * .9, px1 * .25);",
+    "        if (t > t1) break;",
+    "      }",
+    "      a = hit ? 1. : clamp(1. - dmin / px1, 0., 1.);       // a ray that just misses: the edge, smoothed",
+    "      if (a > 0.) {",
+    "        vec3 p1 = ro + d1 * (hit ? t : tmin), n1 = nrm(p1);",
+    "        float d2 = rect2(p1.xy);",
+    "        vec3 r1 = refract(d1, n1, 1. / uIor);",
+    "        if (dot(r1, r1) < 1e-6) r1 = reflect(d1, n1);",
+    "        vec3 q = p1 - n1 * px1 * 2.; float k = 0.;",
+    "        for (int i = 0; i < 48; i++) { float d = -body(q + r1 * k); if (d < px1 * .2) break; k += max(d * .9, px1 * .25); }",
+    "        vec3 p2 = q + r1 * k, n2 = nrm(p2);",
+    "        vec3 eta = uIor + vec3(-1., 0., 1.5) * uDisp;",
+    "        bool backFace = n2.z < -.7;                         // out through the back, where the photo is (not through the side)",
+    "        vec3 through = vec3(0.);",
+    "        if (!backFace || uShow < 1.) {                     // the clouds through the glass, as the logos",
+    "          through = vec3(exitAt(d1, n1, p2, n2, eta.r).r, exitAt(d1, n1, p2, n2, eta.g).g, exitAt(d1, n1, p2, n2, eta.b).b);",
+    "          float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.5), 0., 1.);",
+    "        }",
+    "        if (backFace && uShow > 0.) {                      // the photo: each colour where its own ray meets the back",
+    "          vec3 pic;",
+    "          for (int j = 0; j < 3; j++) {",
+    "            vec3 rc = refract(d1, n1, 1. / eta[j]); if (dot(rc, rc) < 1e-6) rc = r1;",
+    "            vec2 at = p1.xy + rc.xy * ((-uH - p1.z) / min(rc.z, -1e-3));",
+    "            pic[j] = texture(uPhoto, vec2(at.x + .5, .5 - at.y / (2. * uHalf)))[j];",
+    "          }",
+    "          through = mix(through, pic, uShow);",
+    "        }",
+    "        through = mix(through, vec3(1.), uFrost);",
+    "        vec3 nv = uRot * n1, rv = reflect(rd, nv);",
+    "        float F = .04 + .96 * pow(1. - max(dot(-rd, nv), 0.), 5.);",
+    "        col = mix(through, env(rv), F);",
+    "        vec2 ns = vec2(nv.x, -nv.y); float tip = length(ns); ns /= max(tip, 1e-4);   // the slope, on the screen",
+    "        float lit = -dot(ns, uLight) * min(tip * 2., 1.), glint = pow(max(lit, 0.), 3.), away = pow(max(-lit, 0.), 3.);",
+    "        float dd = max(-d2, 0.) / max(uR, 1e-4);",
+    "        vec3 bq = (dd - vec3(.18, .42, .66) * 1.3) / .26, bands = exp(-bq * bq);   // Glisse's chromatic bands along the rim",
+    "        float peak = max(bands.r, max(bands.g, bands.b));",
+    "        col = mix(col, .65 + .35 * bands / max(peak, 1e-4), clamp(peak * (.05 + .75 * glint + .3 * away) * .8, 0., 1.));",
+    "        col = 1. - (1. - col) * (1. - .55 * exp(-dd * 2.5) * abs(lit));                // the thin lit edge",
+    "        col += vec3(1., .97, .9) * pow(max(dot(rv, normalize(vec3(-.5, .62, .6))), 0.), 60.) * .9;   // a sparkle from the light",
+    "        col += vec3(1., .95, .85) * exp(-pow((dot(p1.xy, vec2(.876, .482)) - uGlint) / .05, 2.)) * (.25 + .75 * min(tip * 1.5, 1.)) * .9;   // the glint that crosses it once",
+    "      }",
+    "    }",
+    "  }",
+    "  vec3 lc = vec3(0.);                   // the two lines of light that draw it, on its front face: from opposite corners, each round half the outline",
+    "  if (uLine > .001) {",
+    "    vec2 q = (ro + d1 * ((uH - ro.z) / d1.z)).xy;",
+    "    float s = along(q), k0 = mod(s, uPerim), k1 = mod(s - .5 * uPerim, uPerim), gap = 1e9;",
+    "    if (k0 <= uDrawn) gap = uDrawn - k0;",
+    "    if (k1 <= uDrawn) gap = min(gap, uDrawn - k1);",
+    "    float head = min(length(q - uHead0), length(q - uHead1));",
+    "    float A = .5 - uCorner, dist = gap < 1e8 ? abs(rect2(q)) : min(head, min(length(q - vec2(-A, uHalf)), length(q - vec2(A, -uHalf))));",
+    "    float dpx = dist * uBox.z, hpx = head * uBox.z, tail = exp(-gap * gap / .012);   // px from the line; px from its head; its bright tail",
+    "    float core = exp(-dpx * dpx / 1.6), near = exp(-dpx * dpx / 40.), far = exp(-dpx * dpx / 420.);",
+    "    lc = vec3(1., .97, .9) * core * (.8 + 1.3 * tail) + vec3(1., .74, .3) * (near * (.3 + .9 * tail) + far * (.08 + .32 * tail));",
+    "    lc += vec3(1., .9, .72) * (exp(-hpx * hpx / 26.) * 1.5 + exp(-hpx * hpx / 700.) * .45);   // the heads: bright points and their halos",
+    "    lc *= uLine;",
+    "  }",
+    "  float sh = 0.;                        // a soft warm shadow below, as under the words",
+    "  if (uShadow > 0.) sh = uShadow * pow(1. - smoothstep(-.005, .045, rect2(P.xy + vec2(0., .022))), 2.) * (1. - a);",
+    "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
+    "}"
+  ]).join("\n");
   function link(vs, fs){                               // starts making a program (the graphics chip may do it in the background)
     var p = gl.createProgram(), shaders = [];
     [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(function(s){
@@ -4445,7 +4581,7 @@ window.__zwdRooms = function(THREE, o){
   try {
     helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nvar shapeOf = " + shapeOf.toString() + ";\nvar lockOf = " + lockOf.toString() + ";\nself.onmessage = function(e){ var d = e.data, r; if (d.shape) { var f = shapeOf(d.shape.pieces, d.shape.W, d.shape.H, d.shape.sx, d.shape.sy); self.postMessage({ id: d.id, field: f }, [f.buffer]); return; } if (d.lock) { r = lockOf(d.lock.parts, d.lock.W, d.lock.H, d.lock.sx, d.lock.sy, d.lock.M); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); return; } r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
     helper.onmessage = function(e){ var done = jobs[e.data.id]; delete jobs[e.data.id]; if (done) done(e.data.field, e.data.half); };
-    helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); logos.forEach(function(lg){ lg.busy = false; }); if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
+    helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); logos.forEach(function(lg){ if (!lg.photo) lg.busy = false; }); if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
   } catch(e){ helper = null; }
   function build(it){
     var el = it.el, cs = getComputedStyle(el), r = el.getBoundingClientRect();
@@ -4511,12 +4647,13 @@ window.__zwdRooms = function(THREE, o){
   // fill with glass from the edge inward (fill) as it swells to full thickness (swell), it turns a little to show its
   // depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced motion it is
   // simply there. The SVG under it shows where there's no WebGL 2.
-  var logos = [].map.call(sec.querySelectorAll(".ab-logo"), function(el){
-    return { el: el, lock: el.classList.contains("ab-lockup"), tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
+  var logos = [].map.call(sec.querySelectorAll(".ab-logo, .ab-photo"), function(el){
+    var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : "logo";
+    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   });
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
   var LK_TW = 1700, LK_PAD = .03, MAX_GLYPHS = 24;     // the lockup's field: texels across, the room round it (logo widths); the letters and pieces the lines can draw (uGlyph in FS_LOCKUP)
-  if (gl) logos.forEach(function(lg){ lg.el.classList.add("is-glass"); });   // the glass will draw them (the lines, from nothing): the flat logos never show first
+  if (gl) logos.forEach(function(lg){ lg.el.classList.add("is-glass"); });   // the glass will draw them (the lines, from nothing): the flat logos and the plain photo never show first
   function logoFail(lg, e){
     lg.failed = true; lg.making = null;
     lg.el.classList.remove("is-glass");
@@ -4548,9 +4685,24 @@ window.__zwdRooms = function(THREE, o){
     if (parts.length !== 3 || glyphs.length > MAX_GLYPHS) throw new Error("the lockup's SVG needs three groups and at most " + MAX_GLYPHS + " paths");
     return { parts: parts, half: half, sx: sx, sy: sy, W: LK_TW, H: Math.round(LK_TW * sy / sx), ends: ends, info: info, glyphs: glyphs, lefts: lefts, thin: thin, strokes: null };
   }
-  function prepareLogo(lg, mayLink){                   // near the section: its shape, and its program (once it may start)
+  function prepareLogo(lg, mayLink, on){               // near the section: its shape, and its program (once it may start)
     if (lg.failed || !gl) return;
-    if (!lg.tex && !lg.busy) {
+    if (!lg.tex && !lg.busy && lg.photo && on) {         // the photo, once About us shows (not while the film ends): fetched and decoded off the page's thread, then sent to the graphics chip once, with its smaller copies (mipmaps) so it stays smooth when small or turned
+      var img = lg.el.querySelector("img"), src = img.currentSrc || img.src; lg.busy = true;
+      var got = window.createImageBitmap && window.fetch
+        ? fetch(src).then(function(r){ if (!r.ok) throw new Error("the photo: " + r.status); return r.blob(); }).then(function(b){ return createImageBitmap(b); })
+        : new Promise(function(ok, no){ var im = new Image(); im.onload = function(){ ok(im); }; im.onerror = no; im.src = src; });
+      got.then(function(pic){
+        lg.busy = false; if (!gl) return;
+        var t0 = performance.now(), t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pic); gl.generateMipmap(gl.TEXTURE_2D);
+        if (pic.close) pic.close();
+        lg.tex = t; slow.photo = performance.now() - t0; ask();
+      }, function(e){ lg.busy = false; logoFail(lg, e || new Error("the photo didn't load")); });
+    }
+    if (!lg.tex && !lg.busy && !lg.photo) {
       var use, job, r;
       if (!lg.lock) {
         var sx = 1 + 2 * Z_PAD, sy = 2 * Z_HALF + 2 * Z_PAD;
@@ -4579,7 +4731,7 @@ window.__zwdRooms = function(THREE, o){
       }
       if (helper) { lg.busy = true; job.id = nextJob++; jobs[job.id] = use; helper.postMessage(job); }
     }
-    if (mayLink && !lg.prog && !lg.making && !lg.failed) { try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : FS_LOGO); } catch(e){ logoFail(lg, e); } }
+    if (mayLink && !lg.prog && !lg.making && !lg.failed) { try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : FS_LOGO); } catch(e){ logoFail(lg, e); } }
   }
   function logoReady(lg){
     if (lg.making && (!pcx || gl.getProgramParameter(lg.making.p, pcx.COMPLETION_STATUS_KHR))) {
@@ -4587,6 +4739,18 @@ window.__zwdRooms = function(THREE, o){
       lg.making = null;
     }
     return !!(lg.prog && lg.tex);
+  }
+  function edgeAt(s, A, B, r, hh){                     // the point s round the photo's outline (clockwise from the top side's left end; along() in FS_PHOTO), y up
+    var qa = Math.PI / 2 * r, P = 4 * A + 4 * B + 4 * qa, a;
+    s = ((s % P) + P) % P;
+    if (s < 2 * A) return [s - A, hh];
+    if ((s -= 2 * A) < qa) { a = Math.PI / 2 - s / r; return [A + r * Math.cos(a), B + r * Math.sin(a)]; }
+    if ((s -= qa) < 2 * B) return [.5, B - s];
+    if ((s -= 2 * B) < qa) { a = -s / r; return [A + r * Math.cos(a), -B + r * Math.sin(a)]; }
+    if ((s -= qa) < 2 * A) return [A - s, -hh];
+    if ((s -= 2 * A) < qa) { a = -Math.PI / 2 - s / r; return [-A + r * Math.cos(a), -B + r * Math.sin(a)]; }
+    if ((s -= qa) < 2 * B) return [-.5, -B + s];
+    s -= 2 * B; a = Math.PI - s / r; return [-A + r * Math.cos(a), B + r * Math.sin(a)];
   }
   function drawLogo(lg, cr, W, H, s, map, top, warmOnly){   // returns true while it's moving (draw again next frame)
     var r = lg.el.getBoundingClientRect(), bx = r.left - cr.left, by = r.top - cr.top, bw = r.width, bh = r.height, pad = bw * .16;
@@ -4603,7 +4767,7 @@ window.__zwdRooms = function(THREE, o){
         lg.t0 = now;
       }
     }
-    var C = lg.lock ? LOCKUP : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
+    var C = lg.lock ? LOCKUP : lg.photo ? PHOTO : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
     var step = function(a, b){ var x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
     var swellAt = function(a){ var w = t - a; return still ? 1 : w <= 0 ? 0 : 1 - Math.exp(-5.5 * w) * Math.cos(8 * w); };   // a little past full, and back: poured, not built
     var turn = step(T.turn[0], T.turn[1]), sway = still ? 0 : step(T.turn[1] - .1, T.turn[1] + 1.4), deg = Math.PI / 180;
@@ -4622,7 +4786,15 @@ window.__zwdRooms = function(THREE, o){
     gl.uniformMatrix3fv(U.uRot, false, [cy, 0, -sy, sy * sp, cp, cy * sp, sy * cp, -sp, cy * cp]);   // turned (yaw), after tipped (pitch)
     gl.uniform1f(U.uCam, 3.4); gl.uniform1f(U.uBack, .9);                         // the eye 3.4 logo widths away; the clouds as if .9 behind
     gl.uniform1f(U.uIor, LOGO.ior); gl.uniform1f(U.uDisp, LOGO.dispersion); gl.uniform1f(U.uLine, line); gl.uniform1f(U.uGlint, glint);
-    if (!lg.lock) {                                                                 // the Z
+    if (lg.photo) {                                                                 // the photo
+      var hh = bh / bw / 2, rc = PHOTO.corner, eA = .5 - rc, eB = hh - rc, per = 4 * eA + 4 * eB + 2 * Math.PI * rc;
+      var Ld = step(0, T.draw) * per / 2, pf = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), pfill = warmOnly ? 0 : 1 - Math.pow(1 - pf, 3);
+      var ph = PHOTO.depth / 2 * (.35 + .65 * swellAt(T.swell)), h0 = edgeAt(Ld, eA, eB, rc, hh), h1 = edgeAt(Ld + per / 2, eA, eB, rc, hh);
+      gl.uniform1i(U.uPhoto, 1); gl.uniform1f(U.uHalf, hh); gl.uniform1f(U.uCorner, rc);
+      gl.uniform1f(U.uH, ph); gl.uniform1f(U.uR, Math.min(PHOTO.bevel, ph * .95)); gl.uniform1f(U.uW, Math.min(.5, hh) / 2); gl.uniform1f(U.uFill, pfill);
+      gl.uniform1f(U.uShow, warmOnly ? 0 : step(T.show[0], T.show[1])); gl.uniform1f(U.uFrost, PHOTO.frost); gl.uniform1f(U.uShadow, LENS.shadow[0] * pfill);
+      gl.uniform1f(U.uDrawn, Ld); gl.uniform1f(U.uPerim, per); gl.uniform2f(U.uHead0, h0[0], h0[1]); gl.uniform2f(U.uHead1, h1[0], h1[1]);
+    } else if (!lg.lock) {                                                          // the Z
       var drawn = step(0, T.draw), f = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), fill = warmOnly ? 0 : 1 - Math.pow(1 - f, 3);
       var half = LOGO.depth / 2 * (.35 + .65 * swellAt(T.swell));
       gl.uniform4f(U.uShapeMap, 1 / (1 + 2 * Z_PAD), 1 / (2 * Z_HALF + 2 * Z_PAD), .5, .5); gl.uniform1f(U.uHalf, Z_HALF);
@@ -4689,7 +4861,7 @@ window.__zwdRooms = function(THREE, o){
     if (!gl || !near) return;
     if (!built && (!document.fonts || document.fonts.status === "loaded")) rebuild();
     if (queue.length && !pending) work();
-    logos.forEach(function(lg, i){ prepareLogo(lg, !i || !!logos[i - 1].prog || logos[i - 1].failed); });   // the lockup's program once the Z's is made
+    logos.forEach(function(lg, i){ prepareLogo(lg, !i || !!logos[i - 1].prog || logos[i - 1].failed, on); });   // each program once the one before is made
     if (!on) { if (!warmed) warm(); else { var w0 = toWarm(); if (w0) warmLogo(w0); } return; }   // not showing (under the end of the film, or gone by): nothing to draw
     var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
     if (!W || !H || !useSky()) return;
@@ -4739,7 +4911,7 @@ window.__zwdRooms = function(THREE, o){
     fitCanvas(W, H); gl.viewport(0, 0, 1, 1); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex);
     drawLogo(lg, canvas.getBoundingClientRect(), W, H, 1, [1, 1, 0, 0], 0, true);
-    slow[lg.lock ? "warmLockup" : "warmLogo"] = performance.now() - t0;
+    slow[lg.lock ? "warmLockup" : lg.photo ? "warmPhoto" : "warmLogo"] = performance.now() - t0;
   }
   window.addEventListener("scroll", ask, { passive: true });
   var rs = 0;
@@ -4751,10 +4923,10 @@ window.__zwdRooms = function(THREE, o){
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
   window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
-      logo: logoState(logos.filter(function(lg){ return !lg.lock; })[0]), lockup: logoState(logos.filter(function(lg){ return lg.lock; })[0]) }; },
-    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup" or both
+      logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]) }; },
+    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" or all
     logoAgain: function(which){ pick(which).forEach(function(lg){ lg.t0 = performance.now(); lg.at = null; }); ask(); } };   // play the lines again
-  function pick(which){ return logos.filter(function(lg){ return !which || (which === "lockup") === lg.lock; }); }
+  function pick(which){ return logos.filter(function(lg){ return !which || lg.kind === which; }); }
   function logoState(lg){ return lg ? { ready: !!(lg.prog && lg.tex), making: !!lg.making, failed: lg.failed, started: !!lg.t0, t: lg.t0 ? +((performance.now() - lg.t0) / 1000).toFixed(2) : 0, draws: lg.draws, strokes: lg.shape && lg.shape.strokes, thin: lg.shape && lg.shape.thin } : null; }
 })();
 </script>
