@@ -2074,7 +2074,8 @@ window.__zwdIntro3D = function(THREE, intro, on){
    names, logos, cars or people. The camera comes to rest over a little park, facing a row of six narrow two-storey
    houses across the street (o.row), one for each page, left to right, each in its own colours, with its upper window
    lit (o.win; each room's light seen from outside, o.glass). The camera goes in at one of those windows: there a
-   mask, drawn only into the depth buffer, lets that house's room (drawn first) show through.
+   mask, drawn only into the depth buffer, lets that house's room (drawn first) show through. Above the east side, the
+   clouds About us sits in (since 2026-11-07): the flight comes down through them (see "the clouds").
    Units: metres; y up; +z east (the camera comes from there), -z west (downtown), +x north. The sun is low in the
    south-east. Tune: SUN, the fog, DT (how far downtown is), the tree and house counts, LOOK (the six houses). */
 window.__zwdNashville = function(THREE, o){
@@ -2464,21 +2465,114 @@ window.__zwdNashville = function(THREE, o){
     return w;
   });
 
-  // ---------- the cloud the camera comes down out of ----------
-  var puffT = (function(){ var S = 128, c = document.createElement("canvas"); c.width = c.height = S; var x = c.getContext("2d"), d = x.createImageData(S, S);
-    for (var j = 0; j < S; j++) for (var i = 0; i < S; i++) { var u = i / S * 2 - 1, v = j / S * 2 - 1, r = Math.sqrt(u * u + v * v), nn = .5 + .25 * Math.sin(u * 7.3 + Math.cos(v * 5.1) * 2) + .25 * Math.sin(v * 9.1 - u * 3.3);
-      var a = smooth(1, .2, r + (nn - .5) * .45) * (.6 + .4 * nn), k = (j * S + i) * 4; d.data[k] = d.data[k + 1] = d.data[k + 2] = 255; d.data[k + 3] = 255 * Math.max(0, Math.min(1, a)); }
-    x.putImageData(d, 0, 0); var t = new THREE.CanvasTexture(c); textures.push(t); return t; })();
-  var puffs = [];
-  for (i = 0; i < 18; i++) {
-    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffT, color: o.mist, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
-    s.position.set(-250 + rnd() * 600, 180 + rnd() * 320, 450 + rnd() * 700); s.scale.setScalar(140 + rnd() * 200); s.userData.op = .5 + rnd() * .4; s.frustumCulled = false; scene.add(s); puffs.push(s);
+  // ---------- the clouds About us sits in: a deck of cumulus over East Nashville that the camera comes down through ----------
+  // The flight starts inside one of them, all the one colour About us ends in, comes out between them looking down on
+  // the city through the gaps, and drops out under their flat bases with downtown ahead (the "Street" script's flyCam).
+  // They're lit by the same low morning sun as the city (from the south-east, behind the camera): warm white where it
+  // reaches, lavender in their shade and toward their bases, hazed with distance like the city. Each cloud is a dome of
+  // soft puffs drawn as billboards (squares turned to face the camera), sorted far to near each frame they show. They lie
+  // east of the six houses, 440 to about 800 m up, so from the street (looking west) they're out of sight. mistAt says how
+  // deep in cloud a point is, for the cloud-coloured veil while the camera is inside one. Their own random numbers, so the
+  // city is the same as before.
+  var CLOUD = { base: 440, lit: [1, .95, .88], shade: [.77, .75, .87], under: [.63, .64, .77], haze: [.8, .77, .84], fog: .00026 };   // colours as they show (no tone mapping): sunlit, in shade, the bases
+  var cseed = 2026; function crnd(){ cseed = (cseed * 16807) % 2147483647; return (cseed - 1) / 2147483646; }
+  var SN = new V3(ROW.x, G + 13, ROW.z + 62), DIR = o.p0.clone().sub(SN).normalize();   // the flight's line, from the street's camera up through o.p0
+  function onLine(D){ return SN.clone().addScaledVector(DIR, D); }
+  var puffs = [];                                           // x, y, z, width, height, shade (0 at the base, 1 at the top), opacity
+  function cloud(cx, cz, top, rx, rz, n, op){               // one cumulus: a flat base of wide puffs, a dome of round ones over it
+    var base = CLOUD.base + (crnd() - .5) * 24, hgt = top - base;
+    for (var i = 0; i < n; i++) {
+      var an = crnd() * Math.PI * 2, r = Math.sqrt(crnd()), px = cx + Math.cos(an) * r * rx, pz = cz + Math.sin(an) * r * rz, flat = i < n * .35;
+      var size = hgt * (flat ? .75 + .35 * crnd() : .5 + .4 * crnd()) * (1.15 - .35 * r);
+      var y = flat ? base + size * .16 : base + size * .3 + (hgt - size * .55) * (1 - r * r) * (.45 + .55 * crnd());
+      puffs.push([px, y, pz, size * (flat ? 1.55 : 1), size * (flat ? .55 : 1), Math.max(0, Math.min(1, (y - base) / hgt)), op]);
+    }
   }
+  var start = onLine(o.top);
+  var home = onLine(o.top + 115); cloud(home.x - 10, home.z, home.y + 140, 200, 190, 30, 1);   // the one the flight starts in, a little inside its near edge
+  var near = [[300, 1480, 650, 150, 130, 18], [-290, 1330, 610, 140, 150, 16], [310, 1080, 640, 170, 150, 16], [-280, 1660, 700, 130, 120, 13]];   // x off the line, z, top, size across, along, puffs
+  near.forEach(function(c){ var p = onLine(Math.max(0, (c[1] - SN.z) / DIR.z)); cloud(p.x + c[0], c[1], c[2], c[3], c[4], c[5], .95); });   // ones it passes close by, either side
+  [[-330, 1180, 540], [300, 980, 520], [-260, 860, 560], [420, 1300, 580], [40, 820, 500]].forEach(function(c){ var p = onLine(Math.max(0, (c[1] - SN.z) / DIR.z)); cloud(p.x + c[0], c[1], c[2], 150, 140, 12, .95); });   // and lower ones ahead, their tops below it, the city between them
+  for (var gz = 780; gz < 4800; gz += 430) for (var gx = -1800; gx < 1900; gx += 430) {   // the rest of the deck, with gaps
+    var cx = gx + (crnd() - .5) * 300, cz = gz + (crnd() - .5) * 300, lp = onLine(Math.max(0, (cz - SN.z) / DIR.z));
+    if (crnd() < .35 || (Math.abs(cx - lp.x) < 380 && cz > 950 && cz < 2150)) continue;   // a gap, or too near the flight's line
+    var big = .7 + crnd() * .6, far = Math.hypot(cx - start.x, cz - start.z) > 1600;
+    cloud(cx, cz, CLOUD.base + (130 + crnd() * 230) * big, 170 * big, 150 * big, far ? 7 : 11, .95);
+  }
+  var NP = puffs.length;
+  var puffT = (function(){                                   // a soft billowy puff: its density (alpha) and a little light and shade inside it (red)
+    var S = 128, d = new Uint8Array(S * S * 4);
+    function h(x, y){ var s2 = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s2 - Math.floor(s2); }
+    function vn(x, y){ var ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+      return (h(ix, iy) * (1 - fx) + h(ix + 1, iy) * fx) * (1 - fy) + (h(ix, iy + 1) * (1 - fx) + h(ix + 1, iy + 1) * fx) * fy; }
+    function fbm(x, y){ return vn(x, y) * .5 + vn(x * 2.1, y * 2.1) * .27 + vn(x * 4.3, y * 4.3) * .15 + vn(x * 8.7, y * 8.7) * .08; }
+    for (var j = 0; j < S; j++) for (var i = 0; i < S; i++) {
+      var u = i / S * 2 - 1, v = j / S * 2 - 1, r = Math.sqrt(u * u + v * v), n1 = fbm(u * 3 + 7, v * 3 + 3), n2 = fbm(u * 6 - 2, v * 6 + 9);
+      var a = smooth(.96, .72, r + (n1 - .5) * .45) * (.9 + .1 * n2), k = (j * S + i) * 4;
+      d[k] = 255 * Math.max(0, Math.min(1, .5 + (n2 - .5) * 1.4 - v * .3)); d[k + 1] = d[k + 2] = 0; d[k + 3] = 255 * Math.max(0, Math.min(1, a));
+    }
+    var t = new THREE.DataTexture(d, S, S, THREE.RGBAFormat); t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.needsUpdate = true; textures.push(t); return t;
+  })();
+  var quad = new THREE.PlaneGeometry(1, 1), pg = new THREE.InstancedBufferGeometry();
+  pg.index = quad.index; pg.setAttribute("position", quad.attributes.position);
+  var aPos = new THREE.InstancedBufferAttribute(new Float32Array(NP * 3), 3), aSize = new THREE.InstancedBufferAttribute(new Float32Array(NP * 2), 2), aMore = new THREE.InstancedBufferAttribute(new Float32Array(NP * 3), 3);
+  [aPos, aSize, aMore].forEach(function(at){ at.setUsage(THREE.DynamicDrawUsage); });
+  pg.setAttribute("iPos", aPos); pg.setAttribute("iSize", aSize); pg.setAttribute("iMore", aMore); pg.instanceCount = NP;
+  var turns = puffs.map(function(){ return crnd() * Math.PI * 2; });
+  var cloudMat = new THREE.ShaderMaterial({
+    uniforms: { uMap: { value: puffT }, uSunV: { value: new V3() }, uUpV: { value: new V3() }, uLit: { value: new V3().fromArray(CLOUD.lit) }, uShade: { value: new V3().fromArray(CLOUD.shade) },
+      uUnder: { value: new V3().fromArray(CLOUD.under) }, uHaze: { value: new V3().fromArray(CLOUD.haze) }, uFog: { value: CLOUD.fog }, uCamY: { value: 0 } },
+    vertexShader: "uniform float uCamY;attribute vec3 iPos;attribute vec2 iSize;attribute vec3 iMore;varying vec2 vUv,vQ;varying float vShade,vAlpha,vDepth,vSize;" +
+      "void main(){vec4 mv=modelViewMatrix*vec4(iPos,1.0);vec2 q=position.xy;mv.xy+=q*iSize;vQ=q*2.0;" +
+      "float c=cos(iMore.z),s=sin(iMore.z);vUv=vec2(c*q.x-s*q.y,s*q.x+c*q.y)+.5;vAlpha=iMore.y;vDepth=-mv.z;vSize=max(iSize.x,iSize.y);" +
+      "vShade=mix(iMore.x,1.0,clamp((uCamY-iPos.y)/iSize.y,0.0,1.0));" +                       // seen from above, a cloud is its sunlit top, not its shaded base
+      "gl_Position=projectionMatrix*mv;}",
+    fragmentShader: "uniform sampler2D uMap;uniform vec3 uSunV,uUpV,uLit,uShade,uUnder,uHaze;uniform float uFog;varying vec2 vUv,vQ;varying float vShade,vAlpha,vDepth,vSize;" +
+      "void main(){vec4 t=texture2D(uMap,vUv);" +
+      "float a=t.a*vAlpha*smoothstep(.03,.24,vDepth/vSize);" +                                 // fades only as the camera reaches it (it flies out of the first one)
+      "if(a<.003)discard;" +
+      "vec3 n=normalize(vec3(vQ,sqrt(max(.04,1.0-dot(vQ,vQ)))));" +                           // each puff shaded as a ball facing the camera
+      "float sun=clamp(dot(n,uSunV),0.0,1.0),up=clamp(dot(n,uUpV)*.5+.5,0.0,1.0);" +
+      "float lit=clamp((.5+.45*sun+.2*up)*(.82+.36*(t.r-.5))*(.72+.28*vShade),0.0,1.0);" +
+      "vec3 c=mix(uShade,uLit,lit);c=mix(uUnder,c,smoothstep(0.0,.4,vShade));" +              // the flat base in its own shade
+      "float f=1.0-exp(-pow(uFog*vDepth,2.0));" +                                                // the haze, as the city's
+      "gl_FragColor=vec4(mix(c,uHaze,f),a);}",
+    transparent: true, depthWrite: false, fog: false
+  });
+  var deck = new THREE.Mesh(pg, cloudMat); deck.frustumCulled = false; deck.renderOrder = 3; scene.add(deck);
+  var order = puffs.map(function(_, i){ return i; }), depthOf = new Float32Array(NP), fwd = new V3(), tmp3 = new V3();
+  function placeClouds(cam){                                 // far to near, and the ones behind the camera left out
+    cam.getWorldDirection(fwd); var cp = cam.position, n = 0;
+    for (var i = 0; i < NP; i++) { var q = puffs[i]; depthOf[i] = (q[0] - cp.x) * fwd.x + (q[1] - cp.y) * fwd.y + (q[2] - cp.z) * fwd.z; }
+    for (var a1 = 1; a1 < NP; a1++) {                       // far to near, sorted in place: the order hardly changes from frame to frame, so this is quick and leaves no garbage
+      var v1 = order[a1], d1 = depthOf[v1], b1 = a1 - 1;
+      while (b1 >= 0 && depthOf[order[b1]] < d1) { order[b1 + 1] = order[b1]; b1--; }
+      order[b1 + 1] = v1;
+    }
+    for (var j = 0; j < NP; j++) {
+      var k = order[j], q2 = puffs[k]; if (depthOf[k] < -q2[3]) break;
+      if (depthOf[k] < q2[3] * .03) continue;               // right at the camera: faded out (the shader), so not drawn at all
+      aPos.array[n * 3] = q2[0]; aPos.array[n * 3 + 1] = q2[1]; aPos.array[n * 3 + 2] = q2[2]; aSize.array[n * 2] = q2[3]; aSize.array[n * 2 + 1] = q2[4];
+      aMore.array[n * 3] = q2[5]; aMore.array[n * 3 + 1] = q2[6]; aMore.array[n * 3 + 2] = turns[k]; n++;
+    }
+    pg.instanceCount = n; aPos.needsUpdate = aSize.needsUpdate = aMore.needsUpdate = true;
+    cam.updateMatrixWorld(); var vi = cam.matrixWorldInverse;
+    cloudMat.uniforms.uSunV.value.copy(SUN).transformDirection(vi); cloudMat.uniforms.uUpV.value.set(0, 1, 0).transformDirection(vi); cloudMat.uniforms.uCamY.value = cp.y;
+  }
+  function mistAt(p){                                        // how deep in cloud p is: 1 inside one, 0 in the clear
+    var m = 0;
+    for (var i = 0; i < NP; i++) { var q = puffs[i], r = q[3] * .5, dx = p.x - q[0], dy = (p.y - q[1]) * q[3] / q[4], dz = p.z - q[2];
+      if (Math.abs(dx) > r || Math.abs(dz) > r || Math.abs(dy) > r) continue;
+      m += q[6] * smooth(r * .85, r * .35, Math.sqrt(dx * dx + dy * dy + dz * dz)); }
+    return Math.min(1, m);
+  }
+  placeClouds({ position: start, getWorldDirection: function(v){ return v.set(0, -.4, -1).normalize(); }, updateMatrixWorld: function(){}, matrixWorldInverse: new THREE.Matrix4() });   // filled once, so it compiles and draws ready
 
   // ---------- each frame: k is how far the flight is through the city (0 → 1); open: the houses whose rooms are drawn ----------
   function update(k, cam, open){
     sky.position.copy(cam.position);
-    puffs.forEach(function(s){ s.material.opacity = s.userData.op * (1 - smooth(.03, .25, k)); s.visible = k < .25; });
+    deck.visible = cam.position.y > 180;                     // the clouds only matter up there (never from the street or a room)
+    if (deck.visible) placeClouds(cam);
     ways.forEach(function(w, i){
       var d = cam.position.distanceTo(w.c), on = !!open && open.indexOf(i) >= 0;
       w.mask.visible = on; w.glass.material.opacity = on ? smooth(5, 30, d) : 1;
@@ -2486,7 +2580,7 @@ window.__zwdNashville = function(THREE, o){
       w.glow.material.opacity = .45 * smooth(12, 90, d); w.glow.scale.setScalar(Math.max(1.5, d * .02));
     });
   }
-  return { scene: scene, update: update, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
+  return { scene: scene, update: update, mistAt: mistAt, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
 };
 </script>
 
@@ -3143,8 +3237,10 @@ window.__zwdRooms = function(THREE, o){
    Right after the mountain film's summit, once the visitor scrolls on, the film's camera rises by itself into the
    morning cloud (FLY; the film draws that) and the page carries on into About us (the "About" script), which sits in
    that cloud: six headings and paragraphs in glass letters over clouds at sunset, scrolled through as usual. After
-   its last words a flight plays by itself: out of the cloud over East Nashville at sunrise (the "Nashville, 3D" script)
-   to a little park, facing a row of six houses across the street with downtown behind them. There it stops, and
+   its last words a flight plays by itself (about 10 seconds, since 2026-11-07): from inside the cloud, down through a
+   deck of sunlit clouds over East Nashville at sunrise (the "Nashville, 3D" script), looking down at the city through
+   the gaps, out under them with downtown ahead, and down to a little park, facing a row of six houses across the street
+   with downtown behind them. There it stops, and
    "WEBSITES FOR BUSINESSES IN NASHVILLE" is sprayed across the sky in gold.
    Each house is a page, labelled left to right in the menu's order: Services, Why it matters, Why choose us?, Process,
    Pricing, Examples. Clicking a house or its label (or a menu link) flies the camera in at the house's upper window to
@@ -3164,7 +3260,7 @@ window.__zwdRooms = function(THREE, o){
    screen fills). __zwdDevices.state() in the browser console shows where it is. */
 (function(){
   "use strict";
-  var FLY = { hold: .3, rise: 1, city: 2.2, band: .3, secs: 7.2, back: .5 };   // a hold at the summit; the rise (in the film) and Nashville, in screens, play by themselves at secs per rise + city; back in half the time
+  var FLY = { hold: .3, rise: 1, city: 4, band: .3, pace: 2.25, back: .5, top: 1900, ease: 3 };   // a hold at the summit; the rise (in the film) and Nashville, in screens of scroll; they play by themselves at pace seconds a screen (Nashville, 4 screens: about 9 s), back in half the time; top: how far up the flight's line it starts (m), in the clouds; ease: how gently it sets off and lands
   var STOP = .9;                              // scroll room at the street, in screen heights, before the page carries on
   var MOVE = { dive: 2.3, out: 1.8, hop: [1.3, 1.9] };   // seconds: in at a window, out to the street, from house to house (out, in)
   var FRAME = { wide: { fov: 33, across: 61, h: 13, base: .87 }, tall: { fov: 42, perPx: 1 / 19, min: 19.5, h: 12, base: .9 } };   // the street at rest: lens, metres across at the houses, camera height, where the houses' feet sit
@@ -3216,7 +3312,8 @@ window.__zwdRooms = function(THREE, o){
     var cam = new THREE.PerspectiveCamera(FOV, 1, .01, 30);
 
     // ---------- Nashville, the six houses, and their rooms (the "Nashville, 3D" and "Rooms, 3D" scripts) ----------
-    var city = window.__zwdNashville(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, fine: Math.min(screen.width, screen.height) >= 700 });
+    var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), DOWN = new V3(50, GROUND, -600), APP = new V3(0, .32, 1).normalize();   // the flight (see flyCam)
+    var city = window.__zwdNashville(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700 });
     var houses = city.houses, maker = window.__zwdRooms(THREE, { renderer: renderer }), rooms = [], lit = {};
     var wins = houses.map(function(h){ return new V3(h.win.x, h.win.y, h.win.z); });
     function room(i){                                   // built the first time it's needed, then kept
@@ -3328,7 +3425,7 @@ window.__zwdRooms = function(THREE, o){
       // its veil closes / the flight over Nashville / the street (a still band, then STOP) / the page carries on.
       // Two moves play by themselves: the rise, from the summit to About us's first words, and Nashville, from its last
       // words to the street.
-      var R = FLY.rise * vpH, Hd = FLY.hold * vpH, pace = FLY.secs / (FLY.rise + FLY.city);   // seconds a screen
+      var R = FLY.rise * vpH, Hd = FLY.hold * vpH, pace = FLY.pace;   // seconds a screen
       film.dataset.tail = Hd + R; film.dataset.rise = R; film.style.setProperty("--film-tail", (Hd + R) + "px");
       about.style.marginTop = -vpH + "px";
       abZ = parseFloat(getComputedStyle(about.querySelector(".ab-text")).paddingTop) || vpH / 2; abA = about.offsetHeight - vpH;
@@ -3384,14 +3481,20 @@ window.__zwdRooms = function(THREE, o){
     function smooth(a, b, x){ var t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); }
     function inOut(t){ t = clamp(t); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
-    // ---------- the flight: out of the cloud over East Nashville, looking at downtown, then down to the park facing the
-    // six houses, slowing into the stop ----------
-    var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), APP = new V3(0, .32, 1).normalize();
+    // ---------- the flight: from inside the cloud About us sits in, down through the clouds over East Nashville (looking down
+    // at the city through the gaps), out under their flat bases with downtown ahead, then down to the park facing the six
+    // houses, slowing into the stop. All on one line from the street's camera up through P0 and on into the clouds
+    // (FLY.top m out); D is how far out along it the camera is. Below P0 it's the approach as it was: the line bends round
+    // to come in from just above the park (APP), the camera turns from downtown to the houses and its lens narrows. The
+    // time: it sets off gently from rest inside the cloud, is quickest coming out of the clouds, and slows a long way into
+    // the stop (FLY.ease; about 140 m/s as it sets off, 350 at most, the last 4 seconds slowing in). The same moment of the
+    // morning throughout: the clouds are lit by the city's sun ----------
     function flyCam(k){
-      var S = street(panX), wide = tall ? 58 : 40, u = 1 - Math.pow(1 - k, 2.4);
-      var a = 26, D0 = P0.distanceTo(S.pos), D = (D0 + a) * Math.pow(a / (D0 + a), u) - a;
+      var S = street(panX), wide = tall ? 58 : 40, n = FLY.ease, q = clamp(k), e = .22 * (1 - (1 - q) * (1 - q)) + .78 * (1 - Math.pow(1 - q, n) * (1 + n * q));   // already moving as About us ends; quickest coming out under the clouds; a long, slow landing
+      var a = 26, D0 = P0.distanceTo(S.pos), D = FLY.top * (1 - e), u = D >= D0 ? 0 : Math.log((D0 + a) / (D + a)) / Math.log((D0 + a) / a);
       var dir = P0.clone().sub(S.pos).normalize().lerp(APP, smooth(0, .85, u)).normalize();
-      return { pos: S.pos.clone().addScaledVector(dir, D), target: TD.clone().lerp(S.target, smooth(.3, 1, u)), up: UP, fov: wide + (S.fov - wide) * smooth(.25, 1, u) };
+      var look = DOWN.clone().lerp(TD, smooth(1450, 800, D));   // down at the city through the clouds; up to downtown as it comes out under them
+      return { pos: S.pos.clone().addScaledVector(dir, D), target: look.lerp(S.target, smooth(.3, 1, u)), up: UP, fov: wide + (S.fov - wide) * smooth(.25, 1, u) };
     }
     // ---------- in at a window: from a street pose S toward house i's upper window, the distance falling away
     // exponentially, through it, and on to the device (k 0 → 1). Out is the same path backwards ----------
@@ -3428,7 +3531,7 @@ window.__zwdRooms = function(THREE, o){
       if (cur <= 0) return null;
       if (cur < 1) {                                      // the flight over Nashville, out of the cloud About us ends in
         var k = cur, fc = flyCam(k);
-        return { pose: fc, fov: fc.fov, fly: k, mist: 1 - smooth(0, .12, k), open: [], out: true, win: -1 };
+        return { pose: fc, fov: fc.fov, fly: k, mist: Math.max(city.mistAt(fc.pos), 1 - smooth(0, .1, k)), open: [], out: true, win: -1 };   // inside a cloud: its colour, the colour About us ends in, thinning as it comes out
       }
       var S = street(panX); return { pose: S, fov: S.fov, open: [], out: true, win: -1, street: true };
     }
@@ -3453,7 +3556,8 @@ window.__zwdRooms = function(THREE, o){
           (v.open || []).forEach(function(i){ var r = winRect(i); if (!r) return; renderer.setScissorTest(true); renderer.setScissor(r[0], r[1], r[2], r[3]); drawScene(room(i).scene); drew = true; });
           renderer.setScissorTest(false);
           if (drew) { renderer.autoClear = false; renderer.clearDepth(); }
-          drawScene(city.scene); renderer.autoClear = true;
+          if (v.mist < .999) drawScene(city.scene); else renderer.clear();   // deep in the cloud only its colour shows: nothing else to draw
+          renderer.autoClear = true;
           if (v.mist > 0) { renderer.autoClear = false; mistQuad.material.opacity = v.mist; renderer.render(mistScene, flatCam); renderer.autoClear = true; }
         }
       }
