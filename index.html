@@ -3556,7 +3556,7 @@ window.__zwdRooms = function(THREE, o){
           (v.open || []).forEach(function(i){ var r = winRect(i); if (!r) return; renderer.setScissorTest(true); renderer.setScissor(r[0], r[1], r[2], r[3]); drawScene(room(i).scene); drew = true; });
           renderer.setScissorTest(false);
           if (drew) { renderer.autoClear = false; renderer.clearDepth(); }
-          if (v.mist < .999) drawScene(city.scene); else renderer.clear();   // deep in the cloud only its colour shows: nothing else to draw
+          if (!(v.mist >= .999)) drawScene(city.scene); else renderer.clear();   // deep in the cloud only its colour shows: nothing else to draw (no veil at all, as on the street and going in at a window: draw)
           renderer.autoClear = true;
           if (v.mist > 0) { renderer.autoClear = false; mistQuad.material.opacity = v.mist; renderer.render(mistScene, flatCam); renderer.autoClear = true; }
         }
