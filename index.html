@@ -367,6 +367,10 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 .ab-photo{order:-1;width:min(64vw,300px);margin:0 auto clamp(20px,4vh,36px)}
 .ab-photo img{display:block;width:100%;height:auto;border-radius:7%}
 .ab-photo.is-glass img{opacity:0}
+/* The puzzle beside the fifth heading (What makes us different): four pieces drawn in 3D glass by the "About" script
+   over the SVG's box ("the puzzle"; the SVG shows, flat, without WebGL 2). Its last piece comes in from beyond the
+   box's top right, so the box is a little smaller than the logos'. Above the heading on narrow screens. */
+.ab-logo.ab-puzzle{width:min(58vw,240px)}
 /* From 900 px wide: the words in the left half of the site's column (lined up with the logo), the right half for
    the block's .ab-side (the Z in the first block). The heading size fills the half: "PLACEHOLDER" is 4.77 times its
    size wide. Narrower screens keep the centred words. */
@@ -377,13 +381,16 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
   .ab-side{grid-column:2;grid-row:1;justify-self:center}
   .ab-logo{order:0;width:min(100%,480px);margin:0}
   .ab-logo.ab-lockup{width:min(100%,560px)}
-  .ab-photo{order:0;width:min(100%,380px,calc(50vh - 44px));width:min(100%,380px,calc(50lvh - 44px));margin:0}   /* fits the clear band with room to spare, even on a short laptop screen */
+  .ab-photo{order:0;width:min(100%,380px,calc(50vh - 44px));width:min(100%,380px,calc(50lvh - 44px));margin:0}
+  .ab-logo.ab-puzzle{width:min(100%,360px,calc(50vh - 60px));width:min(100%,360px,calc(50lvh - 60px))}   /* fits the clear band with room to spare, even on a short laptop screen */
   .ab-block h3{font-size:clamp(56px,8.6vw,104px)}
   .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(18px,1.4vw,21px)}   /* a paragraph of about 110 words fits a laptop's screen, about 50 letters a line */
   /* A heading that would break badly at the full size (.ab-fit) gets the size where its longest line fills the half,
      with 3.6% to spare: --fit (set on the heading) is that line's width in ems; cqw are hundredths of the half's width.
      "ZENGERS Digital Services" (its line "ZENGERS DIGITAL", 5.876) goes on two lines, so its block fits a laptop's
-     screen; "Brady Zenger" (5.091) and "Jason Zenger" (5.173) stay on one. Measure again if the words change. Without container units they keep
+     screen; "Brady Zenger" (5.091) and "Jason Zenger" (5.173) stay on one. "What makes us different" goes on two at the
+     same size as "ZENGERS Digital Services" (it borrows its 5.876; its own longer line, "US DIFFERENT", is 4.763), so the
+     two two-line headings match and its block fits a laptop's screen. Measure again if the words change. Without container units they keep
      the size above. */
   .ab-copy{container-type:inline-size}
   @supports (width:1cqw){.ab-block h3.ab-fit{font-size:min(104px,calc(96.4cqw / var(--fit)))}}
@@ -922,7 +929,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 
 <!-- ============================ ABOUT US ============================
      In the cloud between the mountain film and the street (the "About" script and the "about us" styles). Six
-     headings and paragraphs (the first block's words are Jason's, 2026-11-05; the second block's are Jason's, 2026-11-06; the third's, Brady Zenger, the founder (his name and age, as AGENTS.md asks), are Jason's, 2026-11-07; the fourth's, Jason Zenger, are Jason's, 2026-11-08; the last two are placeholders until written), drawn in liquid glass letters over a looping
+     headings and paragraphs (the first block's words are Jason's, 2026-11-05; the second block's are Jason's, 2026-11-06; the third's, Brady Zenger, the founder (his name and age, as AGENTS.md asks), are Jason's, 2026-11-07; the fourth's, Jason Zenger, are Jason's, 2026-11-08; the fifth's, What makes us different, are Jason's, 2026-11-08; the last is a placeholder until written), drawn in liquid glass letters over a looping
      video of clouds at sunset. The first block is ZENGERS, with the ZENGERS Z beside it in 3D glass (drawn by a line of
      light the first time it shows); the SVG is the logo for browsers without WebGL 2, traced from the logo Jason sent
      on 2026-11-05 (black top piece #101113, blue bottom piece #11448E). The second block is ZENGERS Digital Services,
@@ -936,6 +943,10 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
      and stays in the page (invisible) for screen readers. The fourth, Jason Zenger, has Jason's portrait beside it the
      same way (Jason, 2026-11-08; media/about-jason.webp, cropped square to his head and shoulders from a portrait by
      Sara Warren Photography; the file keeps only the photographer's credit and copyright, nothing else).
+     The fifth, What makes us different, has a puzzle beside it in the same 3D glass (Jason, 2026-11-08): four pieces in
+     a 2 x 2 pinwheel, the last (top right) going into place. Its SVG is both the flat puzzle without WebGL 2 and the
+     shape the glass is made from, as the lockup's: made by resources/puzzle-shape/make.py, 10,000 units across, one
+     group per piece (top left, top right, bottom right, bottom left), one path each, starting at the middle.
      "I don't want to read" (.ab-skip, Jason, 2026-11-06): shown at the bottom right while the words are on screen (the
      "About" script). With the 3D street, the "Street" script plays the flight over Nashville from its start; without
      it, the link goes on to Services, the next section. -->
@@ -956,7 +967,8 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       <div class="ab-side ab-photo"><img src="media/about-brady.webp" width="1024" height="1024" alt="Brady Zenger and his dad, Jason, on a boat, with a city skyline behind them" loading="lazy" decoding="async"></div></div>
     <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.173">Jason Zenger</h3><p>Jason Zenger is Brady Zenger’s dad, who gave Brady the resources and mentorship to start the business. He is the owner of ZENGERS and has been improving it for about 15 years. Jason and his family now live in Brentwood, Tennessee and moved from Chicago where ZENGERS operates. He manages financials and some logistics and customer interactions for ZENGERS Digital Services.</p></div>
       <div class="ab-side ab-photo"><img src="media/about-jason.webp" width="1024" height="1024" alt="Jason Zenger, smiling, outdoors with trees behind him" loading="lazy" decoding="async"></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.876">What makes us different</h3><p>ZENGERS Digital Services is the best for you if you don’t know how to build a website, don’t know what to do or where to start, don’t need expensive workflows and strategies, don’t have time to manage a website, don’t know how managing a website works, have a business that needs a functional website that will have changes, want a thoughtful and well designed website, want to work with real people that are locally in your area, and want a reliable team that will manage, build, and thoughtfully design and make your business digitally amazing. You can’t get all this (especially for the price) anywhere other than ZENGERS Digital Services.</p></div>
+      <div class="ab-side ab-logo ab-puzzle" aria-hidden="true"><svg viewBox="0 0 10000 10000" focusable="false" stroke="#F2E6D8" stroke-width="45" stroke-linejoin="round"><g fill="#0A2A5C"><path d="M4965,4965l-18,15 -21,11 -23,7 -23,3 -2,1 -31,2 -32,1 -31,2 -32,2 -32,3 -32,2 -33,3 -32,3 -33,3 -32,3 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -33,4 -32,4 -33,5 -33,4 -33,4 -33,4 -32,4 -33,4 -32,4 -32,4 -32,4 -32,4 -32,4 -31,3 -31,4 -31,3 -31,3 -31,4 -30,2 -30,3 -29,3 -30,2 -29,2 -28,2 -28,2 -35,1 -34,2 -34,0 -32,1 -32,-1 -31,-1 -31,-1 -29,-2 -29,-2 -28,-4 -32,-4 -31,-6 -30,-7 -28,-8 -26,-9 -29,-12 -27,-14 -25,-15 -22,-18 -22,-22 -19,-25 -15,-27 -11,-26 -8,-29 -5,-31 -2,-28 1,-30 2,-32 5,-28 5,-29 8,-31 9,-32 11,-33 10,-28 11,-29 12,-29 13,-31 15,-31 16,-33 16,-33 14,-32 12,-31 11,-31 10,-30 7,-29 7,-29 5,-28 4,-34 3,-33 0,-32 -2,-31 -3,-30 -6,-29 -7,-28 -9,-27 -13,-31 -15,-29 -18,-28 -19,-27 -22,-25 -23,-23 -25,-22 -26,-21 -23,-16 -24,-15 -25,-14 -26,-13 -27,-12 -27,-10 -28,-10 -29,-9 -29,-8 -30,-6 -30,-6 -30,-5 -30,-3 -31,-3 -31,-1 -31,-1 -31,1 -31,1 -31,3 -30,3 -30,5 -30,6 -30,6 -29,8 -29,9 -28,10 -27,10 -27,12 -26,13 -25,14 -24,15 -23,16 -26,21 -25,22 -23,23 -22,25 -19,27 -18,28 -15,29 -13,31 -9,27 -7,28 -6,29 -3,30 -2,31 0,32 3,33 4,34 5,28 7,29 7,29 10,30 11,31 12,31 14,32 16,33 16,33 15,31 13,31 12,29 11,29 10,28 9,26 10,33 7,31 6,29 5,29 3,32 1,30 -2,29 -4,31 -8,29 -10,26 -15,28 -18,25 -22,23 -22,17 -24,16 -27,14 -28,12 -31,11 -28,8 -30,7 -31,6 -32,4 -28,4 -29,2 -29,2 -31,1 -31,1 -32,1 -32,-1 -34,0 -34,-2 -35,-1 -28,-2 -28,-2 -29,-2 -30,-2 -29,-3 -30,-3 -30,-2 -31,-4 -31,-3 -31,-3 -31,-4 -31,-3 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -33,-4 -32,-4 -33,-4 -33,-4 -33,-4 -33,-5 -32,-4 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -32,-3 -33,-3 -32,-3 -33,-3 -32,-2 -32,-3 -32,-2 -31,-2 -32,-1 -31,-2 -2,-1 -23,-3 -23,-7 -21,-11 -18,-15 -15,-18 -11,-21 -7,-22 -2,-24 0,-4480 1,-26 2,-26 5,-26 6,-26 7,-25 9,-24 11,-24 13,-23 13,-22 16,-22 16,-20 18,-19 19,-18 20,-16 22,-16 22,-13 23,-13 24,-11 24,-9 25,-7 26,-6 26,-5 26,-2 26,-1 4480,0 23,2 23,7 20,11 18,15 15,19 11,20 7,23 2,23 -1,2 -2,31 -1,32 -2,31 -2,32 -3,32 -2,32 -3,33 -3,32 -3,33 -3,32 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -4,33 -4,32 -5,33 -4,33 -4,33 -4,33 -4,32 -4,33 -4,32 -4,32 -4,32 -4,32 -4,32 -3,31 -4,31 -3,31 -3,31 -4,31 -2,30 -3,30 -3,29 -2,30 -2,29 -2,28 -2,28 -1,35 -2,34 0,34 -1,32 1,32 1,31 1,31 2,29 2,29 4,28 4,32 6,31 7,30 8,28 9,26 12,29 14,27 15,25 18,22 22,22 25,19 27,15 26,11 29,8 31,5 28,2 30,-1 32,-2 28,-5 29,-5 31,-8 32,-9 33,-11 28,-10 29,-11 29,-12 31,-13 31,-15 33,-16 33,-16 32,-14 31,-12 31,-11 30,-10 29,-7 29,-7 28,-5 34,-4 33,-3 32,0 31,2 30,3 29,6 28,7 27,9 31,13 29,15 28,18 27,19 25,22 23,23 22,25 21,26 16,23 15,24 14,25 13,26 12,27 10,27 10,28 9,29 8,29 6,30 6,30 5,30 3,30 3,31 1,31 1,31 -1,31 -1,31 -3,31 -3,30 -5,30 -6,30 -6,30 -8,29 -9,29 -10,28 -10,27 -12,27 -13,26 -14,25 -15,24 -16,23 -21,26 -22,25 -23,23 -25,22 -27,19 -28,18 -29,15 -31,13 -27,9 -28,7 -29,6 -30,3 -31,2 -32,0 -33,-3 -34,-4 -28,-5 -29,-7 -29,-7 -30,-10 -31,-11 -31,-12 -32,-14 -33,-16 -33,-16 -31,-15 -31,-13 -29,-12 -29,-11 -28,-10 -26,-9 -33,-10 -31,-7 -29,-6 -29,-5 -32,-3 -30,-1 -29,2 -31,4 -29,8 -26,10 -28,15 -25,18 -23,22 -17,22 -16,24 -14,27 -12,28 -11,31 -8,28 -7,30 -6,31 -4,32 -4,28 -2,29 -2,29 -1,31 -1,31 -1,32 1,32 0,34 2,34 1,35 2,28 2,28 2,29 2,30 3,29 3,30 2,30 4,31 3,31 3,31 4,31 3,31 4,32 4,32 4,32 4,32 4,32 4,33 4,32 4,33 4,33 4,33 5,33 4,32 4,33 4,33 3,33 4,33 4,33 3,33 4,33 3,32 3,33 3,32 3,33 2,32 3,32 2,32 2,31 1,32 2,31 1,2 -2,23 -7,23 -11,21z"/></g><g fill="#B06E00"><path d="M5035,4965l-15,-18 -11,-21 -7,-23 -3,-23 -1,-2 -2,-31 -1,-32 -2,-31 -2,-32 -3,-32 -2,-32 -3,-33 -3,-32 -3,-33 -3,-32 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -4,-32 -5,-33 -4,-33 -4,-33 -4,-33 -4,-32 -4,-33 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -3,-31 -4,-31 -3,-31 -3,-31 -4,-31 -2,-30 -3,-30 -3,-29 -2,-30 -2,-29 -2,-28 -2,-28 -1,-35 -2,-34 0,-34 -1,-32 1,-32 1,-31 1,-31 2,-29 2,-29 4,-28 4,-32 6,-31 7,-30 8,-28 9,-26 12,-29 14,-27 15,-25 18,-22 22,-22 25,-19 27,-15 26,-11 29,-8 31,-5 28,-2 30,1 32,2 28,5 29,5 31,8 32,9 33,11 28,10 29,11 29,12 31,13 31,15 33,16 33,16 32,14 31,12 31,11 30,10 29,7 29,7 28,5 34,4 33,3 32,0 31,-2 30,-3 29,-6 28,-7 27,-9 31,-13 29,-15 28,-18 27,-19 25,-22 23,-23 22,-25 21,-26 16,-23 15,-24 14,-25 13,-26 12,-27 10,-27 10,-28 9,-29 8,-29 6,-30 6,-30 5,-30 3,-30 3,-31 1,-31 1,-31 -1,-31 -1,-31 -3,-31 -3,-30 -5,-30 -6,-30 -6,-30 -8,-29 -9,-29 -10,-28 -10,-27 -12,-27 -13,-26 -14,-25 -15,-24 -16,-23 -21,-26 -22,-25 -23,-23 -25,-22 -27,-19 -28,-18 -29,-15 -31,-13 -27,-9 -28,-7 -29,-6 -30,-3 -31,-2 -32,0 -33,3 -34,4 -28,5 -29,7 -29,7 -30,10 -31,11 -31,12 -32,14 -33,16 -33,16 -31,15 -31,13 -29,12 -29,11 -28,10 -26,9 -33,10 -31,7 -29,6 -29,5 -32,3 -30,1 -29,-2 -31,-4 -29,-8 -26,-10 -28,-15 -25,-18 -23,-22 -17,-22 -16,-24 -14,-27 -12,-28 -11,-31 -8,-28 -7,-30 -6,-31 -4,-32 -4,-28 -2,-29 -2,-29 -1,-31 -1,-31 -1,-32 1,-32 0,-34 2,-34 1,-35 2,-28 2,-28 2,-29 2,-30 3,-29 3,-30 2,-30 4,-31 3,-31 3,-31 4,-31 3,-31 4,-32 4,-32 4,-32 4,-32 4,-32 4,-33 4,-32 4,-33 4,-33 4,-33 5,-33 4,-32 4,-33 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 3,-32 3,-33 3,-32 3,-33 2,-32 3,-32 2,-32 2,-31 1,-32 2,-31 1,-2 3,-23 7,-23 11,-21 15,-18 18,-15 21,-11 22,-7 24,-2 4480,0 26,1 26,2 26,5 26,6 25,7 24,9 24,11 23,13 22,13 22,16 20,16 19,18 18,19 16,20 16,22 13,22 13,23 11,24 9,24 7,25 6,26 5,26 2,26 1,26 0,4480 -2,23 -7,23 -11,20 -15,18 -19,15 -20,11 -23,7 -23,2 -2,-1 -31,-2 -32,-1 -31,-2 -32,-2 -32,-3 -32,-2 -33,-3 -32,-3 -33,-3 -32,-3 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -32,-4 -33,-5 -33,-4 -33,-4 -33,-4 -32,-4 -33,-4 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -31,-3 -31,-4 -31,-3 -31,-3 -31,-4 -30,-2 -30,-3 -29,-3 -30,-2 -29,-2 -28,-2 -28,-2 -35,-1 -34,-2 -34,0 -32,-1 -32,1 -31,1 -31,1 -29,2 -29,2 -28,4 -32,4 -31,6 -30,7 -28,8 -26,9 -29,12 -27,14 -25,15 -22,18 -22,22 -19,25 -15,27 -11,26 -8,29 -5,31 -2,28 1,30 2,32 5,28 5,29 8,31 9,32 11,33 10,28 11,29 12,29 13,31 15,31 16,33 16,33 14,32 12,31 11,31 10,30 7,29 7,29 5,28 4,34 3,33 0,32 -2,31 -3,30 -6,29 -7,28 -9,27 -13,31 -15,29 -18,28 -19,27 -22,25 -23,23 -25,22 -26,21 -23,16 -24,15 -25,14 -26,13 -27,12 -27,10 -28,10 -29,9 -29,8 -30,6 -30,6 -30,5 -30,3 -31,3 -31,1 -31,1 -31,-1 -31,-1 -31,-3 -30,-3 -30,-5 -30,-6 -30,-6 -29,-8 -29,-9 -28,-10 -27,-10 -27,-12 -26,-13 -25,-14 -24,-15 -23,-16 -26,-21 -25,-22 -23,-23 -22,-25 -19,-27 -18,-28 -15,-29 -13,-31 -9,-27 -7,-28 -6,-29 -3,-30 -2,-31 0,-32 3,-33 4,-34 5,-28 7,-29 7,-29 10,-30 11,-31 12,-31 14,-32 16,-33 16,-33 15,-31 13,-31 12,-29 11,-29 10,-28 9,-26 10,-33 7,-31 6,-29 5,-29 3,-32 1,-30 -2,-29 -4,-31 -8,-29 -10,-26 -15,-28 -18,-25 -22,-23 -22,-17 -24,-16 -27,-14 -28,-12 -31,-11 -28,-8 -30,-7 -31,-6 -32,-4 -28,-4 -29,-2 -29,-2 -31,-1 -31,-1 -32,-1 -32,1 -34,0 -34,2 -35,1 -28,2 -28,2 -29,2 -30,2 -29,3 -30,3 -30,2 -31,4 -31,3 -31,3 -31,4 -31,3 -32,4 -32,4 -32,4 -32,4 -32,4 -33,4 -32,4 -33,4 -33,4 -33,4 -33,5 -32,4 -33,4 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -32,3 -33,3 -32,3 -33,3 -32,2 -32,3 -32,2 -31,2 -32,1 -31,2 -2,1 -23,-2 -23,-7 -21,-11z"/></g><g fill="#0A2A5C"><path d="M5035,5035l18,-15 21,-11 23,-7 23,-3 2,-1 31,-2 32,-1 31,-2 32,-2 32,-3 32,-2 33,-3 32,-3 33,-3 32,-3 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 33,-4 32,-4 33,-5 33,-4 33,-4 33,-4 32,-4 33,-4 32,-4 32,-4 32,-4 32,-4 32,-4 31,-3 31,-4 31,-3 31,-3 31,-4 30,-2 30,-3 29,-3 30,-2 29,-2 28,-2 28,-2 35,-1 34,-2 34,0 32,-1 32,1 31,1 31,1 29,2 29,2 28,4 32,4 31,6 30,7 28,8 26,9 29,12 27,14 25,15 22,18 22,22 19,25 15,27 11,26 8,29 5,31 2,28 -1,30 -2,32 -5,28 -5,29 -8,31 -9,32 -11,33 -10,28 -11,29 -12,29 -13,31 -15,31 -16,33 -16,33 -14,32 -12,31 -11,31 -10,30 -7,29 -7,29 -5,28 -4,34 -3,33 0,32 2,31 3,30 6,29 7,28 9,27 13,31 15,29 18,28 19,27 22,25 23,23 25,22 26,21 23,16 24,15 25,14 26,13 27,12 27,10 28,10 29,9 29,8 30,6 30,6 30,5 30,3 31,3 31,1 31,1 31,-1 31,-1 31,-3 30,-3 30,-5 30,-6 30,-6 29,-8 29,-9 28,-10 27,-10 27,-12 26,-13 25,-14 24,-15 23,-16 26,-21 25,-22 23,-23 22,-25 19,-27 18,-28 15,-29 13,-31 9,-27 7,-28 6,-29 3,-30 2,-31 0,-32 -3,-33 -4,-34 -5,-28 -7,-29 -7,-29 -10,-30 -11,-31 -12,-31 -14,-32 -16,-33 -16,-33 -15,-31 -13,-31 -12,-29 -11,-29 -10,-28 -9,-26 -10,-33 -7,-31 -6,-29 -5,-29 -3,-32 -1,-30 2,-29 4,-31 8,-29 10,-26 15,-28 18,-25 22,-23 22,-17 24,-16 27,-14 28,-12 31,-11 28,-8 30,-7 31,-6 32,-4 28,-4 29,-2 29,-2 31,-1 31,-1 32,-1 32,1 34,0 34,2 35,1 28,2 28,2 29,2 30,2 29,3 30,3 30,2 31,4 31,3 31,3 31,4 31,3 32,4 32,4 32,4 32,4 32,4 33,4 32,4 33,4 33,4 33,4 33,5 32,4 33,4 33,4 33,3 33,4 33,4 33,3 33,4 32,3 33,3 32,3 33,3 32,2 32,3 32,2 31,2 32,1 31,2 2,1 23,3 23,7 21,11 18,15 15,18 11,21 7,22 2,24 0,4480 -1,26 -2,26 -5,26 -6,26 -7,25 -9,24 -11,24 -13,23 -13,22 -16,22 -16,20 -18,19 -19,18 -20,16 -22,16 -22,13 -23,13 -24,11 -24,9 -25,7 -26,6 -26,5 -26,2 -26,1 -4480,0 -23,-2 -23,-7 -20,-11 -18,-15 -15,-19 -11,-20 -7,-23 -2,-23 1,-2 2,-31 1,-32 2,-31 2,-32 3,-32 2,-32 3,-33 3,-32 3,-33 3,-32 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 4,-33 4,-32 5,-33 4,-33 4,-33 4,-33 4,-32 4,-33 4,-32 4,-32 4,-32 4,-32 4,-32 3,-31 4,-31 3,-31 3,-31 4,-31 2,-30 3,-30 3,-29 2,-30 2,-29 2,-28 2,-28 1,-35 2,-34 0,-34 1,-32 -1,-32 -1,-31 -1,-31 -2,-29 -2,-29 -4,-28 -4,-32 -6,-31 -7,-30 -8,-28 -9,-26 -12,-29 -14,-27 -15,-25 -18,-22 -22,-22 -25,-19 -27,-15 -26,-11 -29,-8 -31,-5 -28,-2 -30,1 -32,2 -28,5 -29,5 -31,8 -32,9 -33,11 -28,10 -29,11 -29,12 -31,13 -31,15 -33,16 -33,16 -32,14 -31,12 -31,11 -30,10 -29,7 -29,7 -28,5 -34,4 -33,3 -32,0 -31,-2 -30,-3 -29,-6 -28,-7 -27,-9 -31,-13 -29,-15 -28,-18 -27,-19 -25,-22 -23,-23 -22,-25 -21,-26 -16,-23 -15,-24 -14,-25 -13,-26 -12,-27 -10,-27 -10,-28 -9,-29 -8,-29 -6,-30 -6,-30 -5,-30 -3,-30 -3,-31 -1,-31 -1,-31 1,-31 1,-31 3,-31 3,-30 5,-30 6,-30 6,-30 8,-29 9,-29 10,-28 10,-27 12,-27 13,-26 14,-25 15,-24 16,-23 21,-26 22,-25 23,-23 25,-22 27,-19 28,-18 29,-15 31,-13 27,-9 28,-7 29,-6 30,-3 31,-2 32,0 33,3 34,4 28,5 29,7 29,7 30,10 31,11 31,12 32,14 33,16 33,16 31,15 31,13 29,12 29,11 28,10 26,9 33,10 31,7 29,6 29,5 32,3 30,1 29,-2 31,-4 29,-8 26,-10 28,-15 25,-18 23,-22 17,-22 16,-24 14,-27 12,-28 11,-31 8,-28 7,-30 6,-31 4,-32 4,-28 2,-29 2,-29 1,-31 1,-31 1,-32 -1,-32 0,-34 -2,-34 -1,-35 -2,-28 -2,-28 -2,-29 -2,-30 -3,-29 -3,-30 -2,-30 -4,-31 -3,-31 -3,-31 -4,-31 -3,-31 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -4,-33 -4,-32 -4,-33 -4,-33 -4,-33 -5,-33 -4,-32 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -3,-32 -3,-33 -3,-32 -3,-33 -2,-32 -3,-32 -2,-32 -2,-31 -1,-32 -2,-31 -1,-2 2,-23 7,-23 11,-21z"/></g><g fill="#0A2A5C"><path d="M4965,5035l15,18 11,21 7,23 3,23 1,2 2,31 1,32 2,31 2,32 3,32 2,32 3,33 3,32 3,33 3,32 4,33 3,33 4,33 4,33 3,33 4,33 4,33 4,32 5,33 4,33 4,33 4,33 4,32 4,33 4,32 4,32 4,32 4,32 4,32 3,31 4,31 3,31 3,31 4,31 2,30 3,30 3,29 2,30 2,29 2,28 2,28 1,35 2,34 0,34 1,32 -1,32 -1,31 -1,31 -2,29 -2,29 -4,28 -4,32 -6,31 -7,30 -8,28 -9,26 -12,29 -14,27 -15,25 -18,22 -22,22 -25,19 -27,15 -26,11 -29,8 -31,5 -28,2 -30,-1 -32,-2 -28,-5 -29,-5 -31,-8 -32,-9 -33,-11 -28,-10 -29,-11 -29,-12 -31,-13 -31,-15 -33,-16 -33,-16 -32,-14 -31,-12 -31,-11 -30,-10 -29,-7 -29,-7 -28,-5 -34,-4 -33,-3 -32,0 -31,2 -30,3 -29,6 -28,7 -27,9 -31,13 -29,15 -28,18 -27,19 -25,22 -23,23 -22,25 -21,26 -16,23 -15,24 -14,25 -13,26 -12,27 -10,27 -10,28 -9,29 -8,29 -6,30 -6,30 -5,30 -3,30 -3,31 -1,31 -1,31 1,31 1,31 3,31 3,30 5,30 6,30 6,30 8,29 9,29 10,28 10,27 12,27 13,26 14,25 15,24 16,23 21,26 22,25 23,23 25,22 27,19 28,18 29,15 31,13 27,9 28,7 29,6 30,3 31,2 32,0 33,-3 34,-4 28,-5 29,-7 29,-7 30,-10 31,-11 31,-12 32,-14 33,-16 33,-16 31,-15 31,-13 29,-12 29,-11 28,-10 26,-9 33,-10 31,-7 29,-6 29,-5 32,-3 30,-1 29,2 31,4 29,8 26,10 28,15 25,18 23,22 17,22 16,24 14,27 12,28 11,31 8,28 7,30 6,31 4,32 4,28 2,29 2,29 1,31 1,31 1,32 -1,32 0,34 -2,34 -1,35 -2,28 -2,28 -2,29 -2,30 -3,29 -3,30 -2,30 -4,31 -3,31 -3,31 -4,31 -3,31 -4,32 -4,32 -4,32 -4,32 -4,32 -4,33 -4,32 -4,33 -4,33 -4,33 -5,33 -4,32 -4,33 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -3,32 -3,33 -3,32 -3,33 -2,32 -3,32 -2,32 -2,31 -1,32 -2,31 -1,2 -3,23 -7,23 -11,21 -15,18 -18,15 -21,11 -22,7 -24,2 -4480,0 -26,-1 -26,-2 -26,-5 -26,-6 -25,-7 -24,-9 -24,-11 -23,-13 -22,-13 -22,-16 -20,-16 -19,-18 -18,-19 -16,-20 -16,-22 -13,-22 -13,-23 -11,-24 -9,-24 -7,-25 -6,-26 -5,-26 -2,-26 -1,-26 0,-4480 2,-23 7,-23 11,-20 15,-18 19,-15 20,-11 23,-7 23,-2 2,1 31,2 32,1 31,2 32,2 32,3 32,2 33,3 32,3 33,3 32,3 33,4 33,3 33,4 33,4 33,3 33,4 33,4 32,4 33,5 33,4 33,4 33,4 32,4 33,4 32,4 32,4 32,4 32,4 32,4 31,3 31,4 31,3 31,3 31,4 30,2 30,3 29,3 30,2 29,2 28,2 28,2 35,1 34,2 34,0 32,1 32,-1 31,-1 31,-1 29,-2 29,-2 28,-4 32,-4 31,-6 30,-7 28,-8 26,-9 29,-12 27,-14 25,-15 22,-18 22,-22 19,-25 15,-27 11,-26 8,-29 5,-31 2,-28 -1,-30 -2,-32 -5,-28 -5,-29 -8,-31 -9,-32 -11,-33 -10,-28 -11,-29 -12,-29 -13,-31 -15,-31 -16,-33 -16,-33 -14,-32 -12,-31 -11,-31 -10,-30 -7,-29 -7,-29 -5,-28 -4,-34 -3,-33 0,-32 2,-31 3,-30 6,-29 7,-28 9,-27 13,-31 15,-29 18,-28 19,-27 22,-25 23,-23 25,-22 26,-21 23,-16 24,-15 25,-14 26,-13 27,-12 27,-10 28,-10 29,-9 29,-8 30,-6 30,-6 30,-5 30,-3 31,-3 31,-1 31,-1 31,1 31,1 31,3 30,3 30,5 30,6 30,6 29,8 29,9 28,10 27,10 27,12 26,13 25,14 24,15 23,16 26,21 25,22 23,23 22,25 19,27 18,28 15,29 13,31 9,27 7,28 6,29 3,30 2,31 0,32 -3,33 -4,34 -5,28 -7,29 -7,29 -10,30 -11,31 -12,31 -14,32 -16,33 -16,33 -15,31 -13,31 -12,29 -11,29 -10,28 -9,26 -10,33 -7,31 -6,29 -5,29 -3,32 -1,30 2,29 4,31 8,29 10,26 15,28 18,25 22,23 22,17 24,16 27,14 28,12 31,11 28,8 30,7 31,6 32,4 28,4 29,2 29,2 31,1 31,1 32,1 32,-1 34,0 34,-2 35,-1 28,-2 28,-2 29,-2 30,-2 29,-3 30,-3 30,-2 31,-4 31,-3 31,-3 31,-4 31,-3 32,-4 32,-4 32,-4 32,-4 32,-4 33,-4 32,-4 33,-4 33,-4 33,-4 33,-5 32,-4 33,-4 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 32,-3 33,-3 32,-3 33,-3 32,-2 32,-3 32,-2 31,-2 32,-1 31,-2 2,-1 23,2 23,7 21,11z"/></g></svg></div></div>
     <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
   </div>
 </section>
@@ -4041,7 +4053,8 @@ window.__zwdRooms = function(THREE, o){
    a line of light the first time it shows (see "the logos"; the SVG in the page shows without WebGL 2); the second, ZENGERS
    Digital Services, has the ZENGERS Digital Services logo (the lockup) the same way, its letters written one after
    another; the third, Brady Zenger, has a photo of Brady and Jason in a block of the same glass (the photos), and the
-   fourth, Jason Zenger, a photo of Jason the same way. Tune: LENS, LOGO, LOCKUP, PHOTO. */
+   fourth, Jason Zenger, a photo of Jason the same way; the fifth, What makes us different, a puzzle of four pieces of
+   the same glass, the last going into place (the puzzle). Tune: LENS, LOGO, LOCKUP, PHOTO, PUZZLE. */
 (function(){
   "use strict";
   var LENS = {
@@ -4088,6 +4101,16 @@ window.__zwdRooms = function(THREE, o){
     frost: .02,            // white in the glass: hardly any, so the photo stays clear
     turn: [-14, 7], sway: [3, 2], tilt: 5,   // degrees, as the logos
     timing: { draw: .8, fill: [.45, 1.3], show: [.75, 1.6], swell: .5, turn: [1.05, 1.95], glint: [1.25, 2.05], line: [1.15, 1.75] }   // seconds from when it first shows; show: the photo coming up in the glass
+  };
+  var PUZZLE = {           // the puzzle beside the fifth heading (What makes us different): four pieces of the same glass, the last going into place
+    depth: .08,            // its thickness, as a share of its width
+    bevel: .03,            // how round its edges are
+    gap: .0035,            // half the seam between two pieces (each piece is this much smaller than its outline in the SVG)
+    frost: .06,            // white in the glass, as the Z
+    mover: 1,              // the piece that goes into place last: the SVG's second group (top right)
+    from: { x: .17, y: .2, lift: .34, spin: -22, tipX: -16, tipY: 20 },   // where it starts: how far from its place (puzzle widths, y up), lifted toward the eye, turned (degrees: about the middle, tipped)
+    turn: [-17, 9], sway: [3.5, 2.2], tilt: 5,   // degrees, as the logos
+    timing: { draw: .9, fill: [.45, 1.3], swell: .5, appear: [.85, 1.15], move: [.95, 2], flash: [1.98, 2.6], turn: [1.85, 2.8], glint: [2.1, 2.9], line: [1.2, 1.8] }   // seconds from when it first shows: the three pieces' lines and glass; the last piece appearing, moving in (across its place, then down into it), its outline flashing as it clicks in
   };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text"), skip = sec.querySelector(".ab-skip");
@@ -4564,6 +4587,137 @@ window.__zwdRooms = function(THREE, o){
     "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
     "}"
   ]).join("\n");
+  // The puzzle (beside the fifth heading): four pieces of the same glass in a 2 x 2 square, each as thick as the Z, its
+  // edges rounded, a thin seam between them. The field's red, green, blue and alpha are the pieces (top left, top right,
+  // bottom right, bottom left: the SVG's groups); a second texture (uAlong) holds, near each outline, how far round it
+  // the nearest point is, so the lines of light can stop part way round. Three pieces are drawn by the lines and fill
+  // with glass; the last (top right) is the same field read in its own space as it moves (uMoveR, uMoveAt), so it can
+  // come in turned and lifted toward the eye, and settle into its place.
+  var FS_PUZZLE = [
+    "#version 300 es",
+    "precision highp float;",
+    "uniform sampler2D uSky, uShape, uAlong;",
+    "uniform vec4 uMap, uBox, uShapeMap;   // stage px -> background uv; the puzzle's box (px; its width is 1 unit); units -> field uv",
+    "uniform vec2 uView, uLight, uMoveC;   // the stage's size; the light (from the top left); the middle of the last piece's place",
+    "uniform vec2 uHead[6];                // the lines' heads (units, y up): two for each piece in place",
+    "uniform vec4 uDrawn, uPer;            // how much of each piece's outline its two lines have drawn (0-1, together); each outline's length",
+    "uniform vec3 uLo, uHi, uMoveAt;       // a box round all the glass (its own space); how far the last piece is from its place (z: toward the eye)",
+    "uniform mat3 uRot, uMoveR;            // the puzzle's turn (its own space -> the view); the last piece's turn, undone",
+    "uniform float uDpr, uTop, uCam, uBack, uH, uR, uW, uFill, uGap, uIor, uDisp, uFrost, uLine, uGlint, uShadow, uMoveH, uShow, uFlash, uHeadK;   // ...; uHeadK: the lines' heads, fading as they meet",
+    "in vec2 vPx; out vec4 o;",
+    "float px1;                            // one canvas pixel, in units",
+    "vec4 shapeAt(vec2 p){                 // each piece's distance from its outline (+ outside), at p (y up)",
+    "  vec2 uv = vec2(p.x, -p.y) * uShapeMap.xy + uShapeMap.zw;",
+    "  return texture(uShape, clamp(uv, 0., 1.)) + length(max(abs(uv - .5) - .5, 0.) / uShapeMap.xy);",
+    "}",
+    "float slab(float d, float z, float h, float r){   // glass with outline d, h each side of the middle, its edges rounded (as the Z)",
+    "  vec2 w = vec2(d + r, abs(z) - h + r), m = max(w, 0.);",
+    "  return min(max(w.x, w.y), 0.) + pow(m.x * m.x * m.x + m.y * m.y * m.y, 1. / 3.) - r;",
+    "}",
+    "vec3 own(vec3 p){                     // p in the last piece's own space (as if it were in its place)",
+    "  return uMoveR * (p - vec3(uMoveC, 0.) - uMoveAt) + vec3(uMoveC, 0.);",
+    "}",
+    "float placed(vec3 p){                 // the three pieces in place, filled from their outlines inward (uFill)",
+    "  vec4 s = shapeAt(p.xy);",
+    "  float d = min(s.x, min(s.z, s.w)) + uGap;",
+    "  d = max(d, -d - 2. * uW * uFill);",
+    "  return slab(d, p.z, uH, uR);",
+    "}",
+    "float moving(vec3 p){                 // the last piece",
+    "  vec3 q = own(p);",
+    "  return slab(shapeAt(q.xy).y + uGap, q.z, uMoveH, min(uR, uMoveH * .95));",
+    "}",
+    "float body(vec3 p){",
+    "  float d = 1e3;",
+    "  if (uFill > .001) d = placed(p);",
+    "  if (uMoveH > .001) d = min(d, moving(p));",
+    "  return d;",
+    "}"
+  ].concat(GLASS_3D, [
+    "vec3 lineOf(float sd, float at, float drawn, float per){   // one piece's two lines: from where its outline starts, both ways round",
+    "  float h = drawn * .5, gap = 1e9;",
+    "  if (at <= h) gap = h - at;",
+    "  if (1. - at <= h) gap = min(gap, h - (1. - at));",
+    "  if (gap > 1e8) return vec3(0.);",
+    "  float g = gap * per, dpx = abs(sd) * uBox.z, tail = exp(-g * g / .012);   // how far behind its head (units); px from the line; its bright tail",
+    "  float core = exp(-dpx * dpx / 1.6), near = exp(-dpx * dpx / 40.), far = exp(-dpx * dpx / 420.);",
+    "  return vec3(1., .97, .9) * core * (.8 + 1.3 * tail) + vec3(1., .74, .3) * (near * (.3 + .9 * tail) + far * (.08 + .32 * tail));",
+    "}",
+    "void main(){",
+    "  px1 = 1. / (uBox.z * uDpr);",
+    "  vec2 c = uBox.xy + uBox.zw * .5;",
+    "  vec3 P = vec3((vPx.x - c.x) / uBox.z, -(vPx.y - c.y) / uBox.z, 0.), eye = vec3(0., 0., uCam), rd = normalize(P - eye);",
+    "  mat3 back = transpose(uRot);",
+    "  vec3 ro = back * eye, d1 = back * rd;   // the eye's ray, in the puzzle's own space",
+    "  float fade = smoothstep(uTop, uTop + .12 * uView.y, vPx.y) * smoothstep(uView.y, .86 * uView.y, vPx.y);",
+    "  vec3 col = vec3(0.); float a = 0.;",
+    "  if (uFill > .001 || uMoveH > .001) {",
+    "    vec3 inv = 1. / d1, ta = (uLo - px1 * 4. - ro) * inv, tb = (uHi + px1 * 4. - ro) * inv, tn = min(ta, tb), tf = max(ta, tb);",
+    "    float t0 = max(max(tn.x, tn.y), tn.z), t1 = min(min(tf.x, tf.y), tf.z);",
+    "    if (t0 < t1 && t1 > 0.) {",
+    "      float t = max(t0, 0.), dmin = 1e9, tmin = t; bool hit = false;",
+    "      for (int i = 0; i < 96; i++) {",
+    "        float d = body(ro + d1 * t);",
+    "        if (d < dmin) { dmin = d; tmin = t; }",
+    "        if (d < px1 * .2) { hit = true; break; }",
+    "        t += max(d * .85, px1 * .25);",
+    "        if (t > t1) break;",
+    "      }",
+    "      a = hit ? 1. : clamp(1. - dmin / px1, 0., 1.);       // a ray that just misses: the edge, smoothed",
+    "      if (a > 0.) {",
+    "        vec3 p1 = ro + d1 * (hit ? t : tmin), n1 = nrm(p1);",
+    "        bool last = uMoveH > .001 && moving(p1) < (uFill > .001 ? placed(p1) : 1e3);   // it met the last piece",
+    "        vec4 s1 = shapeAt(last ? own(p1).xy : p1.xy);",
+    "        float rim = -((last ? s1.y : min(s1.x, min(s1.z, s1.w))) + uGap);   // how far in from its edge",
+    "        vec3 r1 = refract(d1, n1, 1. / uIor);",
+    "        if (dot(r1, r1) < 1e-6) r1 = reflect(d1, n1);",
+    "        vec3 q = p1 - n1 * px1 * 2.; float k = 0.;",
+    "        for (int i = 0; i < 48; i++) { float d = -body(q + r1 * k); if (d < px1 * .2) break; k += max(d * .9, px1 * .25); }",
+    "        vec3 p2 = q + r1 * k, n2 = nrm(p2);",
+    "        vec3 eta = uIor + vec3(-1., 0., 1.5) * uDisp;",
+    "        vec3 through = vec3(exitAt(d1, n1, p2, n2, eta.r).r, exitAt(d1, n1, p2, n2, eta.g).g, exitAt(d1, n1, p2, n2, eta.b).b);",
+    "        float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.5), 0., 1.);   // saturate(1.5), as the letters",
+    "        through = mix(through, vec3(1.), uFrost);",
+    "        vec3 nv = uRot * n1, rv = reflect(rd, nv);",
+    "        float F = .04 + .96 * pow(1. - max(dot(-rd, nv), 0.), 5.);",
+    "        col = mix(through, env(rv), F);",
+    "        vec2 ns = vec2(nv.x, -nv.y); float tip = length(ns); ns /= max(tip, 1e-4);   // the slope, on the screen",
+    "        float lit = -dot(ns, uLight) * min(tip * 2., 1.), glint = pow(max(lit, 0.), 3.), away = pow(max(-lit, 0.), 3.);",
+    "        float dd = max(rim, 0.) / max(uR, 1e-4);",
+    "        vec3 bq = (dd - vec3(.18, .42, .66) * 1.3) / .26, bands = exp(-bq * bq);   // Glisse's chromatic bands along the rim",
+    "        float peak = max(bands.r, max(bands.g, bands.b));",
+    "        col = mix(col, .65 + .35 * bands / max(peak, 1e-4), clamp(peak * (.05 + .75 * glint + .3 * away) * .8, 0., 1.));",
+    "        col = 1. - (1. - col) * (1. - .55 * exp(-dd * 2.5) * abs(lit));                // the thin lit edge",
+    "        col += vec3(1., .97, .9) * pow(max(dot(rv, normalize(vec3(-.5, .62, .6))), 0.), 60.) * .9;   // a sparkle from the light",
+    "        col += vec3(1., .95, .85) * exp(-pow((dot(p1.xy, vec2(.876, .482)) - uGlint) / .05, 2.)) * (.25 + .75 * min(tip * 1.5, 1.)) * .9;   // the glint that crosses it once",
+    "        if (last) a *= uShow;                              // the last piece appears as it sets off",
+    "      }",
+    "    }",
+    "  }",
+    "  vec3 lc = vec3(0.);                   // the lines of light that draw the three pieces, on their front faces; the last piece's outline, flashing as it clicks in",
+    "  if (uLine > .001 || uFlash > .001) {",
+    "    vec2 q = (ro + d1 * ((uH - ro.z) / d1.z)).xy;",
+    "    vec4 s = shapeAt(q) + uGap;",
+    "    if (uLine > .001) {",
+    "      vec4 at = texture(uAlong, clamp(vec2(q.x, -q.y) * uShapeMap.xy + uShapeMap.zw, 0., 1.));",
+    "      vec3 m = max(lineOf(s.x, at.x, uDrawn.x, uPer.x), max(lineOf(s.z, at.z, uDrawn.z, uPer.z), lineOf(s.w, at.w, uDrawn.w, uPer.w)));   // the brightest, not their sum: two pieces share a seam",
+    "      for (int i = 0; i < 6; i++) { float hpx = length(q - uHead[i]) * uBox.z; m += vec3(1., .9, .72) * (exp(-hpx * hpx / 26.) * .9 + exp(-hpx * hpx / 700.) * .27) * uHeadK; }   // the heads: bright points and their halos",
+    "      lc += m * uLine * .8;",
+    "    }",
+    "    if (uFlash > .001) { float dpx = abs(s.y) * uBox.z; lc += uFlash * (vec3(1., .97, .9) * exp(-dpx * dpx / 2.) + vec3(1., .8, .45) * (exp(-dpx * dpx / 50.) * .55 + exp(-dpx * dpx / 600.) * .2)); }",
+    "  }",
+    "  float sh = 0.;                        // a soft warm shadow below, as under the words; the last piece's further off and softer the higher it is",
+    "  if (uShadow > 0.) {",
+    "    if (uFill > .001) { vec4 f = shapeAt(P.xy + vec2(0., .022)); sh = pow(smoothstep(.045, -.005, min(f.x, min(f.z, f.w)) + uGap), 2.) * uFill; }",
+    "    if (uMoveH > .001) {",
+    "      float L = max(uMoveAt.z, 0.); vec3 q = own(vec3(P.xy + vec2(-.3, .45) * L + vec2(0., .022), uMoveAt.z));",
+    "      sh = max(sh, pow(smoothstep(.045 + .25 * L, -.005 - .05 * L, shapeAt(q.xy).y + uGap), 2.) * uShow / (1. + 3. * L));",
+    "    }",
+    "    sh *= uShadow * (1. - a);",
+    "  }",
+    "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
+    "}"
+  ]).join("\n");
   function link(vs, fs){                               // starts making a program (the graphics chip may do it in the background)
     var p = gl.createProgram(), shaders = [];
     [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(function(s){
@@ -4752,10 +4906,50 @@ window.__zwdRooms = function(THREE, o){
     }
     return { field: out, half: half };
   }
+  function puzzleOf(parts, W, H, sx, sy, M, B){       // the puzzle as fields: each piece's distance from its outline (+ outside, in puzzle widths; exact inside, at most M outside) in red, green, blue and alpha, and, within B of it, how far round the outline its nearest point is (0-1, from where its path starts)
+    var n = W * H, field = new Float32Array(n * 4).fill(M), along = new Float32Array(n * 4), half = [], per = [], T = 8;
+    var dx = sx / W, dy = sy / H, rad = T / 2 * Math.sqrt(dx * dx + dy * dy);
+    for (var p = 0; p < Math.min(parts.length, 4); p++) {
+      var S = [], total = 0, x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      parts[p].forEach(function(glyph){ glyph.forEach(function(l){ for (var e = 0; e < l.length; e++) { var a = l[e], b = l[(e + 1) % l.length], len = Math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1])); S.push(a[0], a[1], b[0] - a[0], b[1] - a[1], total, len); total += len; x0 = Math.min(x0, a[0]); x1 = Math.max(x1, a[0]); y0 = Math.min(y0, a[1]); y1 = Math.max(y1, a[1]); } }); });
+      var ns = S.length / 6, E = new Float64Array(S); per.push(total);
+      var c0 = Math.max(0, Math.floor((x0 - M) / dx + W / 2)), c1 = Math.min(W - 1, Math.ceil((x1 + M) / dx + W / 2));
+      var r0 = Math.max(0, Math.floor((y0 - M) / dy + H / 2)), r1 = Math.min(H - 1, Math.ceil((y1 + M) / dy + H / 2));
+      var cw = c1 - c0 + 1, inside = new Uint8Array(cw * (r1 - r0 + 1)), xs = [], i, j, e, e6, k, inn;
+      for (j = r0; j <= r1; j++) {                       // inside or out: where each row crosses the outline
+        var y = (j + .5) * dy - sy / 2; xs.length = 0;
+        for (e = 0; e < ns; e++) { e6 = e * 6; var ay = E[e6 + 1], by = ay + E[e6 + 3]; if ((ay > y) !== (by > y)) xs.push(E[e6] + (y - ay) * E[e6 + 2] / E[e6 + 3]); }
+        xs.sort(function(a, b){ return a - b; });
+        for (i = c0, k = 0, inn = 0; i <= c1; i++) { var x = (i + .5) * dx - sx / 2; while (k < xs.length && xs[k] < x) { k++; inn ^= 1; } inside[(j - r0) * cw + (i - c0)] = inn; }
+      }
+      var cand = new Int32Array(ns), h = 0;
+      for (var tj = r0; tj <= r1; tj += T) for (var ti = c0; ti <= c1; ti += T) {   // in blocks of T x T texels: only the edges that can be nearest to one of them
+        var tx = (ti + T / 2) * dx - sx / 2, ty = (tj + T / 2) * dy - sy / 2, D = 1e18, vx, vy, wx, wy, L2, u, qx, qy, dd;
+        for (e = 0; e < ns; e++) { e6 = e * 6; vx = E[e6 + 2]; vy = E[e6 + 3]; wx = tx - E[e6]; wy = ty - E[e6 + 1]; L2 = vx * vx + vy * vy; u = L2 > 0 ? Math.max(0, Math.min(1, (wx * vx + wy * vy) / L2)) : 0; qx = wx - u * vx; qy = wy - u * vy; dd = qx * qx + qy * qy; if (dd < D) D = dd; }
+        D = Math.sqrt(D);
+        if (!inside[(Math.min(tj + T / 2, r1) - r0) * cw + (Math.min(ti + T / 2, c1) - c0)] && D - rad >= M) continue;   // all of it outside by more than M: it stays M
+        var lim = (D + 2 * rad) * (D + 2 * rad), nc = 0;
+        for (e = 0; e < ns; e++) { e6 = e * 6; vx = E[e6 + 2]; vy = E[e6 + 3]; wx = tx - E[e6]; wy = ty - E[e6 + 1]; L2 = vx * vx + vy * vy; u = L2 > 0 ? Math.max(0, Math.min(1, (wx * vx + wy * vy) / L2)) : 0; qx = wx - u * vx; qy = wy - u * vy; if (qx * qx + qy * qy <= lim) cand[nc++] = e6; }
+        for (j = tj; j < Math.min(tj + T, r1 + 1); j++) {
+          var yy = (j + .5) * dy - sy / 2;
+          for (i = ti; i < Math.min(ti + T, c1 + 1); i++) {
+            var xx = (i + .5) * dx - sx / 2, best = 1e18, bk = 0, bu = 0;
+            for (var c = 0; c < nc; c++) { e6 = cand[c]; vx = E[e6 + 2]; vy = E[e6 + 3]; wx = xx - E[e6]; wy = yy - E[e6 + 1]; L2 = vx * vx + vy * vy; u = L2 > 0 ? Math.max(0, Math.min(1, (wx * vx + wy * vy) / L2)) : 0; qx = wx - u * vx; qy = wy - u * vy; dd = qx * qx + qy * qy; if (dd < best) { best = dd; bk = e6; bu = u; } }
+            var d = Math.sqrt(best), o = (j * W + i) * 4 + p, isIn = inside[(j - r0) * cw + (i - c0)];
+            field[o] = isIn ? -d : Math.min(d, M);
+            if (isIn && d > h) h = d;
+            if (d < B) along[o] = (E[bk + 4] + bu * E[bk + 5]) / total;
+          }
+        }
+      }
+      half.push(h);
+    }
+    return { field: field, along: along, half: half, per: per };
+  }
   var helper = null, jobs = {}, nextJob = 1, gen = 0;
   try {
-    helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nvar shapeOf = " + shapeOf.toString() + ";\nvar lockOf = " + lockOf.toString() + ";\nself.onmessage = function(e){ var d = e.data, r; if (d.shape) { var f = shapeOf(d.shape.pieces, d.shape.W, d.shape.H, d.shape.sx, d.shape.sy); self.postMessage({ id: d.id, field: f }, [f.buffer]); return; } if (d.lock) { r = lockOf(d.lock.parts, d.lock.W, d.lock.H, d.lock.sx, d.lock.sy, d.lock.M); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); return; } r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
-    helper.onmessage = function(e){ var done = jobs[e.data.id]; delete jobs[e.data.id]; if (done) done(e.data.field, e.data.half); };
+    helper = new Worker(URL.createObjectURL(new Blob(["var fieldOf = " + fieldOf.toString() + ";\nvar shapeOf = " + shapeOf.toString() + ";\nvar lockOf = " + lockOf.toString() + ";\nvar puzzleOf = " + puzzleOf.toString() + ";\nself.onmessage = function(e){ var d = e.data, r; if (d.puzzle) { r = puzzleOf(d.puzzle.parts, d.puzzle.W, d.puzzle.H, d.puzzle.sx, d.puzzle.sy, d.puzzle.M, d.puzzle.B); self.postMessage({ id: d.id, field: r.field, half: r.half, along: r.along, per: r.per }, [r.field.buffer, r.along.buffer]); return; } if (d.shape) { var f = shapeOf(d.shape.pieces, d.shape.W, d.shape.H, d.shape.sx, d.shape.sy); self.postMessage({ id: d.id, field: f }, [f.buffer]); return; } if (d.lock) { r = lockOf(d.lock.parts, d.lock.W, d.lock.H, d.lock.sx, d.lock.sy, d.lock.M); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); return; } r = fieldOf(d.alpha, d.W, d.H, d.s, d.M, d.round); self.postMessage({ id: d.id, field: r.field, half: r.half }, [r.field.buffer]); };"], { type: "text/javascript" })));
+    helper.onmessage = function(e){ var done = jobs[e.data.id]; delete jobs[e.data.id]; if (done) done(e.data.field, e.data.half, e.data); };
     helper.onerror = function(){ helper = null; jobs = {}; items.forEach(function(it){ it.busy = false; }); logos.forEach(function(lg){ if (!lg.photo) lg.busy = false; }); if (gl) rebuild(); };   // no background thread: the page does it, a little at a time
   } catch(e){ helper = null; }
   function build(it){
@@ -4813,7 +5007,7 @@ window.__zwdRooms = function(THREE, o){
     if (queue.length) { pending = true; (window.requestIdleCallback || setTimeout)(work, { timeout: 300 }); }
   }
 
-  // ---------- the logos: the ZENGERS Z (first block) and the lockup, the ZENGERS Digital Services logo (second block), in 3D glass; and the photos (third and fourth blocks) ----------
+  // ---------- the logos: the ZENGERS Z (first block) and the lockup, the ZENGERS Digital Services logo (second block), in 3D glass; the photos (third and fourth blocks); the puzzle (fifth) ----------
   // Each one's shape becomes a field of distances once, on the background thread (it doesn't change with the window: the
   // box only scales it); its program is made in the background too where the browser can (KHR_parallel_shader_compile),
   // the lockup's once the Z's is ready, so the two don't land in the same moment. The two photos share one program
@@ -4824,12 +5018,13 @@ window.__zwdRooms = function(THREE, o){
   // depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced motion it is
   // simply there. The SVG under it shows where there's no WebGL 2.
   var logos = [].map.call(sec.querySelectorAll(".ab-logo, .ab-photo"), function(el){
-    var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : "logo";
-    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
+    var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : el.classList.contains("ab-puzzle") ? "puzzle" : "logo";
+    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   });
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
   var fetching = false;                                // a photo is on its way (one at a time, so two never land in the same frame)
-  var LK_TW = 1700, LK_PAD = .03, MAX_GLYPHS = 24;     // the lockup's field: texels across, the room round it (logo widths); the letters and pieces the lines can draw (uGlyph in FS_LOCKUP)
+  var LK_TW = 1700, LK_PAD = .03, MAX_GLYPHS = 24;
+  var PZ_TW = 640, PZ_PAD = .12, PZ_M = .12, PZ_B = .12;   // the puzzle's fields: texels across, the room round it, how far outside its distances go, how far from an outline the lines' field reaches (puzzle widths)     // the lockup's field: texels across, the room round it (logo widths); the letters and pieces the lines can draw (uGlyph in FS_LOCKUP)
   if (gl) logos.forEach(function(lg){ lg.el.classList.add("is-glass"); });   // the glass will draw them (the lines, from nothing): the flat logos and the plain photo never show first
   function logoFail(lg, e){
     lg.failed = true; lg.making = null;
@@ -4862,6 +5057,41 @@ window.__zwdRooms = function(THREE, o){
     if (parts.length !== 3 || glyphs.length > MAX_GLYPHS) throw new Error("the lockup's SVG needs three groups and at most " + MAX_GLYPHS + " paths");
     return { parts: parts, half: half, sx: sx, sy: sy, W: LK_TW, H: Math.round(LK_TW * sy / sx), ends: ends, info: info, glyphs: glyphs, lefts: lefts, thin: thin, strokes: null };
   }
+  function puzzleShape(lg){                            // the puzzle's outlines (from its SVG: four groups of one path), its fields' size, and each outline's points and length, y up (for the lines' heads)
+    var svg = lg.el.querySelector("svg"), parts = outlinesOf(svg);
+    if (parts.length !== 4 || parts.some(function(g){ return g.length !== 1 || g[0].length !== 1; })) throw new Error("the puzzle's SVG needs four groups of one path each");
+    var loops = parts.map(function(g){
+      var l = g[0][0].map(function(q){ return [q[0], -q[1]]; }), cum = [0];
+      for (var i = 0; i < l.length; i++) { var a = l[i], b = l[(i + 1) % l.length]; cum.push(cum[i] + Math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]))); }
+      var xs = l.map(function(q){ return q[0]; }), ys = l.map(function(q){ return q[1]; });
+      return { pts: l, cum: cum, total: cum[l.length], box: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)] };
+    });
+    var m = loops[PUZZLE.mover].box, edge = function(k, f){ return f.apply(null, loops.map(function(lp){ return lp.box[k]; })); };
+    return { parts: parts, loops: loops, W: PZ_TW, H: PZ_TW, sx: 1 + 2 * PZ_PAD, sy: 1 + 2 * PZ_PAD, half: null,
+      mid: [(m[0] + m[2]) / 2, (m[1] + m[3]) / 2], box: [edge(0, Math.min), edge(1, Math.min), edge(2, Math.max), edge(3, Math.max)] };
+  }
+  function pointOn(lp, s){                             // the point s round an outline, from where it starts
+    s = Math.max(0, Math.min(lp.total, s));
+    var lo = 0, hi = lp.pts.length;
+    while (hi - lo > 1) { var md = (lo + hi) >> 1; if (lp.cum[md] <= s) lo = md; else hi = md; }
+    var a = lp.pts[lo], b = lp.pts[(lo + 1) % lp.pts.length], seg = lp.cum[lo + 1] - lp.cum[lo], u = seg > 0 ? (s - lp.cum[lo]) / seg : 0;
+    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  }
+  function moveOf(t){                                  // the puzzle's last piece at t: how far it is from its place (x, y; z toward the eye), its turn (degrees), how much of it shows
+    var T = PUZZLE.timing, F = PUZZLE.from;
+    if (still) return { x: 0, y: 0, z: 0, spin: 0, tx: 0, ty: 0, show: 1 };
+    var ease = function(x){ x = Math.max(0, Math.min(1, x)); return x * x * x * (x * (x * 6 - 15) + 10); };
+    var u = (t - T.move[0]) / (T.move[1] - T.move[0]), across = ease(u / .72), down = ease((u - .22) / .78), land = t - T.move[1];   // across over its place first, then down into it
+    var a = Math.max(0, Math.min(1, (t - T.appear[0]) / (T.appear[1] - T.appear[0])));
+    return { x: F.x * (1 - across), y: F.y * (1 - across), z: F.lift * (1 - down) - (land > 0 ? .01 * Math.exp(-land * 10) * Math.sin(land * 24) : 0),   // and a little settle as it clicks in
+      spin: F.spin * (1 - across), tx: F.tipX * (1 - down), ty: F.tipY * (1 - down), show: a * a * (3 - 2 * a) };
+  }
+  function turnOf(z, x, y){                            // a turn (degrees about z, after x, after y): its rows
+    var r = Math.PI / 180, cz = Math.cos(z * r), sz = Math.sin(z * r), cx = Math.cos(x * r), sx = Math.sin(x * r), cy = Math.cos(y * r), sy = Math.sin(y * r);
+    var mul = function(P, Q){ return P.map(function(row){ return [0, 1, 2].map(function(j){ return row[0] * Q[0][j] + row[1] * Q[1][j] + row[2] * Q[2][j]; }); }); };
+    return mul(mul([[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]], [[1, 0, 0], [0, cx, -sx], [0, sx, cx]]), [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]]);
+  }
+  function wordsDone(){ return built && !queue.length && !items.some(function(it){ return it.busy; }); }   // every heading's and paragraph's field made
   function prepareLogo(lg, mayLink, on){               // near the section: its shape, and its program (once it may start)
     if (lg.failed || !gl) return;
     if (!lg.tex && !lg.busy && lg.photo && on && !fetching) {         // the photo, once About us shows (not while the film ends): fetched and decoded off the page's thread, then sent to the graphics chip once, with its smaller copies (mipmaps) so it stays smooth when small or turned
@@ -4879,9 +5109,23 @@ window.__zwdRooms = function(THREE, o){
         lg.tex = t; slow.photo = Math.max(slow.photo || 0, performance.now() - t0); ask();
       }, function(e){ lg.busy = false; fetching = false; logoFail(lg, e || new Error("the photo didn't load")); });
     }
-    if (!lg.tex && !lg.busy && !lg.photo) {
+    if (!lg.tex && !lg.busy && !lg.photo && (!lg.puzzle || wordsDone())) {   // (the puzzle's fields once the words' are made: the biggest job, for the fifth block)
       var use, job, r;
-      if (!lg.lock) {
+      if (lg.puzzle) {
+        try { lg.shape = lg.shape || puzzleShape(lg); } catch(e){ return logoFail(lg, e); }
+        var z = lg.shape, sent = performance.now();
+        use = function(field, half, all){
+          lg.busy = false; if (!gl) return;
+          var t0 = performance.now();
+          z.half = half; slow.puzzleJob = t0 - sent;      // each piece's deepest point inside: how far its glass pours in
+          lg.tex = texture(gl.LINEAR); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, z.W, z.H, 0, gl.RGBA, gl.FLOAT, field);
+          lg.segs = texture(gl.NEAREST); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, z.W, z.H, 0, gl.RGBA, gl.FLOAT, all.along);   // how far round each outline: for the lines
+          slow.puzzle = performance.now() - t0; ask();
+        };
+        job = { puzzle: { parts: z.parts, W: z.W, H: z.H, sx: z.sx, sy: z.sy, M: PZ_M, B: PZ_B } };
+        if (!helper) { lg.busy = true; r = puzzleOf(z.parts, z.W, z.H, z.sx, z.sy, PZ_M, PZ_B); use(r.field, r.half, r); }
+      } else if (!lg.lock) {
         var sx = 1 + 2 * Z_PAD, sy = 2 * Z_HALF + 2 * Z_PAD;
         use = function(field){
           lg.busy = false; if (!gl) return;
@@ -4911,7 +5155,7 @@ window.__zwdRooms = function(THREE, o){
     if (mayLink && !lg.prog && !lg.making && !lg.failed) {
       var twin = logos.filter(function(o){ return o !== lg && o.kind === lg.kind && o.prog; })[0];   // the second photo: the first one's program
       if (twin) lg.prog = twin.prog;
-      else try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : FS_LOGO); } catch(e){ logoFail(lg, e); }
+      else try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : lg.puzzle ? FS_PUZZLE : FS_LOGO); } catch(e){ logoFail(lg, e); }
     }
   }
   function logoReady(lg){
@@ -4934,7 +5178,7 @@ window.__zwdRooms = function(THREE, o){
     s -= 2 * B; a = Math.PI - s / r; return [-A + r * Math.cos(a), B + r * Math.sin(a)];
   }
   function drawLogo(lg, cr, W, H, s, map, top, warmOnly){   // returns true while it's moving (draw again next frame)
-    var r = lg.el.getBoundingClientRect(), bx = r.left - cr.left, by = r.top - cr.top, bw = r.width, bh = r.height, pad = bw * .16;
+    var r = lg.el.getBoundingClientRect(), bx = r.left - cr.left, by = r.top - cr.top, bw = r.width, bh = r.height, pad = bw * (lg.puzzle ? .42 : .16);   // (the puzzle's last piece comes in from beyond its box)
     if (!bw) return false;
     if (!warmOnly) {
       if (by + bh + pad < 0 || by - pad > H) return false;                           // not on screen
@@ -4948,7 +5192,7 @@ window.__zwdRooms = function(THREE, o){
         lg.t0 = now;
       }
     }
-    var C = lg.lock ? LOCKUP : lg.photo ? PHOTO : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
+    var C = lg.lock ? LOCKUP : lg.photo ? PHOTO : lg.puzzle ? PUZZLE : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
     var step = function(a, b){ var x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
     var swellAt = function(a){ var w = t - a; return still ? 1 : w <= 0 ? 0 : 1 - Math.exp(-5.5 * w) * Math.cos(8 * w); };   // a little past full, and back: poured, not built
     var turn = step(T.turn[0], T.turn[1]), sway = still ? 0 : step(T.turn[1] - .1, T.turn[1] + 1.4), deg = Math.PI / 180;
@@ -4976,6 +5220,29 @@ window.__zwdRooms = function(THREE, o){
       gl.uniform1f(U.uW, (Math.min(.5, hh) + 1.5 * PHOTO.bevel) / 2);              // how far the glass pours in (twice this, at full): a little past the middle, so its rounded inner edge closes over and leaves the face flat (exactly to the middle left a small dimple there)
       gl.uniform1f(U.uShow, warmOnly ? 0 : step(T.show[0], T.show[1])); gl.uniform1f(U.uFrost, PHOTO.frost); gl.uniform1f(U.uShadow, LENS.shadow[0] * pfill);
       gl.uniform1f(U.uDrawn, Ld); gl.uniform1f(U.uPerim, per); gl.uniform2f(U.uHead0, h0[0], h0[1]); gl.uniform2f(U.uHead1, h1[0], h1[1]);
+    } else if (lg.puzzle) {                                                         // the puzzle: three pieces drawn and filled, then the last one goes into place
+      var z = lg.shape, P = PUZZLE, dr = warmOnly ? 0 : step(0, T.draw), zf = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), zfill = warmOnly ? 0 : 1 - Math.pow(1 - zf, 3);
+      var zh = P.depth / 2 * (.35 + .65 * swellAt(T.swell)), mv = moveOf(t), mh = warmOnly || mv.show <= 0 ? 0 : P.depth / 2 * (.35 + .65 * swellAt(T.appear[0])), R = turnOf(mv.spin, mv.tx, mv.ty);
+      var heads = [], lo = [z.box[0], z.box[1], -zh], hi = [z.box[2], z.box[3], zh], at = [z.mid[0] + mv.x, z.mid[1] + mv.y, mv.z];
+      [0, 2, 3].forEach(function(i){ var lp = z.loops[i], d = dr * lp.total / 2; heads = heads.concat(pointOn(lp, d), pointOn(lp, lp.total - d)); });   // each piece's two lines, from its start both ways round
+      if (mh > 0) {                                                                 // the box round the last piece, where it is now
+        var mb = z.loops[P.mover].box;
+        [mb[0], mb[2]].forEach(function(x){ [mb[1], mb[3]].forEach(function(y){ [-mh, mh].forEach(function(zz){
+          var v = [x - z.mid[0], y - z.mid[1], zz];
+          for (var i = 0; i < 3; i++) { var w = R[i][0] * v[0] + R[i][1] * v[1] + R[i][2] * v[2] + at[i]; lo[i] = Math.min(lo[i], w); hi[i] = Math.max(hi[i], w); }
+        }); }); });
+      }
+      var fl = (t - T.flash[0]) / (T.flash[1] - T.flash[0]), flash = still || warmOnly || fl <= 0 || fl >= 1 ? 0 : Math.min(1, fl * 10) * Math.pow(1 - fl, 2);
+      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, lg.segs); gl.uniform1i(U.uAlong, 2);
+      gl.uniform4f(U.uShapeMap, 1 / z.sx, 1 / z.sy, .5, .5);
+      gl.uniform1f(U.uH, zh); gl.uniform1f(U.uR, Math.min(P.bevel, zh * .95)); gl.uniform1f(U.uFill, zfill); gl.uniform1f(U.uGap, P.gap); gl.uniform1f(U.uFrost, P.frost);
+      gl.uniform1f(U.uW, (Math.max(z.half[0], z.half[2], z.half[3]) + 1.5 * P.bevel) / 2);   // how far the glass pours in (twice this, at full): past each piece's deepest point, so it closes flat
+      gl.uniform4f(U.uDrawn, dr, 0, dr, dr); gl.uniform4f(U.uPer, z.loops[0].total, z.loops[1].total, z.loops[2].total, z.loops[3].total); gl.uniform2fv(U["uHead[0]"], heads);
+      gl.uniform3fv(U.uLo, lo); gl.uniform3fv(U.uHi, hi); gl.uniform2f(U.uMoveC, z.mid[0], z.mid[1]); gl.uniform3f(U.uMoveAt, mv.x, mv.y, mv.z);
+      gl.uniformMatrix3fv(U.uMoveR, false, [R[0][0], R[0][1], R[0][2], R[1][0], R[1][1], R[1][2], R[2][0], R[2][1], R[2][2]]);   // its turn undone: R's rows as the columns
+      gl.uniform1f(U.uMoveH, mh); gl.uniform1f(U.uShow, warmOnly ? 0 : mv.show); gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0]);
+      gl.uniform1f(U.uHeadK, 1 - step(T.draw * .75, T.draw * 1.05));              // the heads fade as each piece's two lines meet
+      gl.activeTexture(gl.TEXTURE0);
     } else if (!lg.lock) {                                                          // the Z
       var drawn = step(0, T.draw), f = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), fill = warmOnly ? 0 : 1 - Math.pow(1 - f, 3);
       var half = LOGO.depth / 2 * (.35 + .65 * swellAt(T.swell));
@@ -5093,7 +5360,7 @@ window.__zwdRooms = function(THREE, o){
     fitCanvas(W, H); gl.viewport(0, 0, 1, 1); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex);
     drawLogo(lg, canvas.getBoundingClientRect(), W, H, 1, [1, 1, 0, 0], 0, true);
-    slow[lg.lock ? "warmLockup" : lg.photo ? "warmPhoto" : "warmLogo"] = performance.now() - t0;
+    slow[lg.lock ? "warmLockup" : lg.photo ? "warmPhoto" : lg.puzzle ? "warmPuzzle" : "warmLogo"] = performance.now() - t0;
   }
   window.addEventListener("scroll", ask, { passive: true });
   var rs = 0;
@@ -5105,8 +5372,8 @@ window.__zwdRooms = function(THREE, o){
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
   window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
-      logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]), photos: pick("photo").map(logoState) }; },
-    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" (both photos) or all
+      logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]), photos: pick("photo").map(logoState), puzzle: logoState(pick("puzzle")[0]) }; },
+    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" (both photos), "puzzle" or all
     logoAgain: function(which){ pick(which).forEach(function(lg){ lg.t0 = performance.now(); lg.at = null; }); ask(); } };   // play the lines again
   function pick(which){ return logos.filter(function(lg){ return !which || lg.kind === which; }); }
   function logoState(lg){ return lg ? { ready: !!(lg.prog && lg.tex), making: !!lg.making, failed: lg.failed, started: !!lg.t0, t: lg.t0 ? +((performance.now() - lg.t0) / 1000).toFixed(2) : 0, draws: lg.draws, strokes: lg.shape && lg.shape.strokes, thin: lg.shape && lg.shape.thin } : null; }
