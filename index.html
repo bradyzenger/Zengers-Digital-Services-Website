@@ -370,7 +370,10 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 /* The puzzle beside the fifth heading (What makes us different): four pieces drawn in 3D glass by the "About" script
    over the SVG's box ("the puzzle"; the SVG shows, flat, without WebGL 2). Its last piece comes in from beyond the
    box's top right, so the box is a little smaller than the logos'. Above the heading on narrow screens. */
-.ab-logo.ab-puzzle{width:min(58vw,240px)}
+/* The target beside the sixth heading (Our mission): a bullseye and rings drawn in 3D glass by the "About" script over
+   the SVG's box ("the target"; the SVG shows, flat, without WebGL 2), with an arrow that flies in from the right and
+   rests sticking out of it up to the right, a little beyond the box. The same size as the puzzle. */
+.ab-logo.ab-puzzle,.ab-logo.ab-target{width:min(58vw,240px)}
 /* From 900 px wide: the words in the left half of the site's column (lined up with the logo), the right half for
    the block's .ab-side (the Z in the first block). The heading size fills the half: "PLACEHOLDER" is 4.77 times its
    size wide. Narrower screens keep the centred words. */
@@ -382,7 +385,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
   .ab-logo{order:0;width:min(100%,480px);margin:0}
   .ab-logo.ab-lockup{width:min(100%,560px)}
   .ab-photo{order:0;width:min(100%,380px,calc(50vh - 44px));width:min(100%,380px,calc(50lvh - 44px));margin:0}
-  .ab-logo.ab-puzzle{width:min(100%,360px,calc(50vh - 60px));width:min(100%,360px,calc(50lvh - 60px))}   /* fits the clear band with room to spare, even on a short laptop screen */
+  .ab-logo.ab-puzzle,.ab-logo.ab-target{width:min(100%,360px,calc(50vh - 60px));width:min(100%,360px,calc(50lvh - 60px))}   /* fits the clear band with room to spare, even on a short laptop screen */
   .ab-block h3{font-size:clamp(56px,8.6vw,104px)}
   .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(18px,1.4vw,21px)}   /* a paragraph of about 110 words fits a laptop's screen, about 50 letters a line */
   /* A heading that would break badly at the full size (.ab-fit) gets the size where its longest line fills the half,
@@ -929,7 +932,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 
 <!-- ============================ ABOUT US ============================
      In the cloud between the mountain film and the street (the "About" script and the "about us" styles). Six
-     headings and paragraphs (the first block's words are Jason's, 2026-11-05; the second block's are Jason's, 2026-11-06; the third's, Brady Zenger, the founder (his name and age, as AGENTS.md asks), are Jason's, 2026-11-07; the fourth's, Jason Zenger, are Jason's, 2026-11-08; the fifth's, What makes us different, are Jason's, 2026-11-08; the last is a placeholder until written), drawn in liquid glass letters over a looping
+     headings and paragraphs (the first block's words are Jason's, 2026-11-05; the second block's are Jason's, 2026-11-06; the third's, Brady Zenger, the founder (his name and age, as AGENTS.md asks), are Jason's, 2026-11-07; the fourth's, Jason Zenger, are Jason's, 2026-11-08; the fifth's, What makes us different, are Jason's, 2026-11-08; the sixth's, Our mission, are Jason's, 2026-11-09), drawn in liquid glass letters over a looping
      video of clouds at sunset. The first block is ZENGERS, with the ZENGERS Z beside it in 3D glass (drawn by a line of
      light the first time it shows); the SVG is the logo for browsers without WebGL 2, traced from the logo Jason sent
      on 2026-11-05 (black top piece #101113, blue bottom piece #11448E). The second block is ZENGERS Digital Services,
@@ -947,6 +950,9 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
      a 2 x 2 pinwheel, the last (top right) going into place. Its SVG is both the flat puzzle without WebGL 2 and the
      shape the glass is made from, as the lockup's: made by resources/puzzle-shape/make.py, 10,000 units across, one
      group per piece (top left, top right, bottom right, bottom left), one path each, starting at the middle.
+     The sixth, Our mission, has a target beside it in the same 3D glass (Jason, 2026-11-09): a bullseye and three rings
+     that an arrow flies into. The glass is worked out in the "About" script (TARGET); the SVG is only the flat target
+     for browsers without WebGL 2 (keep its rings in step with TARGET.rings).
      "I don't want to read" (.ab-skip, Jason, 2026-11-06): shown at the bottom right while the words are on screen (the
      "About" script). With the 3D street, the "Street" script plays the flight over Nashville from its start; without
      it, the link goes on to Services, the next section. -->
@@ -969,7 +975,8 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       <div class="ab-side ab-photo"><img src="media/about-jason.webp" width="1024" height="1024" alt="Jason Zenger, smiling, outdoors with trees behind him" loading="lazy" decoding="async"></div></div>
     <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.876">What makes us different</h3><p>ZENGERS Digital Services is the best for you if you don’t know how to build a website, don’t know what to do or where to start, don’t need expensive workflows and strategies, don’t have time to manage a website, don’t know how managing a website works, have a business that needs a functional website that will have changes, want a thoughtful and well designed website, want to work with real people that are locally in your area, and want a reliable team that will manage, build, and thoughtfully design and make your business digitally amazing. You can’t get all this (especially for the price) anywhere other than ZENGERS Digital Services.</p></div>
       <div class="ab-side ab-logo ab-puzzle" aria-hidden="true"><svg viewBox="0 0 10000 10000" focusable="false" stroke="#F2E6D8" stroke-width="45" stroke-linejoin="round"><g fill="#0A2A5C"><path d="M4965,4965l-18,15 -21,11 -23,7 -23,3 -2,1 -31,2 -32,1 -31,2 -32,2 -32,3 -32,2 -33,3 -32,3 -33,3 -32,3 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -33,4 -32,4 -33,5 -33,4 -33,4 -33,4 -32,4 -33,4 -32,4 -32,4 -32,4 -32,4 -32,4 -31,3 -31,4 -31,3 -31,3 -31,4 -30,2 -30,3 -29,3 -30,2 -29,2 -28,2 -28,2 -35,1 -34,2 -34,0 -32,1 -32,-1 -31,-1 -31,-1 -29,-2 -29,-2 -28,-4 -32,-4 -31,-6 -30,-7 -28,-8 -26,-9 -29,-12 -27,-14 -25,-15 -22,-18 -22,-22 -19,-25 -15,-27 -11,-26 -8,-29 -5,-31 -2,-28 1,-30 2,-32 5,-28 5,-29 8,-31 9,-32 11,-33 10,-28 11,-29 12,-29 13,-31 15,-31 16,-33 16,-33 14,-32 12,-31 11,-31 10,-30 7,-29 7,-29 5,-28 4,-34 3,-33 0,-32 -2,-31 -3,-30 -6,-29 -7,-28 -9,-27 -13,-31 -15,-29 -18,-28 -19,-27 -22,-25 -23,-23 -25,-22 -26,-21 -23,-16 -24,-15 -25,-14 -26,-13 -27,-12 -27,-10 -28,-10 -29,-9 -29,-8 -30,-6 -30,-6 -30,-5 -30,-3 -31,-3 -31,-1 -31,-1 -31,1 -31,1 -31,3 -30,3 -30,5 -30,6 -30,6 -29,8 -29,9 -28,10 -27,10 -27,12 -26,13 -25,14 -24,15 -23,16 -26,21 -25,22 -23,23 -22,25 -19,27 -18,28 -15,29 -13,31 -9,27 -7,28 -6,29 -3,30 -2,31 0,32 3,33 4,34 5,28 7,29 7,29 10,30 11,31 12,31 14,32 16,33 16,33 15,31 13,31 12,29 11,29 10,28 9,26 10,33 7,31 6,29 5,29 3,32 1,30 -2,29 -4,31 -8,29 -10,26 -15,28 -18,25 -22,23 -22,17 -24,16 -27,14 -28,12 -31,11 -28,8 -30,7 -31,6 -32,4 -28,4 -29,2 -29,2 -31,1 -31,1 -32,1 -32,-1 -34,0 -34,-2 -35,-1 -28,-2 -28,-2 -29,-2 -30,-2 -29,-3 -30,-3 -30,-2 -31,-4 -31,-3 -31,-3 -31,-4 -31,-3 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -33,-4 -32,-4 -33,-4 -33,-4 -33,-4 -33,-5 -32,-4 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -32,-3 -33,-3 -32,-3 -33,-3 -32,-2 -32,-3 -32,-2 -31,-2 -32,-1 -31,-2 -2,-1 -23,-3 -23,-7 -21,-11 -18,-15 -15,-18 -11,-21 -7,-22 -2,-24 0,-4480 1,-26 2,-26 5,-26 6,-26 7,-25 9,-24 11,-24 13,-23 13,-22 16,-22 16,-20 18,-19 19,-18 20,-16 22,-16 22,-13 23,-13 24,-11 24,-9 25,-7 26,-6 26,-5 26,-2 26,-1 4480,0 23,2 23,7 20,11 18,15 15,19 11,20 7,23 2,23 -1,2 -2,31 -1,32 -2,31 -2,32 -3,32 -2,32 -3,33 -3,32 -3,33 -3,32 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -4,33 -4,32 -5,33 -4,33 -4,33 -4,33 -4,32 -4,33 -4,32 -4,32 -4,32 -4,32 -4,32 -3,31 -4,31 -3,31 -3,31 -4,31 -2,30 -3,30 -3,29 -2,30 -2,29 -2,28 -2,28 -1,35 -2,34 0,34 -1,32 1,32 1,31 1,31 2,29 2,29 4,28 4,32 6,31 7,30 8,28 9,26 12,29 14,27 15,25 18,22 22,22 25,19 27,15 26,11 29,8 31,5 28,2 30,-1 32,-2 28,-5 29,-5 31,-8 32,-9 33,-11 28,-10 29,-11 29,-12 31,-13 31,-15 33,-16 33,-16 32,-14 31,-12 31,-11 30,-10 29,-7 29,-7 28,-5 34,-4 33,-3 32,0 31,2 30,3 29,6 28,7 27,9 31,13 29,15 28,18 27,19 25,22 23,23 22,25 21,26 16,23 15,24 14,25 13,26 12,27 10,27 10,28 9,29 8,29 6,30 6,30 5,30 3,30 3,31 1,31 1,31 -1,31 -1,31 -3,31 -3,30 -5,30 -6,30 -6,30 -8,29 -9,29 -10,28 -10,27 -12,27 -13,26 -14,25 -15,24 -16,23 -21,26 -22,25 -23,23 -25,22 -27,19 -28,18 -29,15 -31,13 -27,9 -28,7 -29,6 -30,3 -31,2 -32,0 -33,-3 -34,-4 -28,-5 -29,-7 -29,-7 -30,-10 -31,-11 -31,-12 -32,-14 -33,-16 -33,-16 -31,-15 -31,-13 -29,-12 -29,-11 -28,-10 -26,-9 -33,-10 -31,-7 -29,-6 -29,-5 -32,-3 -30,-1 -29,2 -31,4 -29,8 -26,10 -28,15 -25,18 -23,22 -17,22 -16,24 -14,27 -12,28 -11,31 -8,28 -7,30 -6,31 -4,32 -4,28 -2,29 -2,29 -1,31 -1,31 -1,32 1,32 0,34 2,34 1,35 2,28 2,28 2,29 2,30 3,29 3,30 2,30 4,31 3,31 3,31 4,31 3,31 4,32 4,32 4,32 4,32 4,32 4,33 4,32 4,33 4,33 4,33 5,33 4,32 4,33 4,33 3,33 4,33 4,33 3,33 4,33 3,32 3,33 3,32 3,33 2,32 3,32 2,32 2,31 1,32 2,31 1,2 -2,23 -7,23 -11,21z"/></g><g fill="#B06E00"><path d="M5035,4965l-15,-18 -11,-21 -7,-23 -3,-23 -1,-2 -2,-31 -1,-32 -2,-31 -2,-32 -3,-32 -2,-32 -3,-33 -3,-32 -3,-33 -3,-32 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -4,-32 -5,-33 -4,-33 -4,-33 -4,-33 -4,-32 -4,-33 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -3,-31 -4,-31 -3,-31 -3,-31 -4,-31 -2,-30 -3,-30 -3,-29 -2,-30 -2,-29 -2,-28 -2,-28 -1,-35 -2,-34 0,-34 -1,-32 1,-32 1,-31 1,-31 2,-29 2,-29 4,-28 4,-32 6,-31 7,-30 8,-28 9,-26 12,-29 14,-27 15,-25 18,-22 22,-22 25,-19 27,-15 26,-11 29,-8 31,-5 28,-2 30,1 32,2 28,5 29,5 31,8 32,9 33,11 28,10 29,11 29,12 31,13 31,15 33,16 33,16 32,14 31,12 31,11 30,10 29,7 29,7 28,5 34,4 33,3 32,0 31,-2 30,-3 29,-6 28,-7 27,-9 31,-13 29,-15 28,-18 27,-19 25,-22 23,-23 22,-25 21,-26 16,-23 15,-24 14,-25 13,-26 12,-27 10,-27 10,-28 9,-29 8,-29 6,-30 6,-30 5,-30 3,-30 3,-31 1,-31 1,-31 -1,-31 -1,-31 -3,-31 -3,-30 -5,-30 -6,-30 -6,-30 -8,-29 -9,-29 -10,-28 -10,-27 -12,-27 -13,-26 -14,-25 -15,-24 -16,-23 -21,-26 -22,-25 -23,-23 -25,-22 -27,-19 -28,-18 -29,-15 -31,-13 -27,-9 -28,-7 -29,-6 -30,-3 -31,-2 -32,0 -33,3 -34,4 -28,5 -29,7 -29,7 -30,10 -31,11 -31,12 -32,14 -33,16 -33,16 -31,15 -31,13 -29,12 -29,11 -28,10 -26,9 -33,10 -31,7 -29,6 -29,5 -32,3 -30,1 -29,-2 -31,-4 -29,-8 -26,-10 -28,-15 -25,-18 -23,-22 -17,-22 -16,-24 -14,-27 -12,-28 -11,-31 -8,-28 -7,-30 -6,-31 -4,-32 -4,-28 -2,-29 -2,-29 -1,-31 -1,-31 -1,-32 1,-32 0,-34 2,-34 1,-35 2,-28 2,-28 2,-29 2,-30 3,-29 3,-30 2,-30 4,-31 3,-31 3,-31 4,-31 3,-31 4,-32 4,-32 4,-32 4,-32 4,-32 4,-33 4,-32 4,-33 4,-33 4,-33 5,-33 4,-32 4,-33 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 3,-32 3,-33 3,-32 3,-33 2,-32 3,-32 2,-32 2,-31 1,-32 2,-31 1,-2 3,-23 7,-23 11,-21 15,-18 18,-15 21,-11 22,-7 24,-2 4480,0 26,1 26,2 26,5 26,6 25,7 24,9 24,11 23,13 22,13 22,16 20,16 19,18 18,19 16,20 16,22 13,22 13,23 11,24 9,24 7,25 6,26 5,26 2,26 1,26 0,4480 -2,23 -7,23 -11,20 -15,18 -19,15 -20,11 -23,7 -23,2 -2,-1 -31,-2 -32,-1 -31,-2 -32,-2 -32,-3 -32,-2 -33,-3 -32,-3 -33,-3 -32,-3 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -32,-4 -33,-5 -33,-4 -33,-4 -33,-4 -32,-4 -33,-4 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -31,-3 -31,-4 -31,-3 -31,-3 -31,-4 -30,-2 -30,-3 -29,-3 -30,-2 -29,-2 -28,-2 -28,-2 -35,-1 -34,-2 -34,0 -32,-1 -32,1 -31,1 -31,1 -29,2 -29,2 -28,4 -32,4 -31,6 -30,7 -28,8 -26,9 -29,12 -27,14 -25,15 -22,18 -22,22 -19,25 -15,27 -11,26 -8,29 -5,31 -2,28 1,30 2,32 5,28 5,29 8,31 9,32 11,33 10,28 11,29 12,29 13,31 15,31 16,33 16,33 14,32 12,31 11,31 10,30 7,29 7,29 5,28 4,34 3,33 0,32 -2,31 -3,30 -6,29 -7,28 -9,27 -13,31 -15,29 -18,28 -19,27 -22,25 -23,23 -25,22 -26,21 -23,16 -24,15 -25,14 -26,13 -27,12 -27,10 -28,10 -29,9 -29,8 -30,6 -30,6 -30,5 -30,3 -31,3 -31,1 -31,1 -31,-1 -31,-1 -31,-3 -30,-3 -30,-5 -30,-6 -30,-6 -29,-8 -29,-9 -28,-10 -27,-10 -27,-12 -26,-13 -25,-14 -24,-15 -23,-16 -26,-21 -25,-22 -23,-23 -22,-25 -19,-27 -18,-28 -15,-29 -13,-31 -9,-27 -7,-28 -6,-29 -3,-30 -2,-31 0,-32 3,-33 4,-34 5,-28 7,-29 7,-29 10,-30 11,-31 12,-31 14,-32 16,-33 16,-33 15,-31 13,-31 12,-29 11,-29 10,-28 9,-26 10,-33 7,-31 6,-29 5,-29 3,-32 1,-30 -2,-29 -4,-31 -8,-29 -10,-26 -15,-28 -18,-25 -22,-23 -22,-17 -24,-16 -27,-14 -28,-12 -31,-11 -28,-8 -30,-7 -31,-6 -32,-4 -28,-4 -29,-2 -29,-2 -31,-1 -31,-1 -32,-1 -32,1 -34,0 -34,2 -35,1 -28,2 -28,2 -29,2 -30,2 -29,3 -30,3 -30,2 -31,4 -31,3 -31,3 -31,4 -31,3 -32,4 -32,4 -32,4 -32,4 -32,4 -33,4 -32,4 -33,4 -33,4 -33,4 -33,5 -32,4 -33,4 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -32,3 -33,3 -32,3 -33,3 -32,2 -32,3 -32,2 -31,2 -32,1 -31,2 -2,1 -23,-2 -23,-7 -21,-11z"/></g><g fill="#0A2A5C"><path d="M5035,5035l18,-15 21,-11 23,-7 23,-3 2,-1 31,-2 32,-1 31,-2 32,-2 32,-3 32,-2 33,-3 32,-3 33,-3 32,-3 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 33,-4 32,-4 33,-5 33,-4 33,-4 33,-4 32,-4 33,-4 32,-4 32,-4 32,-4 32,-4 32,-4 31,-3 31,-4 31,-3 31,-3 31,-4 30,-2 30,-3 29,-3 30,-2 29,-2 28,-2 28,-2 35,-1 34,-2 34,0 32,-1 32,1 31,1 31,1 29,2 29,2 28,4 32,4 31,6 30,7 28,8 26,9 29,12 27,14 25,15 22,18 22,22 19,25 15,27 11,26 8,29 5,31 2,28 -1,30 -2,32 -5,28 -5,29 -8,31 -9,32 -11,33 -10,28 -11,29 -12,29 -13,31 -15,31 -16,33 -16,33 -14,32 -12,31 -11,31 -10,30 -7,29 -7,29 -5,28 -4,34 -3,33 0,32 2,31 3,30 6,29 7,28 9,27 13,31 15,29 18,28 19,27 22,25 23,23 25,22 26,21 23,16 24,15 25,14 26,13 27,12 27,10 28,10 29,9 29,8 30,6 30,6 30,5 30,3 31,3 31,1 31,1 31,-1 31,-1 31,-3 30,-3 30,-5 30,-6 30,-6 29,-8 29,-9 28,-10 27,-10 27,-12 26,-13 25,-14 24,-15 23,-16 26,-21 25,-22 23,-23 22,-25 19,-27 18,-28 15,-29 13,-31 9,-27 7,-28 6,-29 3,-30 2,-31 0,-32 -3,-33 -4,-34 -5,-28 -7,-29 -7,-29 -10,-30 -11,-31 -12,-31 -14,-32 -16,-33 -16,-33 -15,-31 -13,-31 -12,-29 -11,-29 -10,-28 -9,-26 -10,-33 -7,-31 -6,-29 -5,-29 -3,-32 -1,-30 2,-29 4,-31 8,-29 10,-26 15,-28 18,-25 22,-23 22,-17 24,-16 27,-14 28,-12 31,-11 28,-8 30,-7 31,-6 32,-4 28,-4 29,-2 29,-2 31,-1 31,-1 32,-1 32,1 34,0 34,2 35,1 28,2 28,2 29,2 30,2 29,3 30,3 30,2 31,4 31,3 31,3 31,4 31,3 32,4 32,4 32,4 32,4 32,4 33,4 32,4 33,4 33,4 33,4 33,5 32,4 33,4 33,4 33,3 33,4 33,4 33,3 33,4 32,3 33,3 32,3 33,3 32,2 32,3 32,2 31,2 32,1 31,2 2,1 23,3 23,7 21,11 18,15 15,18 11,21 7,22 2,24 0,4480 -1,26 -2,26 -5,26 -6,26 -7,25 -9,24 -11,24 -13,23 -13,22 -16,22 -16,20 -18,19 -19,18 -20,16 -22,16 -22,13 -23,13 -24,11 -24,9 -25,7 -26,6 -26,5 -26,2 -26,1 -4480,0 -23,-2 -23,-7 -20,-11 -18,-15 -15,-19 -11,-20 -7,-23 -2,-23 1,-2 2,-31 1,-32 2,-31 2,-32 3,-32 2,-32 3,-33 3,-32 3,-33 3,-32 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 4,-33 4,-32 5,-33 4,-33 4,-33 4,-33 4,-32 4,-33 4,-32 4,-32 4,-32 4,-32 4,-32 3,-31 4,-31 3,-31 3,-31 4,-31 2,-30 3,-30 3,-29 2,-30 2,-29 2,-28 2,-28 1,-35 2,-34 0,-34 1,-32 -1,-32 -1,-31 -1,-31 -2,-29 -2,-29 -4,-28 -4,-32 -6,-31 -7,-30 -8,-28 -9,-26 -12,-29 -14,-27 -15,-25 -18,-22 -22,-22 -25,-19 -27,-15 -26,-11 -29,-8 -31,-5 -28,-2 -30,1 -32,2 -28,5 -29,5 -31,8 -32,9 -33,11 -28,10 -29,11 -29,12 -31,13 -31,15 -33,16 -33,16 -32,14 -31,12 -31,11 -30,10 -29,7 -29,7 -28,5 -34,4 -33,3 -32,0 -31,-2 -30,-3 -29,-6 -28,-7 -27,-9 -31,-13 -29,-15 -28,-18 -27,-19 -25,-22 -23,-23 -22,-25 -21,-26 -16,-23 -15,-24 -14,-25 -13,-26 -12,-27 -10,-27 -10,-28 -9,-29 -8,-29 -6,-30 -6,-30 -5,-30 -3,-30 -3,-31 -1,-31 -1,-31 1,-31 1,-31 3,-31 3,-30 5,-30 6,-30 6,-30 8,-29 9,-29 10,-28 10,-27 12,-27 13,-26 14,-25 15,-24 16,-23 21,-26 22,-25 23,-23 25,-22 27,-19 28,-18 29,-15 31,-13 27,-9 28,-7 29,-6 30,-3 31,-2 32,0 33,3 34,4 28,5 29,7 29,7 30,10 31,11 31,12 32,14 33,16 33,16 31,15 31,13 29,12 29,11 28,10 26,9 33,10 31,7 29,6 29,5 32,3 30,1 29,-2 31,-4 29,-8 26,-10 28,-15 25,-18 23,-22 17,-22 16,-24 14,-27 12,-28 11,-31 8,-28 7,-30 6,-31 4,-32 4,-28 2,-29 2,-29 1,-31 1,-31 1,-32 -1,-32 0,-34 -2,-34 -1,-35 -2,-28 -2,-28 -2,-29 -2,-30 -3,-29 -3,-30 -2,-30 -4,-31 -3,-31 -3,-31 -4,-31 -3,-31 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -4,-33 -4,-32 -4,-33 -4,-33 -4,-33 -5,-33 -4,-32 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -3,-32 -3,-33 -3,-32 -3,-33 -2,-32 -3,-32 -2,-32 -2,-31 -1,-32 -2,-31 -1,-2 2,-23 7,-23 11,-21z"/></g><g fill="#0A2A5C"><path d="M4965,5035l15,18 11,21 7,23 3,23 1,2 2,31 1,32 2,31 2,32 3,32 2,32 3,33 3,32 3,33 3,32 4,33 3,33 4,33 4,33 3,33 4,33 4,33 4,32 5,33 4,33 4,33 4,33 4,32 4,33 4,32 4,32 4,32 4,32 4,32 3,31 4,31 3,31 3,31 4,31 2,30 3,30 3,29 2,30 2,29 2,28 2,28 1,35 2,34 0,34 1,32 -1,32 -1,31 -1,31 -2,29 -2,29 -4,28 -4,32 -6,31 -7,30 -8,28 -9,26 -12,29 -14,27 -15,25 -18,22 -22,22 -25,19 -27,15 -26,11 -29,8 -31,5 -28,2 -30,-1 -32,-2 -28,-5 -29,-5 -31,-8 -32,-9 -33,-11 -28,-10 -29,-11 -29,-12 -31,-13 -31,-15 -33,-16 -33,-16 -32,-14 -31,-12 -31,-11 -30,-10 -29,-7 -29,-7 -28,-5 -34,-4 -33,-3 -32,0 -31,2 -30,3 -29,6 -28,7 -27,9 -31,13 -29,15 -28,18 -27,19 -25,22 -23,23 -22,25 -21,26 -16,23 -15,24 -14,25 -13,26 -12,27 -10,27 -10,28 -9,29 -8,29 -6,30 -6,30 -5,30 -3,30 -3,31 -1,31 -1,31 1,31 1,31 3,31 3,30 5,30 6,30 6,30 8,29 9,29 10,28 10,27 12,27 13,26 14,25 15,24 16,23 21,26 22,25 23,23 25,22 27,19 28,18 29,15 31,13 27,9 28,7 29,6 30,3 31,2 32,0 33,-3 34,-4 28,-5 29,-7 29,-7 30,-10 31,-11 31,-12 32,-14 33,-16 33,-16 31,-15 31,-13 29,-12 29,-11 28,-10 26,-9 33,-10 31,-7 29,-6 29,-5 32,-3 30,-1 29,2 31,4 29,8 26,10 28,15 25,18 23,22 17,22 16,24 14,27 12,28 11,31 8,28 7,30 6,31 4,32 4,28 2,29 2,29 1,31 1,31 1,32 -1,32 0,34 -2,34 -1,35 -2,28 -2,28 -2,29 -2,30 -3,29 -3,30 -2,30 -4,31 -3,31 -3,31 -4,31 -3,31 -4,32 -4,32 -4,32 -4,32 -4,32 -4,33 -4,32 -4,33 -4,33 -4,33 -5,33 -4,32 -4,33 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -3,32 -3,33 -3,32 -3,33 -2,32 -3,32 -2,32 -2,31 -1,32 -2,31 -1,2 -3,23 -7,23 -11,21 -15,18 -18,15 -21,11 -22,7 -24,2 -4480,0 -26,-1 -26,-2 -26,-5 -26,-6 -25,-7 -24,-9 -24,-11 -23,-13 -22,-13 -22,-16 -20,-16 -19,-18 -18,-19 -16,-20 -16,-22 -13,-22 -13,-23 -11,-24 -9,-24 -7,-25 -6,-26 -5,-26 -2,-26 -1,-26 0,-4480 2,-23 7,-23 11,-20 15,-18 19,-15 20,-11 23,-7 23,-2 2,1 31,2 32,1 31,2 32,2 32,3 32,2 33,3 32,3 33,3 32,3 33,4 33,3 33,4 33,4 33,3 33,4 33,4 32,4 33,5 33,4 33,4 33,4 32,4 33,4 32,4 32,4 32,4 32,4 32,4 31,3 31,4 31,3 31,3 31,4 30,2 30,3 29,3 30,2 29,2 28,2 28,2 35,1 34,2 34,0 32,1 32,-1 31,-1 31,-1 29,-2 29,-2 28,-4 32,-4 31,-6 30,-7 28,-8 26,-9 29,-12 27,-14 25,-15 22,-18 22,-22 19,-25 15,-27 11,-26 8,-29 5,-31 2,-28 -1,-30 -2,-32 -5,-28 -5,-29 -8,-31 -9,-32 -11,-33 -10,-28 -11,-29 -12,-29 -13,-31 -15,-31 -16,-33 -16,-33 -14,-32 -12,-31 -11,-31 -10,-30 -7,-29 -7,-29 -5,-28 -4,-34 -3,-33 0,-32 2,-31 3,-30 6,-29 7,-28 9,-27 13,-31 15,-29 18,-28 19,-27 22,-25 23,-23 25,-22 26,-21 23,-16 24,-15 25,-14 26,-13 27,-12 27,-10 28,-10 29,-9 29,-8 30,-6 30,-6 30,-5 30,-3 31,-3 31,-1 31,-1 31,1 31,1 31,3 30,3 30,5 30,6 30,6 29,8 29,9 28,10 27,10 27,12 26,13 25,14 24,15 23,16 26,21 25,22 23,23 22,25 19,27 18,28 15,29 13,31 9,27 7,28 6,29 3,30 2,31 0,32 -3,33 -4,34 -5,28 -7,29 -7,29 -10,30 -11,31 -12,31 -14,32 -16,33 -16,33 -15,31 -13,31 -12,29 -11,29 -10,28 -9,26 -10,33 -7,31 -6,29 -5,29 -3,32 -1,30 2,29 4,31 8,29 10,26 15,28 18,25 22,23 22,17 24,16 27,14 28,12 31,11 28,8 30,7 31,6 32,4 28,4 29,2 29,2 31,1 31,1 32,1 32,-1 34,0 34,-2 35,-1 28,-2 28,-2 29,-2 30,-2 29,-3 30,-3 30,-2 31,-4 31,-3 31,-3 31,-4 31,-3 32,-4 32,-4 32,-4 32,-4 32,-4 33,-4 32,-4 33,-4 33,-4 33,-4 33,-5 32,-4 33,-4 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 32,-3 33,-3 32,-3 33,-3 32,-2 32,-3 32,-2 31,-2 32,-1 31,-2 2,-1 23,2 23,7 21,11z"/></g></svg></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3>Placeholder</h3><p>Placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder.</p></div></div>
+    <div class="ab-block"><div class="ab-copy"><h3>Our mission</h3><p>Our mission is to give clients stunning websites and peace of mind. We design and build websites to the best of our ability and aim to give clients no work or stress related to their website. We aim to give our clients a great experience and a great piece of art to look at.</p></div>
+      <div class="ab-side ab-logo ab-target" aria-hidden="true"><svg viewBox="0 0 1000 1000" focusable="false"><circle cx="500" cy="500" r="445" fill="none" stroke="#0A2A5C" stroke-width="90"/><circle cx="500" cy="500" r="310" fill="none" stroke="#B06E00" stroke-width="90"/><circle cx="500" cy="500" r="175" fill="none" stroke="#0A2A5C" stroke-width="90"/><circle cx="500" cy="500" r="85" fill="#B06E00"/><g stroke-linecap="round" stroke-linejoin="round"><line x1="551" y1="469" x2="841" y2="291" stroke="#1F2430" stroke-width="36"/><line x1="551" y1="469" x2="841" y2="291" stroke="#F2E6D8" stroke-width="20"/><polygon points="500,500 602,475 569,420" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/><polygon points="756,343 841,291 880,316 803,363" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/><polygon points="756,343 841,291 836,245 760,292" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/></g></svg></div></div>
   </div>
 </section>
 
@@ -4055,7 +4062,8 @@ window.__zwdRooms = function(THREE, o){
    Digital Services, has the ZENGERS Digital Services logo (the lockup) the same way, its letters written one after
    another; the third, Brady Zenger, has a photo of Brady and Jason in a block of the same glass (the photos), and the
    fourth, Jason Zenger, a photo of Jason the same way; the fifth, What makes us different, a puzzle of four pieces of
-   the same glass, the last going into place (the puzzle). Tune: LENS, LOGO, LOCKUP, PHOTO, PUZZLE. */
+   the same glass, the last going into place (the puzzle); the sixth, Our mission, a target of the same glass that an
+   arrow flies into (the target). Tune: LENS, LOGO, LOCKUP, PHOTO, PUZZLE, TARGET. */
 (function(){
   "use strict";
   var LENS = {
@@ -4112,6 +4120,15 @@ window.__zwdRooms = function(THREE, o){
     from: { x: .17, y: .2, lift: .34, spin: -22, tipX: -16, tipY: 20 },   // where it starts: how far from its place (puzzle widths, y up), lifted toward the eye, turned (degrees: about the middle, tipped)
     turn: [-17, 9], sway: [3.5, 2.2], tilt: 5,   // degrees, as the logos
     timing: { draw: .9, fill: [.45, 1.3], swell: .5, appear: [.85, 1.15], move: [.95, 2], flash: [1.98, 2.6], turn: [1.85, 2.8], glint: [2.1, 2.9], line: [1.2, 1.8] }   // seconds from when it first shows: the three pieces' lines and glass; the last piece appearing, moving in (across its place, then down into it), its outline flashing as it clicks in
+  };
+  var TARGET = {           // the target beside the sixth heading (Our mission): a bullseye and three rings of the same glass, and a glass arrow that flies into the bullseye
+    rings: [[0, .085, .055, .06], [.175, .045, .046, .2], [.31, .045, .04, .06], [.445, .045, .034, .2]],   // the bullseye, then each ring out: the radius of its middle (the bullseye's 0), half its width, half its thickness (target widths), its frost (alternate rings frosted, as a target's colours alternate)
+    bevel: .03,            // how round their edges are
+    frost: .06,            // the arrow's frost, as the Z
+    arrow: { dir: [.62, .38, .69], length: .72, tipZ: -.015, from: 1.7, spin: 1.5, quiver: 4 },   // which way it points out of the bullseye, tip to tail (z toward the eye); its length; how deep its tip sits; how far back along its line it comes from (target widths); its turns in flight; how far it quivers (degrees)
+    wobble: [5, -4],       // degrees: how far the target rocks (turned, tipped) as the arrow hits
+    turn: [-16, 8], sway: [3.5, 2.2], tilt: 5,   // degrees, as the logos
+    timing: { draw: .5, per: .1, fill: [.4, .75], swell: .45, fly: [1.3, 1.62], ripple: .6, flash: .2, trail: .35, turn: [1.9, 2.8], glint: [2.1, 2.9], line: [1.05, 1.55] }   // seconds from when it first shows: each one's lines (the bullseye first, each ring per later), glass and swell; the arrow's flight (it hits at the end); after the hit: the ripple, the flash, the trail fading
   };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text"), skip = sec.querySelector(".ab-skip");
@@ -4719,6 +4736,156 @@ window.__zwdRooms = function(THREE, o){
     "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
     "}"
   ]).join("\n");
+  // The target (beside the sixth heading): a bullseye and three rings of the same glass, each rounded like the Z's
+  // edges, worked out in the shader (they're circles: no field), and a glass arrow that flies into the bullseye: a round
+  // cone for its head, a rod for its shaft, three fins (one, turned round the shaft). The arrow is placed by its own
+  // axes (uArrowM, uArrowO), so it can fly in turning, stick and quiver. The lines of light sweep round each one's edges
+  // from the top, the bullseye first; when the arrow hits, a flash at the bullseye and a ripple of light out across the rings.
+  var FS_TARGET = [
+    "#version 300 es",
+    "precision highp float;",
+    "uniform sampler2D uSky;",
+    "uniform vec4 uMap, uBox;              // stage px -> background uv; the target's box (px; its width is 1 unit)",
+    "uniform vec2 uView, uLight, uTrailA, uTrailB, uRipple;   // the stage's size; the light; the arrow's trail on the screen (units: from its tail back to where it came from); the ripple (radius, strength)",
+    "uniform vec4 uRing[4];                // the bullseye and the three rings: the radius of each one's middle, half its width, half its thickness (now), its frost",
+    "uniform vec4 uFill, uWk, uSweep;      // each one's glass poured in (0-1); how far its glass pours (half, at full); how far round its lines have swept (0-1)",
+    "uniform vec3 uLo, uHi, uArrowO;       // a box round all the glass (its own space); the arrow's tip",
+    "uniform mat3 uRot, uArrowM;           // the target's turn (its own space -> the view); the arrow's own axes (along it from the tip, then across)",
+    "uniform float uDpr, uTop, uCam, uBack, uIor, uDisp, uLine, uGlint, uShadow, uBevel, uArrowL, uArrowOn, uTrail, uFlash, uFrost;",
+    "in vec2 vPx; out vec4 o;",
+    "float px1;                            // one canvas pixel, in units",
+    "float slab(float d, float z, float h, float r){   // glass with outline d, h each side of the middle, its edges rounded (as the Z)",
+    "  vec2 w = vec2(d + r, abs(z) - h + r), m = max(w, 0.);",
+    "  return min(max(w.x, w.y), 0.) + pow(m.x * m.x * m.x + m.y * m.y * m.y, 1. / 3.) - r;",
+    "}",
+    "float ringD(int k, float r){ return abs(r - uRing[k].x) - uRing[k].y; }   // how far outside ring k's outline (k = 0: the bullseye, its middle at 0)",
+    "float rings(vec3 p){                  // the bullseye and the rings, each filled from its edges inward",
+    "  float r = length(p.xy), d = 1e3;",
+    "  for (int k = 0; k < 4; k++) {",
+    "    if (uFill[k] < .001) continue;",
+    "    float e = ringD(k, r);",
+    "    e = max(e, -e - 2. * uWk[k] * uFill[k]);",
+    "    d = min(d, slab(e, p.z, uRing[k].z, min(uBevel, min(uRing[k].z, uRing[k].y)) * .95));",
+    "  }",
+    "  return d;",
+    "}",
+    "float roundCone(vec2 q, float r1, float r2, float h){   // q: (across, along); r1 at 0, r2 at h, its ends round (as Inigo Quilez's)",
+    "  float b = (r1 - r2) / h, a = sqrt(1. - b * b), k = dot(q, vec2(-b, a));",
+    "  if (k < 0.) return length(q) - r1;",
+    "  if (k > a * h) return length(q - vec2(0., h)) - r2;",
+    "  return dot(q, vec2(a, b)) - r1;",
+    "}",
+    "float arrow(vec3 p){                  // the arrow, in its own space: its tip at 0, its shaft along +x",
+    "  vec3 q = uArrowM * (p - uArrowO);",
+    "  float rr = length(q.yz), L = uArrowL;",
+    "  float bound = length(vec2(q.x - clamp(q.x, 0., L), rr)) - .09;",
+    "  if (bound > .02) return bound;",
+    "  float head = roundCone(vec2(rr, q.x), .003, .036, .12);",
+    "  float shaft = length(vec2(q.x - clamp(q.x, .1, L), rr)) - .017;",
+    "  float a = atan(q.z, q.y), s = 2.0943951; a = mod(a + s * .5, s) - s * .5;   // three fins: one, turned round the shaft",
+    "  vec3 f = vec3(q.x - (L - .085), rr * cos(a) - .05, rr * sin(a));",
+    "  float fin = length(max(abs(f) - vec3(.065, .03, .0015), 0.)) - .004;",
+    "  return min(min(head, shaft), fin);",
+    "}",
+    "float body(vec3 p){",
+    "  float d = rings(p);",
+    "  if (uArrowOn > .5) d = min(d, arrow(p));",
+    "  return d;",
+    "}"
+  ].concat(GLASS_3D, [
+    "vec3 lineAt(vec2 q, float R, float s){   // a line of light round the circle of radius R, swept clockwise from the top as far as s (0-1)",
+    "  if (s <= 0.) return vec3(0.);",
+    "  float th = atan(q.x, q.y) / 6.2831853; th = th < 0. ? th + 1. : th;   // how far round from the top, clockwise",
+    "  if (th > s) return vec3(0.);",
+    "  float g = (s - th) * 6.2831853 * R, tail = exp(-g * g / .012) * (1. - smoothstep(.8, 1., s)), dpx = abs(length(q) - R) * uBox.z;   // how far behind its head (units; its bright tail fades as the circle closes, or the end would show beside the start); px from the line",
+    "  float core = exp(-dpx * dpx / 1.6), near = exp(-dpx * dpx / 40.), far = exp(-dpx * dpx / 420.);",
+    "  return vec3(1., .97, .9) * core * (.8 + 1.3 * tail) + vec3(1., .74, .3) * (near * (.3 + .9 * tail) + far * (.08 + .32 * tail));",
+    "}",
+    "vec3 headAt(vec2 q, float R, float s){   // its head: a bright point and its halo, fading as the circle closes",
+    "  float a = s * 6.2831853, hpx = length(q - R * vec2(sin(a), cos(a))) * uBox.z, k = smoothstep(0., .04, s) * (1. - smoothstep(.85, 1., s));",
+    "  return vec3(1., .9, .72) * (exp(-hpx * hpx / 26.) * .9 + exp(-hpx * hpx / 700.) * .27) * k;",
+    "}",
+    "void main(){",
+    "  px1 = 1. / (uBox.z * uDpr);",
+    "  vec2 c = uBox.xy + uBox.zw * .5;",
+    "  vec3 P = vec3((vPx.x - c.x) / uBox.z, -(vPx.y - c.y) / uBox.z, 0.), eye = vec3(0., 0., uCam), rd = normalize(P - eye);",
+    "  mat3 back = transpose(uRot);",
+    "  vec3 ro = back * eye, d1 = back * rd;   // the eye's ray, in the target's own space",
+    "  float fade = smoothstep(uTop, uTop + .12 * uView.y, vPx.y) * smoothstep(uView.y, .86 * uView.y, vPx.y);",
+    "  vec3 col = vec3(0.); float a = 0.;",
+    "  if (max(max(uFill.x, uFill.y), max(uFill.z, uFill.w)) > .001 || uArrowOn > .5) {",
+    "    vec3 inv = 1. / d1, ta = (uLo - px1 * 4. - ro) * inv, tb = (uHi + px1 * 4. - ro) * inv, tn = min(ta, tb), tf = max(ta, tb);",
+    "    float t0 = max(max(tn.x, tn.y), tn.z), t1 = min(min(tf.x, tf.y), tf.z);",
+    "    if (t0 < t1 && t1 > 0.) {",
+    "      float t = max(t0, 0.), dmin = 1e9, tmin = t; bool hit = false;",
+    "      for (int i = 0; i < 96; i++) {",
+    "        float d = body(ro + d1 * t);",
+    "        if (d < dmin) { dmin = d; tmin = t; }",
+    "        if (d < px1 * .2) { hit = true; break; }",
+    "        t += max(d * .85, px1 * .25);",
+    "        if (t > t1) break;",
+    "      }",
+    "      a = hit ? 1. : clamp(1. - dmin / px1, 0., 1.);       // a ray that just misses: the edge, smoothed",
+    "      if (a > 0.) {",
+    "        vec3 p1 = ro + d1 * (hit ? t : tmin), n1 = nrm(p1);",
+    "        bool shaft = uArrowOn > .5 && arrow(p1) < rings(p1);   // it met the arrow",
+    "        float r = length(p1.xy), rim = 1e3, frost = uFrost;",
+    "        for (int k = 0; k < 4; k++) { float e = ringD(k, r); if (e < rim) { rim = e; frost = uRing[k].w; } }   // the ring it met: how far in from its edge, its frost",
+    "        if (shaft) frost = uFrost;",
+    "        vec3 r1 = refract(d1, n1, 1. / uIor);",
+    "        if (dot(r1, r1) < 1e-6) r1 = reflect(d1, n1);",
+    "        vec3 q = p1 - n1 * px1 * 2.; float k = 0.;",
+    "        for (int i = 0; i < 48; i++) { float d = -body(q + r1 * k); if (d < px1 * .2) break; k += max(d * .9, px1 * .25); }",
+    "        vec3 p2 = q + r1 * k, n2 = nrm(p2);",
+    "        vec3 eta = uIor + vec3(-1., 0., 1.5) * uDisp;",
+    "        vec3 through = vec3(exitAt(d1, n1, p2, n2, eta.r).r, exitAt(d1, n1, p2, n2, eta.g).g, exitAt(d1, n1, p2, n2, eta.b).b);",
+    "        float l = dot(through, vec3(.2126, .7152, .0722)); through = clamp(mix(vec3(l), through, 1.5), 0., 1.);   // saturate(1.5), as the letters",
+    "        through = mix(through, vec3(1.), frost);",
+    "        vec3 nv = uRot * n1, rv = reflect(rd, nv);",
+    "        float F = .04 + .96 * pow(1. - max(dot(-rd, nv), 0.), 5.);",
+    "        col = mix(through, env(rv), F);",
+    "        vec2 ns = vec2(nv.x, -nv.y); float tip = length(ns); ns /= max(tip, 1e-4);   // the slope, on the screen",
+    "        float lit = -dot(ns, uLight) * min(tip * 2., 1.), glint = pow(max(lit, 0.), 3.), away = pow(max(-lit, 0.), 3.);",
+    "        float dd = shaft ? 9. : max(-rim, 0.) / max(uBevel, 1e-4);   // (the arrow is all rounded: no rim bands)",
+    "        vec3 bq = (dd - vec3(.18, .42, .66) * 1.3) / .26, bands = exp(-bq * bq);   // Glisse's chromatic bands along the rim",
+    "        float peak = max(bands.r, max(bands.g, bands.b));",
+    "        col = mix(col, .65 + .35 * bands / max(peak, 1e-4), clamp(peak * (.05 + .75 * glint + .3 * away) * .8, 0., 1.));",
+    "        col = 1. - (1. - col) * (1. - .55 * exp(-dd * 2.5) * abs(lit));                // the thin lit edge",
+    "        col += vec3(1., .97, .9) * pow(max(dot(rv, normalize(vec3(-.5, .62, .6))), 0.), 60.) * .9;   // a sparkle from the light",
+    "        col += vec3(1., .95, .85) * exp(-pow((dot(p1.xy, vec2(.876, .482)) - uGlint) / .05, 2.)) * (.25 + .75 * min(tip * 1.5, 1.)) * .9;   // the glint that crosses it once",
+    "      }",
+    "    }",
+    "  }",
+    "  vec3 lc = vec3(0.);",
+    "  if (uLine > .001) {                   // the lines of light round each one's edges, on its front face, the bullseye first",
+    "    vec3 m = vec3(0.), hd = vec3(0.);",
+    "    for (int k = 0; k < 4; k++) {",
+    "      vec2 q = (ro + d1 * ((uRing[k].z - ro.z) / d1.z)).xy;",
+    "      float s = uSweep[k], R0 = uRing[k].x - uRing[k].y, R1 = uRing[k].x + uRing[k].y;",
+    "      m = max(m, lineAt(q, R1, s)); hd += headAt(q, R1, s);",
+    "      if (R0 > 0.) { m = max(m, lineAt(q, R0, s)); hd += headAt(q, R0, s); }",
+    "    }",
+    "    lc += (m + hd) * uLine * .8;",
+    "  }",
+    "  if (uRipple.y > .001 || uFlash > .001) {   // the arrow's hit: a flash at the bullseye, a ripple of light out across the rings",
+    "    vec2 q = (ro + d1 * ((uRing[0].z - ro.z) / d1.z)).xy; float r = length(q);",
+    "    lc += vec3(1., .93, .8) * exp(-pow((r - uRipple.x) / .028, 2.)) * uRipple.y * smoothstep(.56, .47, r);",
+    "    lc += vec3(1., .95, .85) * uFlash * (exp(-r * r / .0012) * 1.1 + exp(-r * r / .02) * .28);",
+    "  }",
+    "  if (uTrail > .001) {                  // the arrow's trail, on the screen: brightest at its tail",
+    "    vec2 ab = uTrailB - uTrailA; float l = length(ab), u = clamp(dot(P.xy - uTrailA, ab) / max(l * l, 1e-8), 0., 1.);",
+    "    float dpx = length(P.xy - uTrailA - ab * u) * uBox.z;",
+    "    lc += uTrail * exp(-u * l / .3) * (vec3(1., .97, .9) * exp(-dpx * dpx / 2.5) + vec3(1., .78, .45) * exp(-dpx * dpx / 50.) * .45);",
+    "  }",
+    "  float sh = 0.;                        // a soft warm shadow below, as under the words",
+    "  if (uShadow > 0.) {",
+    "    float r = length(P.xy + vec2(0., .022));",
+    "    for (int k = 0; k < 4; k++) sh = max(sh, pow(smoothstep(.045, -.005, ringD(k, r)), 2.) * uFill[k]);",
+    "    sh *= uShadow * (1. - a);",
+    "  }",
+    "  o = vec4((col * a + vec3(.27, .13, .07) * sh + lc) * fade, (a + sh) * fade);",
+    "}"
+  ]).join("\n");
   function link(vs, fs){                               // starts making a program (the graphics chip may do it in the background)
     var p = gl.createProgram(), shaders = [];
     [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(function(s){
@@ -5008,7 +5175,7 @@ window.__zwdRooms = function(THREE, o){
     if (queue.length) { pending = true; (window.requestIdleCallback || setTimeout)(work, { timeout: 300 }); }
   }
 
-  // ---------- the logos: the ZENGERS Z (first block) and the lockup, the ZENGERS Digital Services logo (second block), in 3D glass; the photos (third and fourth blocks); the puzzle (fifth) ----------
+  // ---------- the logos: the ZENGERS Z (first block) and the lockup, the ZENGERS Digital Services logo (second block), in 3D glass; the photos (third and fourth blocks); the puzzle (fifth); the target (sixth) ----------
   // Each one's shape becomes a field of distances once, on the background thread (it doesn't change with the window: the
   // box only scales it); its program is made in the background too where the browser can (KHR_parallel_shader_compile),
   // the lockup's once the Z's is ready, so the two don't land in the same moment. The two photos share one program
@@ -5019,8 +5186,8 @@ window.__zwdRooms = function(THREE, o){
   // depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced motion it is
   // simply there. The SVG under it shows where there's no WebGL 2.
   var logos = [].map.call(sec.querySelectorAll(".ab-logo, .ab-photo"), function(el){
-    var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : el.classList.contains("ab-puzzle") ? "puzzle" : "logo";
-    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
+    var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : el.classList.contains("ab-puzzle") ? "puzzle" : el.classList.contains("ab-target") ? "target" : "logo";
+    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", target: kind === "target", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   });
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
   var fetching = false;                                // a photo is on its way (one at a time, so two never land in the same frame)
@@ -5093,8 +5260,13 @@ window.__zwdRooms = function(THREE, o){
     return mul(mul([[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]], [[1, 0, 0], [0, cx, -sx], [0, sx, cx]]), [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]]);
   }
   function wordsDone(){ return built && !queue.length && !items.some(function(it){ return it.busy; }); }   // every heading's and paragraph's field made
+  function vAdd(a, b){ return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+  function vScale(a, k){ return [a[0] * k, a[1] * k, a[2] * k]; }
+  function vCross(a, b){ return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+  function vNorm(a){ var l = Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]) || 1; return vScale(a, 1 / l); }
   function prepareLogo(lg, mayLink, on){               // near the section: its shape, and its program (once it may start)
     if (lg.failed || !gl) return;
+    if (lg.target && !lg.tex) { lg.tex = texture(gl.NEAREST); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array(1)); }   // the target needs no field (its rings and arrow are worked out in the shader): a stand-in, so it counts as ready
     if (!lg.tex && !lg.busy && lg.photo && on && !fetching) {         // the photo, once About us shows (not while the film ends): fetched and decoded off the page's thread, then sent to the graphics chip once, with its smaller copies (mipmaps) so it stays smooth when small or turned
       var img = lg.el.querySelector("img"), src = img.currentSrc || img.src; lg.busy = true; fetching = true;
       var got = window.createImageBitmap && window.fetch
@@ -5156,7 +5328,7 @@ window.__zwdRooms = function(THREE, o){
     if (mayLink && !lg.prog && !lg.making && !lg.failed) {
       var twin = logos.filter(function(o){ return o !== lg && o.kind === lg.kind && o.prog; })[0];   // the second photo: the first one's program
       if (twin) lg.prog = twin.prog;
-      else try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : lg.puzzle ? FS_PUZZLE : FS_LOGO); } catch(e){ logoFail(lg, e); }
+      else try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : lg.puzzle ? FS_PUZZLE : lg.target ? FS_TARGET : FS_LOGO); } catch(e){ logoFail(lg, e); }
     }
   }
   function logoReady(lg){
@@ -5193,7 +5365,7 @@ window.__zwdRooms = function(THREE, o){
         lg.t0 = now;
       }
     }
-    var C = lg.lock ? LOCKUP : lg.photo ? PHOTO : lg.puzzle ? PUZZLE : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
+    var C = lg.lock ? LOCKUP : lg.photo ? PHOTO : lg.puzzle ? PUZZLE : lg.target ? TARGET : LOGO, T = C.timing, t = warmOnly ? 0 : lg.at != null ? lg.at : still ? 60 : (performance.now() - lg.t0) / 1000;
     var step = function(a, b){ var x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
     var swellAt = function(a){ var w = t - a; return still ? 1 : w <= 0 ? 0 : 1 - Math.exp(-5.5 * w) * Math.cos(8 * w); };   // a little past full, and back: poured, not built
     var turn = step(T.turn[0], T.turn[1]), sway = still ? 0 : step(T.turn[1] - .1, T.turn[1] + 1.4), deg = Math.PI / 180;
@@ -5202,6 +5374,7 @@ window.__zwdRooms = function(THREE, o){
     var pitch = (C.turn[1] * turn + C.sway[1] * sway * Math.sin(t * 2 * Math.PI / 7 + 1.3) - (still ? 0 : C.tilt * 2 * mid * turn)) * deg;
     var g = (t - T.glint[0]) / (T.glint[1] - T.glint[0]), glint = g > 0 && g < 1 ? -.8 + 1.6 * g * g * (3 - 2 * g) : 9;
     var line = still || warmOnly ? 0 : Math.min(1, t / .05) * (1 - step(T.line[0], T.line[1]));
+    if (lg.target && !still && !warmOnly && t > T.fly[1]) { var wob = Math.exp(-5 * (t - T.fly[1])) * Math.sin(17 * (t - T.fly[1])); yaw += TARGET.wobble[0] * wob * deg; pitch += TARGET.wobble[1] * wob * deg; }   // the target rocks as the arrow hits
     var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
     var L = lg.prog, U = L.u;
     gl.useProgram(L.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -5221,6 +5394,36 @@ window.__zwdRooms = function(THREE, o){
       gl.uniform1f(U.uW, (Math.min(.5, hh) + 1.5 * PHOTO.bevel) / 2);              // how far the glass pours in (twice this, at full): a little past the middle, so its rounded inner edge closes over and leaves the face flat (exactly to the middle left a small dimple there)
       gl.uniform1f(U.uShow, warmOnly ? 0 : step(T.show[0], T.show[1])); gl.uniform1f(U.uFrost, PHOTO.frost); gl.uniform1f(U.uShadow, LENS.shadow[0] * pfill);
       gl.uniform1f(U.uDrawn, Ld); gl.uniform1f(U.uPerim, per); gl.uniform2f(U.uHead0, h0[0], h0[1]); gl.uniform2f(U.uHead1, h1[0], h1[1]);
+    } else if (lg.target) {                                                         // the target: the bullseye and the rings drawn and filled, then the arrow flies in
+      var G = TARGET, A = G.arrow, ring = [], fills = [], wks = [], sweeps = [], hit = t - T.fly[1];
+      G.rings.forEach(function(g, k){
+        var o = T.per * k, f = Math.max(0, Math.min(1, (t - T.fill[0] - o) / T.fill[1]));
+        fills.push(warmOnly ? 0 : 1 - Math.pow(1 - f, 3));
+        ring.push(g[0], g[1], g[2] * (.35 + .65 * swellAt(T.swell + o)), g[3]);
+        wks.push((g[1] + 1.5 * G.bevel) / 2);                                     // how far its glass pours (twice this, at full): past its middle, so it closes flat
+        sweeps.push(warmOnly ? 0 : step(o, o + T.draw));
+      });
+      var u0 = vNorm(A.dir), fly = (t - T.fly[0]) / (T.fly[1] - T.fly[0]), on = !warmOnly && (still || fly > 0), D = still || fly >= 1 ? 0 : A.from * (1 - Math.max(0, fly));
+      var tip = vAdd([0, 0, A.tipZ], vScale(u0, D));
+      var ax = vNorm(vCross(u0, [0, 0, 1])), ph = still || hit <= 0 ? 0 : A.quiver * deg * Math.exp(-4.5 * hit) * Math.sin(42 * hit);   // its quiver after the hit: a little turn about its tip
+      var u = vAdd(vScale(u0, Math.cos(ph)), vScale(vCross(ax, u0), Math.sin(ph))), e2 = vNorm(vCross(u, [0, 0, 1])), e3 = vCross(u, e2);
+      var roll = still ? 0 : A.spin * 2 * Math.PI * Math.max(0, Math.min(1, fly)), f2 = vAdd(vScale(e2, Math.cos(roll)), vScale(e3, Math.sin(roll))), f3 = vAdd(vScale(e3, Math.cos(roll)), vScale(e2, -Math.sin(roll)));   // it turns as it flies
+      var tail = vAdd(tip, vScale(u, A.length)), from = vAdd([0, 0, A.tipZ], vScale(u0, A.from + A.length)), hz = G.rings[0][2] * 1.15;
+      var lo = [-.5, -.5, -hz], hi = [.5, .5, hz];
+      if (on) [tip, tail].forEach(function(p){ for (var i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i] - .1); hi[i] = Math.max(hi[i], p[i] + .1); } });
+      var trail = still || !on ? 0 : hit <= 0 ? 1 : Math.pow(Math.max(0, 1 - hit / T.trail), 2), rp = still || hit <= 0 || hit >= T.ripple ? 0 : Math.pow(1 - hit / T.ripple, 2), fl = still || hit <= 0 || hit >= T.flash ? 0 : Math.pow(1 - hit / T.flash, 2);
+      var M = [[cy, sy * sp, sy * cp], [0, cp, -sp], [-sy, cy * sp, cy * cp]];     // uRot's rows: the target's own space -> the view
+      var scr = function(p){ var v = M.map(function(row){ return row[0] * p[0] + row[1] * p[1] + row[2] * p[2]; }), k = 3.4 / Math.max(.2, 3.4 - v[2]); return [v[0] * k, v[1] * k]; };   // a point -> the screen (units from the box's middle, y up), as the eye sees it
+      var ta = scr(tail), tb = scr(from), pts = on ? [scr(tip), ta] : [], x0 = bx - pad, y0 = by - pad, x1 = bx + bw + pad, y1 = by + bh + pad;
+      if (trail > 0) { var dl = Math.sqrt((tb[0] - ta[0]) * (tb[0] - ta[0]) + (tb[1] - ta[1]) * (tb[1] - ta[1])), cut = Math.min(1, 1.2 / Math.max(dl, 1e-6)); pts.push([ta[0] + (tb[0] - ta[0]) * cut, ta[1] + (tb[1] - ta[1]) * cut]); }
+      pts.forEach(function(q){ var px = bx + bw / 2 + q[0] * bw, py = by + bh / 2 - q[1] * bw, m = .14 * bw; x0 = Math.min(x0, px - m); y0 = Math.min(y0, py - m); x1 = Math.max(x1, px + m); y1 = Math.max(y1, py + m); });
+      x0 = Math.max(x0, -10); y0 = Math.max(y0, -10); x1 = Math.min(x1, W + 10); y1 = Math.min(y1, H + 10);
+      gl.uniform4f(U.uRect, x0, y0, Math.max(0, x1 - x0), Math.max(0, y1 - y0));    // the area drawn: the box, and wherever the arrow and its trail are
+      gl.uniform4fv(U["uRing[0]"], ring); gl.uniform4fv(U.uFill, fills); gl.uniform4fv(U.uWk, wks); gl.uniform4fv(U.uSweep, sweeps); gl.uniform1f(U.uBevel, G.bevel); gl.uniform1f(U.uFrost, G.frost);
+      gl.uniform3fv(U.uLo, lo); gl.uniform3fv(U.uHi, hi); gl.uniform1f(U.uArrowOn, on ? 1 : 0); gl.uniform3fv(U.uArrowO, tip); gl.uniform1f(U.uArrowL, A.length);
+      gl.uniformMatrix3fv(U.uArrowM, false, [u[0], f2[0], f3[0], u[1], f2[1], f3[1], u[2], f2[2], f3[2]]);   // its axes as rows: a point -> the arrow's own space
+      gl.uniform2f(U.uTrailA, ta[0], ta[1]); gl.uniform2f(U.uTrailB, tb[0], tb[1]); gl.uniform1f(U.uTrail, trail);
+      gl.uniform2f(U.uRipple, .09 + .5 * Math.pow(Math.max(0, hit) / T.ripple, .8), rp); gl.uniform1f(U.uFlash, fl); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0]);
     } else if (lg.puzzle) {                                                         // the puzzle: three pieces drawn and filled, then the last one goes into place
       var z = lg.shape, P = PUZZLE, dr = warmOnly ? 0 : step(0, T.draw), zf = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), zfill = warmOnly ? 0 : 1 - Math.pow(1 - zf, 3);
       var zh = P.depth / 2 * (.35 + .65 * swellAt(T.swell)), mv = moveOf(t), mh = warmOnly || mv.show <= 0 ? 0 : P.depth / 2 * (.35 + .65 * swellAt(T.appear[0])), R = turnOf(mv.spin, mv.tx, mv.ty);
@@ -5361,7 +5564,7 @@ window.__zwdRooms = function(THREE, o){
     fitCanvas(W, H); gl.viewport(0, 0, 1, 1); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, skyTex);
     drawLogo(lg, canvas.getBoundingClientRect(), W, H, 1, [1, 1, 0, 0], 0, true);
-    slow[lg.lock ? "warmLockup" : lg.photo ? "warmPhoto" : lg.puzzle ? "warmPuzzle" : "warmLogo"] = performance.now() - t0;
+    slow[lg.lock ? "warmLockup" : lg.photo ? "warmPhoto" : lg.puzzle ? "warmPuzzle" : lg.target ? "warmTarget" : "warmLogo"] = performance.now() - t0;
   }
   window.addEventListener("scroll", ask, { passive: true });
   var rs = 0;
@@ -5373,8 +5576,8 @@ window.__zwdRooms = function(THREE, o){
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
   window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
-      logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]), photos: pick("photo").map(logoState), puzzle: logoState(pick("puzzle")[0]) }; },
-    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" (both photos), "puzzle" or all
+      logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]), photos: pick("photo").map(logoState), puzzle: logoState(pick("puzzle")[0]), target: logoState(pick("target")[0]) }; },
+    logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" (both photos), "puzzle", "target" or all
     logoAgain: function(which){ pick(which).forEach(function(lg){ lg.t0 = performance.now(); lg.at = null; }); ask(); } };   // play the lines again
   function pick(which){ return logos.filter(function(lg){ return !which || lg.kind === which; }); }
   function logoState(lg){ return lg ? { ready: !!(lg.prog && lg.tex), making: !!lg.making, failed: lg.failed, started: !!lg.t0, t: lg.t0 ? +((performance.now() - lg.t0) / 1000).toFixed(2) : 0, draws: lg.draws, strokes: lg.shape && lg.shape.strokes, thin: lg.shape && lg.shape.thin } : null; }
