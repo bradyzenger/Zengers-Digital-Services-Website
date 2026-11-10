@@ -936,7 +936,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
       </div>
     </div>
 
-    <a class="skip-film" href="#services">Skip the intro ↓</a>
+    <a class="skip-film" href="#about">Skip the intro ↓</a>
   </div>
 </section>
 
@@ -3570,7 +3570,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     yield;                                              // the rest at once: the page changes round the street in one go
 
     // ---------- the page: the street's words and labels over the picture, the six sections on six screens ----------
-    var header = document.querySelector(".site-header"), skipFilm = film.querySelector(".skip-film"), skipHref = skipFilm && skipFilm.getAttribute("href");
+    var header = document.querySelector(".site-header"), skipFilm = film.querySelector(".skip-film");
     var track = document.createElement("div"); track.className = "devices"; track.id = "nashville";
     var stage = document.createElement("div"); stage.className = "dev-stage";
     stage.appendChild(canvas);
@@ -3608,14 +3608,12 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     var home = secs.map(function(s){ return { parent: s.parentNode, next: s.nextSibling, hidden: s.hidden }; });
     secs[0].parentNode.insertBefore(track, secs[0]);
     screens.forEach(function(sc){ sc.page.appendChild(sc.sec); sc.sec.hidden = false; });
-    if (skipFilm) skipFilm.setAttribute("href", "#nashville");
     about.classList.add("ab-flow");                      // About us sits in the cloud between the film and the street (the "About" script)
     restore = function(){
       film.style.removeProperty("--film-tail"); delete film.dataset.tail; delete film.dataset.rise; root.classList.remove("dev-moving", "st-in");
       about.classList.remove("ab-flow"); about.style.marginTop = "";
       for (var i = secs.length - 1; i >= 0; i--) { var h = home[i]; h.parent.insertBefore(secs[i], h.next && h.next.parentNode === h.parent ? h.next : null); secs[i].hidden = h.hidden; }
       if (track.parentNode) track.parentNode.removeChild(track);
-      if (skipFilm && skipHref) skipFilm.setAttribute("href", skipHref);
       if ("scrollRestoration" in history) history.scrollRestoration = "auto";
       restore = null;
     };
@@ -3841,7 +3839,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         if (glideAnim) {                                                // the flight plays at its own pace (its easing is in flyCam)
           var g = glideAnim, tg = Math.min(1, (now - g.t0) / Math.max(1, g.d));
           window.scrollTo({ top: g.base + (tg < 1 ? g.from + (g.to - g.from) * tg : g.land), behavior: "instant" });
-          if (tg >= 1) { stopFly(); lastY = window.scrollY; }
+          if (tg >= 1) {
+            var risen = g.m === moves.rise && g.dir > 0;
+            stopFly(); lastY = window.scrollY;
+            if (risen && focusAbout) { focusAbout = false; var ht = about.querySelector("#about-title") || about; ht.setAttribute("tabindex", "-1"); ht.focus({ preventScroll: true }); }   // "Skip the intro" from the keyboard
+          }
         }
         if (move) {                                                     // in at a window, out, or from house to house
           var mt = Math.min(1, (now - move.t0) / move.d); move.k = move.k0 + (move.k1 - move.k0) * inOut(mt);
@@ -3875,6 +3877,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
     function playTo(m, dir){
       clearTimeout(quiet); auto = null;
+      if (!(m === moves.rise && dir > 0)) focusAbout = false;   // turned round, or another flight: no focus to move
       var s = -track.getBoundingClientRect().top, from = Math.max(m.a, Math.min(m.b, s)), to = dir > 0 ? m.b : m.a;
       root.classList.add("dev-moving");
       glideAnim = { m: m, base: window.scrollY - s, from: from, to: to, land: m.land[dir > 0 ? 1 : 0], dir: dir, push: 0, t0: performance.now(),
@@ -3941,6 +3944,22 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         playTo(moves.city, 1);
         if (keys) focusAfter = 0;
       }, 380);
+    });
+    // "Skip the intro" (in the film; since 2026-11-09, at Jason's request): the page cuts to the end of the film, the
+    // summit, and the rise into the cloud plays from there to About us's first words, as when the visitor scrolls on past
+    // the summit. (It used to go on to the street, past About us.) The address becomes #about, so the browser's Back
+    // returns to where the visitor was; from the keyboard, About us's heading gets the focus once it lands (focusAbout).
+    // Without the street it's a plain link to About us.
+    var focusAbout = false;
+    if (skipFilm) skipFilm.addEventListener("click", function(e){
+      if (dead || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      if (glideAnim && glideAnim.m === moves.rise && glideAnim.dir > 0) return;   // already on its way
+      if (mode !== "scroll") { move = null; toStreet(false); }
+      if (history.pushState) { try { history.replaceState(Object.assign({}, history.state || {}, { y: window.scrollY }), ""); history.pushState({}, "", "#about"); lastHash = location.hash; } catch(_){} }
+      cancelAuto(); stopFly(); clearTimeout(quiet);
+      toTop(moves.rise.a); playTo(moves.rise, 1);
+      focusAbout = !e.detail;
     });
     window.addEventListener("mouseup", function(){ if (mouseHeld) { held = mouseHeld = false; clearTimeout(quiet); quiet = setTimeout(settle, 160); } });
 
