@@ -3,9 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ZENGERS Digital Services</title>
-<meta name="description" content="Websites for local businesses: done for you, kept fresh, and 100% stress-free.">
+<title>Nashville Web Design for Local Businesses · ZENGERS Digital Services</title>
+<meta name="description" content="Websites for local businesses in the Nashville area: done for you, kept fresh, and 100% stress-free.">
 <link rel="canonical" href="https://zengersdigital.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ZENGERS Digital Services">
+<meta property="og:title" content="ZENGERS Digital Services: websites for local businesses in Nashville">
+<meta property="og:description" content="We build it, host it, and keep it up to date.">
+<meta property="og:url" content="https://zengersdigital.com/">
+<meta property="og:image" content="https://zengersdigital.com/media/share-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ZENGERS Digital Services logo over mountains at sunrise, with a gold line climbing to the summit.">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#EEF1EE">
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="media/favicon-192.png">
@@ -70,7 +80,7 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Archivo:wdth,wght@112..125,700..900&family=Orbitron:wght@800;900&family=Young+Serif&family=Barlow+Condensed:wght@800&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Archivo:wdth,wght@118,800&family=Orbitron:wght@800;900&family=Young+Serif&family=Barlow+Condensed:wght@800&family=Cormorant+Garamond:wght@600&display=swap">
 <style>
 /* ============================================================
    ZENGERS Digital Services — single-page site
@@ -91,7 +101,7 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
   --line:#CCD4D2;       /* hairlines on paper */
   --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
   --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  --font-pro:"Archivo","Helvetica Neue",Arial,sans-serif;          /* Pro: bold, professional, modern */
+  --font-pro:"Archivo","Helvetica Neue",Arial,sans-serif;          /* Pro: bold, professional, modern. Used only at width 118% and weight 800 (.plan-pro), and only that style is fetched from Google Fonts (37 KB, not 88 KB for the full range): change the request in the <head> with it */
   --font-premier:"Orbitron","Eurostile","Arial Black",sans-serif;   /* Premier: futuristic, luxurious */
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --gutter:clamp(16px,4vw,48px);
@@ -1479,6 +1489,9 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li><a href="#process">Process</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="examples.html">Examples</a></li>
+          <li><a href="websites-for-landscapers.html">Websites for landscapers</a></li>
+          <li><a href="websites-for-contractors.html">Websites for contractors</a></li>
+          <li><a href="faq.html">Questions and answers</a></li>
           <li><a href="#contact">Ask a question</a></li>
         </ul>
       </nav>
@@ -2100,8 +2113,12 @@ window.__zwdIntro3D = function(THREE, intro, on){
    mask, drawn only into the depth buffer, lets that house's room (drawn first) show through. Above the east side, the
    clouds About us sits in (since 2026-11-07): the flight comes down through them (see "the clouds").
    Units: metres; y up; +z east (the camera comes from there), -z west (downtown), +x north. The sun is low in the
-   south-east. Tune: SUN, the fog, DT (how far downtown is), the tree and house counts, LOOK (the six houses). */
-window.__zwdNashville = function(THREE, o){
+   south-east. Tune: SUN, the fog, DT (how far downtown is), the tree and house counts, LOOK (the six houses).
+   Built a part at a time (steps: each yield is a pause, so the "Street" script can let the browser draw a frame between
+   parts and the page never stalls while the city is made), or all at once (__zwdNashville). Either way the same city:
+   the parts always run in the same order with the same random numbers. */
+window.__zwdNashville = function(THREE, o){ var it = window.__zwdNashville.steps(THREE, o), r; do { r = it.next(); } while (!r.done); return r.value; };
+window.__zwdNashville.steps = function*(THREE, o){
   var V3 = THREE.Vector3, G = o.ground, WIN = o.win, ROW = o.row, fine = o.fine, DT = 530;
   var HX = []; for (var hq = 0; hq < ROW.n; hq++) HX.push(ROW.x + (hq - (ROW.n - 1) / 2) * ROW.gap);   // the six houses' middles, left (south) to right
   var rowL = HX[0] - 3, rowR = HX[ROW.n - 1] + 3, RC = new V3(ROW.x, G, ROW.z + 40);
@@ -2134,6 +2151,7 @@ window.__zwdNashville = function(THREE, o){
   sun.shadow.bias = -.0004; sun.shadow.normalBias = .6;
   scene.add(new THREE.HemisphereLight(0xA9BCE2, 0x3A342C, .8));
 
+  yield;
   // ---------- the ground: lawns, sidewalks and streets in the neighbourhoods, pavement downtown, dark river banks ----------
   var NOISE = "float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}" +
     "float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y);}\n";
@@ -2156,6 +2174,7 @@ window.__zwdNashville = function(THREE, o){
   };
   var ground = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), groundMat); ground.rotation.x = -Math.PI / 2; ground.position.y = G; ground.receiveShadow = true; scene.add(ground);
 
+  yield;
   // ---------- the river, mirroring the sky ----------
   var rp = [], ri = [];
   for (var x = -6000, n = 0; x <= 6000; x += 50, n++) { var zc = river(x); rp.push(x, G + .4, zc - 95, x, G + .4, zc + 95); if (n) { var b = (n - 1) * 2; ri.push(b, b + 1, b + 2, b + 1, b + 3, b + 2); } }
@@ -2189,6 +2208,7 @@ window.__zwdNashville = function(THREE, o){
   function flat(g){ g = g.index ? g.toNonIndexed() : g; g.computeVertexNormals(); return g; }   // shaded face by face (a pointed top is not round)
   function pyramid(r, h, x, y, z, sx, sz){ var g = new THREE.CylinderGeometry(0, r, h, 4, 1); g.rotateY(Math.PI / 4); g.scale(sx || 1, 1, sz || 1); g.translate(x, y + h / 2, z); return flat(g); }
 
+  yield;
   // ---------- downtown: towers of glass and stone, a few windows lit ----------
   function facade(){   // 8 x 8 windows: frames and spandrels light, glass dark and smooth; a few lit from inside
     var S = 256, cv = [0, 1, 2].map(function(){ var c = document.createElement("canvas"); c.width = c.height = S; return c; });
@@ -2239,6 +2259,7 @@ window.__zwdNashville = function(THREE, o){
   }
   scene.add(town.mesh(towerMat));
 
+  yield;
   // ---------- bridges and the stadium ----------
   var steel = new Batch(), STEEL = C(0x6A7987), CON = C(0xC4BFB4);
   (function footbridge(x){   // a camelback truss footbridge across the river
@@ -2273,6 +2294,7 @@ window.__zwdNashville = function(THREE, o){
   })(-430, -590);
   scene.add(steel.mesh(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7, metalness: .2, side: THREE.DoubleSide })));
 
+  yield;
   // ---------- the neighbourhood: houses on long streets under big trees; low-rise city out to the horizon ----------
   function wallTex(rows){   // painted siding with windows (one row per storey), tinted per house
     var c = document.createElement("canvas"); c.width = 128; c.height = 64 * rows; var x = c.getContext("2d");
@@ -2365,6 +2387,7 @@ window.__zwdNashville = function(THREE, o){
     scene.add(m);
   });
 
+  yield;
   // ---------- low hills all round the horizon ----------
   var hp = [], hi = [], HS = 96;
   for (i = 0; i <= HS; i++) { var an = i / HS * Math.PI * 2, hh = 60 + 80 * Math.abs(Math.sin(an * 3.1) * Math.cos(an * 5.3 + 1)) + 30 * Math.sin(an * 11);
@@ -2373,6 +2396,7 @@ window.__zwdNashville = function(THREE, o){
   var hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(hp, 3)); hg.setIndex(hi); hg.computeVertexNormals();
   scene.add(new THREE.Mesh(hg, new THREE.MeshLambertMaterial({ color: 0x4A5A3E })));
 
+  yield;
   // ---------- the six houses: narrow, two storeys, siding, a shingled roof, a porch; each in its own colours ----------
   function stripes(w, h, base, line, every, rep){ var c = document.createElement("canvas"); c.width = w; c.height = h; var x = c.getContext("2d");
     x.fillStyle = base; x.fillRect(0, 0, w, h);
@@ -2446,6 +2470,7 @@ window.__zwdNashville = function(THREE, o){
     var tr = new THREE.Mesh(new THREE.CylinderGeometry(.22, .32, t[3], 6), new THREE.MeshLambertMaterial({ color: 0x3B2E24 })); tr.position.set(t[0], G + t[3] / 2, t[1]); tr.castShadow = true; scene.add(tr);
   });
 
+  yield;
   // ---------- the little park across the street: a path, lamps, benches, low planting along the street ----------
   var pathC = new THREE.CatmullRomCurve3([new V3(rowL - 14, G, 19), new V3(ROW.x - 14, G, 40), new V3(ROW.x + 10, G, 58), new V3(rowR + 16, G, 92)]), pp = [], pi = [];
   for (i = 0; i <= 80; i++) {
@@ -2467,6 +2492,7 @@ window.__zwdNashville = function(THREE, o){
     var sb = new THREE.Mesh(crowns[3], new THREE.MeshLambertMaterial({ vertexColors: true, color: LEAF[(rnd() * 6) | 0] })); sb.position.set(bx2, G + .35, 18.6 + rnd() * .8); sb.scale.set(.9 + rnd() * .5, .4, .7); scene.add(sb);
   }
 
+  yield;
   // ---------- the ways in: each house's upper window shows its room's light from outside (glass); when the camera
   // goes in, a mask drawn only into the depth buffer lets the room (drawn first) show through, and the glass fades.
   // A warm glow marks the windows from far away ----------
@@ -2488,6 +2514,7 @@ window.__zwdNashville = function(THREE, o){
     return w;
   });
 
+  yield;
   // ---------- the clouds About us sits in: a deck of cumulus over East Nashville that the camera comes down through ----------
   // The flight starts inside one of them, all the one colour About us ends in, comes out between them looking down on
   // the city through the gaps, and drops out under their flat bases with downtown ahead (the "Street" script's flyCam).
@@ -2671,6 +2698,7 @@ window.__zwdNashville = function(THREE, o){
       w.glow.material.opacity = .45 * smooth(12, 90, d); w.glow.scale.setScalar(Math.max(1.5, d * .02));
     });
   }
+  yield;
   return { scene: scene, update: update, mistAt: mistAt, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
 };
 </script>
@@ -2684,7 +2712,10 @@ window.__zwdNashville = function(THREE, o){
    Each room is built in its own space: the floor at y = 0, the window wall at z = 0 (the room runs back toward -z), the
    window (1.1 × 1.5 m) centred at x = 0, y = WY; the "Street" script moves it in behind its house's window. The low
    morning sun (SUN, as in the city) comes in at each window. Tune each room in its own function (sizes in metres,
-   colours, lights). The devices and the arcade games are look-alikes with no logos, names or characters. */
+   colours, lights). The devices and the arcade games are look-alikes with no logos, names or characters.
+   Each room is built a part at a time (steps) or all at once (build); either way the same room, as long as no other
+   room is built while one is part-way (the "Street" script finishes one first): the parts run in the same order with
+   the same random numbers. */
 window.__zwdRooms = function(THREE, o){
   var V3 = THREE.Vector3, V2 = THREE.Vector2, PI = Math.PI, renderer = o.renderer, WY = 1.6, textures = [];
   var SUN = new V3(-.62, .21, .76).normalize();                 // toward the sun, low in the south-east
@@ -2826,14 +2857,15 @@ window.__zwdRooms = function(THREE, o){
     if (o2.trunk) rod(g, new V3(0, h * .9, 0), new V3(.02, h + o2.trunk, 0), .018, std(0x6A5440, .9));
     return g;
   }
+  var pmrem = null;                                           // one generator for all six rooms' reflections (its programs made once, not six times)
   function envMap(panels, base){                              // soft reflections for metal, glass and gloss
-    var sc = new THREE.Scene(), pm = new THREE.PMREMGenerator(renderer);
+    var sc = new THREE.Scene(), pm = pmrem || (pmrem = new THREE.PMREMGenerator(renderer));
     sc.add(new THREE.Mesh(new THREE.BoxGeometry(10, 7, 10), new THREE.MeshBasicMaterial({ color: base, side: THREE.BackSide })));
     panels.forEach(function(q){
       var m = new THREE.Mesh(new THREE.PlaneGeometry(q[1], q[2]), new THREE.MeshBasicMaterial({ color: new THREE.Color(q[0][0], q[0][1], q[0][2]), side: THREE.DoubleSide }));
       m.position.set(q[3][0], q[3][1], q[3][2]); m.lookAt(0, 0, 0); sc.add(m);
     });
-    var t = pm.fromScene(sc, .03).texture; pm.dispose();
+    var t = pm.fromScene(sc, .03).texture;
     sc.traverse(function(m){ if (m.geometry) m.geometry.dispose(); if (m.material) m.material.dispose(); });
     return t;
   }
@@ -2940,28 +2972,33 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- 1 · a home office: Services on a laptop, on a walnut desk against a warm white wall, in amber light ----------
-  function office(){
+  function* office(){
     var R = Room(0xE6DED3, "#EEF1EE", 0xFFB070), g = R.root;
     R.scene.environment = envMap(WARM, 0x9E9182);
+    yield;
     var walnut = phys(0xFFFFFF, .5, { map: wood("#86664B", "#927151", "62,40,23", "198,160,124", [1, 1]), clearcoat: .3, clearcoatRoughness: .45 });
     shell(R, { wall: std(0xF1EDE6, .94), floor: std(0xFFFFFF, .6, 0, { map: planks(["#B4875A", "#BE9165", "#A97C50", "#C49A6D"], [2.2, 1.9]) }), ceil: std(0xF4F1EC, .95) });
+    yield;
     var DY = .74, DZ = -4.2;                                   // the desk
     put(g, box(1.7, .036, .76, walnut), 0, DY - .018, DZ);
     [[-.8, -.33], [.8, -.33], [-.8, .33], [.8, .33]].forEach(function(q){ put(g, box(.03, DY - .036, .03, M.black), q[0], (DY - .036) / 2, DZ + q[1]); });
     put(g, box(1.62, .05, .02, M.black), 0, DY - .065, DZ - .33);
     R.screen = laptop(g, 0, DY, -4.06, 0, R.page);
+    yield;
     // the desk lamp, an anglepoise, with its warm bulb
     var lb = new V3(-.62, DY, -4.42), j1 = new V3(-.6, DY + .36, -4.28), j2 = new V3(-.42, DY + .44, -4.1);
     put(g, cyl(.07, .075, .018, M.black, 28), lb.x, DY + .009, lb.z); rod(g, lb.clone().setY(DY + .015), j1, .006, M.black); rod(g, j1, j2, .006, M.black);
     var head = cyl(.026, .068, .1, std(0x22252A, .4, .3, { side: THREE.DoubleSide }), 28, true); head.position.copy(j2).add(new V3(.03, -.03, .04)); head.rotation.set(.55, 0, -.45); g.add(head);
     put(g, ball(.022, lit(0xFFE2B0, 1.4)), head.position.x + .01, head.position.y - .03, head.position.z + .02);
     bulb(R, 0xFFC98A, .9, [head.position.x + .02, head.position.y - .08, head.position.z + .04], 3);
+    yield;
     // a mug, a notebook and a pencil, a little succulent
     var mug = lathe([[0, 0], [.036, 0], [.04, .006], [.04, .095], [.036, .095], [.034, .01], [0, .01]], M.ceramic); put(g, mug, .42, DY, -3.96);
     var hd = sh(new THREE.Mesh(new THREE.TorusGeometry(.024, .006, 8, 16, PI), M.ceramic)); hd.rotation.z = -PI / 2; put(g, hd, .46, DY + .05, -3.96);
     put(g, pad(.15, .014, .21, .006, std(0x22365A, .7)), .6, DY + .007, -4.24, .25);
     rod(g, new V3(.53, DY + .018, -4.15), new V3(.62, DY + .018, -4.31), .004, std(0xE0B04A, .5));
     plant(g, -.36, -4.42, { y: DY, pot: [.045, .07], potMat: M.terracotta, kind: "simple", col: "#5E8A57", n: 9, h: .03, spread: .04, size: .05 });
+    yield;
     // a print above the desk: the sun over the ridges, in the site's colours
     var print = tex(512, 352, function(x, W, H){
       x.fillStyle = "#EFE8DA"; x.fillRect(0, 0, W, H);
@@ -2969,6 +3006,7 @@ window.__zwdRooms = function(THREE, o){
       [["#C86B3C", .58], ["#2F4B5E", .66], ["#0E1822", .78]].forEach(function(r, i){ x.fillStyle = r[0]; x.beginPath(); x.moveTo(0, H); for (var px = 0; px <= W; px += 8) x.lineTo(px, H * r[1] - Math.sin(px * (.012 + i * .004) + i) * 26 - Math.sin(px * .031 + i * 2) * 9); x.lineTo(W, H); x.fill(); });
     });
     put(g, box(.86, .62, .025, M.black), 0, 1.66, -4.585); put(g, new THREE.Mesh(new THREE.PlaneGeometry(.78, .54), std(0xFFFFFF, .9, 0, { map: print })), 0, 1.66, -4.571);
+    yield;
     // a bookshelf on the right
     var SX = 1.75, SZ = -4.43, shelfM = walnut;
     [-1, 1].forEach(function(k){ put(g, box(.025, 2.0, .3, shelfM), SX + k * .45, 1.0, SZ); });
@@ -2988,17 +3026,20 @@ window.__zwdRooms = function(THREE, o){
     books.count = bi; books.castShadow = books.receiveShadow = true; g.add(books);
     put(g, lathe([[0, 0], [.05, 0], [.07, .08], [.05, .19], [.03, .21], [0, .21]], std(0x6E8C7A, .3)), SX + .2, 1.6125, SZ);
     plant(g, SX - .2, SZ, { y: 2.0025, pot: [.07, .1], kind: "simple", col: "#4E7A3E", n: 14, h: .1, spread: .14, size: .12 });
+    yield;
     // a desk chair, pulled out to the left
     var ch = new THREE.Group(); ch.position.set(-1.0, 0, -3.4); ch.rotation.y = .7; g.add(ch);
     var fab = std(0x3A3D42, .95);
     put(ch, pad(.5, .08, .48, .03, fab), 0, .48, 0); var bk = put(ch, slab(.46, .5, .06, .04, .015, fab), 0, .8, -.24); bk.rotation.x = -.14;
     rod(ch, new V3(0, .08, 0), new V3(0, .44, 0), .022, M.black); rod(ch, new V3(0, .5, -.2), new V3(0, .62, -.27), .012, M.black);
     for (var i = 0; i < 5; i++) { var a = i * PI * .4, e = new V3(Math.cos(a) * .3, .05, Math.sin(a) * .3); rod(ch, new V3(0, .08, 0), e, .015, M.black); put(ch, ball(.025, M.black), e.x, .025, e.z); }
+    yield;
     // a fiddle-leaf fig in the corner, and a rug
     plant(g, -2.15, -4.12, { pot: [.2, .36], kind: "fig", col: "#33592A", n: 24, top: 1.1, trunk: 1.25, spread: .38, size: .3 });
     var rug = tex(512, 512, function(x, W, H){ x.fillStyle = "#E4DACB"; x.fillRect(0, 0, W, H); x.strokeStyle = "#22365A"; x.lineWidth = 14; x.strokeRect(26, 26, W - 52, H - 52); x.lineWidth = 3; x.strokeRect(50, 50, W - 100, H - 100); specks(x, W, H, 9000, "120,100,80", .12); });
     put(g, new THREE.Mesh(new THREE.PlaneGeometry(2.3, 1.6), std(0xFFFFFF, .98, 0, { map: rug })), 0, .003, -3.72).rotation.x = -PI / 2;
     g.children[g.children.length - 1].receiveShadow = true;
+    yield;
     // light: amber from the upper left (as before), the lamp, the low sun at the window, the sky
     R.scene.add(new THREE.HemisphereLight(0xFFF0DC, 0x4B3626, .5));
     spot(R, 0xFFBE7C, 9, [-1, 2.19, -3.1], [.3, .84, -4.55], .8, true);
@@ -3008,10 +3049,12 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- 2 · a design studio: Why it matters on a desktop display, a white desk, a moodboard, cool daylight ----------
-  function studio(){
+  function* studio(){
     var R = Room(0xC9C6C0, "#EEF1EE", 0xE4ECF6), g = R.root;
     R.scene.environment = envMap([[[2.6, 2.8, 3.2], 3, 2, [0, 2.2, 3.4]], [[1.6, 1.4, 1.1], 3, 1.6, [-3.2, 2, -1]], [[.8, .82, .86], 6, 3, [0, 3, 0]]], 0x8E9298);
+    yield;
     shell(R, { wall: std(0xFFFFFF, .92, 0, { map: plaster("#CFCBC4", [2, 1.2], 4200) }), back: std(0xFFFFFF, .9, 0, { map: plaster("#2D5A63", [2, 1.2], 3000) }), floor: phys(0xFFFFFF, .34, { map: plaster("#8F8C87", [3, 3], 5200), clearcoat: .25, clearcoatRoughness: .3 }), ceil: std(0xF2F1EE, .95) });
+    yield;
     var DY = .74, DZ = -4.2;
     put(g, box(2.0, .03, .8, std(0xF4F3F0, .35)), 0, DY - .015, DZ);
     [-.78, .78].forEach(function(x){                           // black steel trestles
@@ -3028,6 +3071,7 @@ window.__zwdRooms = function(THREE, o){
     var SW = ["#F2B544", "#D96A3F", "#8DA58A", "#22365A", "#2E7F86", "#E8826E", "#EEF1EE"];   // a fan of colour swatches
     SW.forEach(function(c, i){ var s = put(g, box(.045, .002, .19, std(c, .6)), -.5, DY + .002 + i * .0021, -3.98); s.rotation.y = -.5 + i * .16; s.geometry.translate(0, 0, -.08); });
     put(g, lathe([[0, 0], [.035, 0], [.042, .09], [.042, .093], [.037, .093], [.032, .012], [0, .012]], std(0x1C1C1E, .35)), -.78, DY, -4.18);
+    yield;
     // the moodboard: swatches, sketches of pages, photos, pinned to cork
     var board = tex(1024, 512, function(x, W, H){
       x.fillStyle = "#B48A5A"; x.fillRect(0, 0, W, H); specks(x, W, H, 16000, "70,40,20", .25); specks(x, W, H, 6000, "240,210,170", .15);
@@ -3042,12 +3086,14 @@ window.__zwdRooms = function(THREE, o){
       }
     });
     put(g, box(2.4, 1.12, .02, std(0xFFFFFF, .85, 0, { map: board })), 0, 1.92, -4.59);
+    yield;
     // a pendant lamp over the desk
     rod(g, new V3(0, 2.8, -4.05), new V3(0, 2.08, -4.05), .003, M.black);
     put(g, lathe([[.012, 0], [.03, -.01], [.16, -.2], [.16, -.205], [.153, -.205], [.026, -.018], [.012, -.017]], std(0x1C1D20, .5, .3, { side: THREE.DoubleSide })), 0, 2.08, -4.05);
     put(g, ball(.03, lit(0xFFE6BE, 1.6)), 0, 1.92, -4.05);
     bulb(R, 0xFFD2A0, 2.2, [0, 1.84, -4.05], 5);
     plant(g, -1.95, -3.95, { pot: [.24, .42], potMat: std(0x9C9A96, .85), kind: "monstera", col: "#2F5A2C", n: 15, h: .9, spread: .55, size: .5 });
+    yield;
     // a low white sideboard on the right, with sketchbooks and a vase of dried stems
     put(g, box(1.2, .55, .42, std(0xEFEDE8, .5)), 1.75, .325, -4.35); [-.3, .3].forEach(function(dx){ put(g, box(.12, .012, .012, M.black), 1.75 + dx, .52, -4.135); });
     [0, 1, 2].forEach(function(i){ put(g, pad(.3, .02, .22, .004, std(pick(["#22365A", "#D96A3F", "#2B2B2E"]), .7)), 1.55, .6 + i * .02 + .01, -4.36, .1 * i - .1); });
@@ -3129,13 +3175,16 @@ window.__zwdRooms = function(THREE, o){
     t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
     var m = lit(0xFFFFFF, .9); m.map = t; return m;
   }
-  function arcade(){
+  function* arcade(){
     var R = Room(0x14112A, "#EEF1EE", 0xC24CE6), g = R.root;
     R.scene.environment = envMap([[[3, .6, 2.4], 3, 2, [-3, 2, 1]], [[.5, 2.2, 3], 3, 2, [3, 2, 1]], [[.25, .2, .45], 6, 3, [0, 3, 0]]], 0x0C0A18);
+    yield;
     shell(R, { wall: std(0x231E44, .88), trim: std(0x2E2858, .6), floor: std(0xFFFFFF, .95, 0, { map: carpetTex() }), ceil: std(0x100D22, .95) });
+    yield;
     R.screen = cabinet(g, 0, -4.52, 0, ["#FF3FD0", "#3FE9FF", "#F2B544"], { mat: screenMat(R.page) });
     cabinet(g, -1.34, -4.36, .34, ["#3FE9FF", "#7A5CFF", "#FF3FD0"], { mat: attract(0) });
     cabinet(g, 1.34, -4.36, -.34, ["#F2B544", "#FF7A3F", "#3FE9FF"], { mat: attract(1) });
+    yield;
     // neon: a pink line along the back wall, a blue bolt on the left wall, a gold wave on the right
     var B = -4.585, glows = [];
     neon(g, [new V3(-2.4, 2.5, B), new V3(-.8, 2.5, B), new V3(.8, 2.5, B), new V3(2.4, 2.5, B)], .014, 0xFF3FD0);
@@ -3152,11 +3201,13 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- 4 · a kitchen: The process on a tablet, on a butcher-block counter, sage cabinets, white tiles, morning sun ----------
-  function kitchen(){
+  function* kitchen(){
     var R = Room(0xEDE8DF, "#EEF1EE", 0xFFD08A), g = R.root;
     R.scene.environment = envMap(WARM, 0xA59A8C);
+    yield;
     var stone = tex(512, 512, function(x, W, H){ x.fillStyle = "#B9AF9F"; x.fillRect(0, 0, W, H); for (var r = 0; r < 2; r++) for (var c = 0; c < 2; c++) { x.fillStyle = shade("#D9D0C2", (rnd() - .5) * 14); x.fillRect(c * 256 + 2, r * 256 + 2, 252, 252); } specks(x, W, H, 7000, "120,100,80", .12); }, [5.4 / 1.2, 4.6 / 1.2]);
     shell(R, { wall: std(0xF3EFE7, .92), floor: std(0xFFFFFF, .75, 0, { map: stone }), ceil: std(0xF6F4F0, .95) });
+    yield;
     var CT = .91, BZ = -4.6, sage = std(0x8DA58A, .62), oak = phys(0xFFFFFF, .45, { map: wood("#C8A273", "#D4AE80", "92,62,30", "236,206,160", [1, 1]), clearcoat: .2 });
     put(g, box(5.4, .1, .54, std(0x2E3330, .9)), 0, .05, BZ + .27);            // the toe kick
     put(g, box(5.4, .78, .56, sage), 0, .49, BZ + .28);                      // the cabinets,
@@ -3168,6 +3219,7 @@ window.__zwdRooms = function(THREE, o){
     put(g, box(5.4, .04, .64, oak), 0, CT - .02, BZ + .32);                  // the butcher-block counter
     var tile = tiles(8, 16, "#F7F6F2", "#CFCBC2", [5.4 / 1.2, 1], true);     // subway tiles to the shelves
     put(g, new THREE.Mesh(new THREE.PlaneGeometry(5.4, .62), phys(0xFFFFFF, .22, { map: tile, clearcoat: .5 })), 0, CT + .31, BZ + .004).receiveShadow = true;
+    yield;
     // open shelves with jars, bowls and a plant
     var walnut = std(0xFFFFFF, .55, 0, { map: wood("#7A5A40", "#866448", "52,32,18", "190,150,110", [1, 1]) });
     [1.62, 2.06].forEach(function(y, r){
@@ -3180,6 +3232,7 @@ window.__zwdRooms = function(THREE, o){
         else plant(g, x0, BZ + .12, { y: y + .0175, pot: [.06, .09], potMat: M.terracotta, kind: "simple", col: "#4D7A3A", n: 12, h: .08, spread: .1, size: .09 });
       }
     });
+    yield;
     // the tablet on its stand, and what's round it on the counter
     var TZ = BZ + .34, tilt = .26;
     R.screen = tablet(g, 0, CT + .015, TZ + .015, tilt, R.page);
@@ -3192,6 +3245,7 @@ window.__zwdRooms = function(THREE, o){
     put(g, cyl(.055, .05, .16, M.ceramic), -1.3, CT + .08, BZ + .32);
     for (var u = 0; u < 5; u++) { var tip = new V3(-1.3 + (rnd() - .5) * .08, CT + .3 + rnd() * .06, BZ + .32 + (rnd() - .5) * .08); rod(g, new V3(-1.3, CT + .05, BZ + .32), tip, .006, std(0xC9A273, .7)); put(g, ball(.018, std(0xC9A273, .7), 1, 1.6, .6), tip.x, tip.y, tip.z); }
     plant(g, -1.75, BZ + .3, { y: CT, pot: [.07, .11], potMat: M.terracotta, kind: "simple", col: "#5C8E3A", n: 16, h: .12, spread: .12, size: .08 });
+    yield;
     // two globe pendants over the counter
     [-.75, .75].forEach(function(x){ rod(g, new V3(x, 2.8, -4.1), new V3(x, 2.12, -4.1), .003, M.black); put(g, cyl(.02, .02, .04, M.brass), x, 2.1, -4.1); put(g, ball(.1, phys(0xFFF1D6, .1, { transmission: .4, emissive: new THREE.Color(0xFFD9A0), emissiveIntensity: 1.2 })), x, 2.0, -4.1); });
     R.scene.add(new THREE.HemisphereLight(0xFFF3E2, 0x6A5644, .6));
@@ -3202,20 +3256,24 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- 5 · a living room: Pricing on a TV on a walnut slat wall, a rust velvet sofa, an arc lamp ----------
-  function living(){
+  function* living(){
     var R = Room(0x6E5A48, "#0E1822", 0xFF9A50), g = R.root;
     R.scene.environment = envMap(WARM, 0x8A7A68);
+    yield;
     shell(R, { wall: std(0xD9CFC1, .92), back: std(0x231C17, .85), floor: std(0xFFFFFF, .55, 0, { map: planks(["#C49A6C", "#CDA477", "#B88E61", "#D2AB80"], [2.2, 1.9]) }), ceil: std(0xF4F1EC, .95) });
+    yield;
     var B = -4.6, walnut = std(0xFFFFFF, .5, 0, { map: wood("#6E4E36", "#7A5840", "40,24,12", "170,130,90", [1, 1]) });
     var slats = new THREE.InstancedMesh(new THREE.BoxGeometry(.042, 2.8, .026), walnut, 72), m4 = new THREE.Matrix4();
     for (var i = 0; i < 72; i++) { m4.makeTranslation(-2.66 + i * .075, 1.4, B + .015); slats.setMatrixAt(i, m4); }
     slats.castShadow = slats.receiveShadow = true; g.add(slats);
+    yield;
     // the TV, 65 inches, on the wall
     var tv = new THREE.Group(); tv.position.set(0, 1.25, B + .05); g.add(tv);
     tv.add(slab(1.452, .835, .024, .006, .002, std(0x111214, .35, .4)));
     var front = flat(1.448, .831, .005, M.glass); front.position.z = .0125; tv.add(front);
     var scr = new THREE.Mesh(new THREE.PlaneGeometry(1.43, .805), screenMat(R.page)); scr.position.z = .0128; tv.add(scr);
     R.screen = { mesh: scr, w: 1.43, h: .805, rad: [0, 0, 0, 0] };
+    yield;
     // the low console, a soundbar, a vase of dried stems, books
     put(g, box(2.0, .42, .44, walnut), 0, .33, B + .26);
     [-.9, .9].forEach(function(x){ [-.15, .15].forEach(function(dz){ put(g, cyl(.015, .012, .12, M.black, 10), x, .06, B + .26 + dz); }); });
@@ -3226,12 +3284,14 @@ window.__zwdRooms = function(THREE, o){
     for (var p2 = 0; p2 < 9; p2++) { var e = new V3(-1.04 + (rnd() - .7) * .22, .95 + rnd() * .25, B + .3 + (rnd() - .5) * .15); rod(g, new V3(-.98, .78, B + .3), e, .003, std(0xC9B48A, .9)); put(g, ball(.03, std(0xE8D9B8, 1), 1, 2.4, 1), e.x, e.y, e.z); }
     [0, 1].forEach(function(k){ put(g, pad(.24, .035, .17, .004, std(pick(["#8C3B2E", "#22365A", "#D9CFC1"]), .7)), .72, .5575 + k * .035, B + .28, .1 * k); });
     put(g, ball(.06, std(0x2F4B5E, .3)), .74, .67, B + .28);
+    yield;
     // the sofa, rust velvet, its back to the window
     var vel = phys(0xA4502E, .85, { sheen: 1, sheenColor: new THREE.Color(0xE8A07A), sheenRoughness: .5 }), sofa = new THREE.Group(); sofa.position.set(0, 0, -1.5); sofa.rotation.y = PI; g.add(sofa);
     put(sofa, pad(2.24, .2, .95, .05, vel), 0, .2, 0);
     [-.72, 0, .72].forEach(function(x){ put(sofa, pad(.71, .14, .8, .05, vel), x, .37, .06); var bc = put(sofa, slab(.71, .44, .2, .07, .03, vel), x, .66, -.36); bc.rotation.x = -.16; });
     [-1, 1].forEach(function(k){ put(sofa, pad(.18, .6, .95, .06, vel), k * 1.12, .3, 0); });
     [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(function(q){ put(sofa, cyl(.02, .015, .1, M.black, 10), q[0] * 1.05, .05, q[1] * .4); });
+    yield;
     // the rug, a coffee table, an arc lamp, a fig
     var rug = tex(512, 512, function(x, W, H){ x.fillStyle = "#E6DCCB"; x.fillRect(0, 0, W, H);
       x.strokeStyle = "#B5653E"; x.lineWidth = 22; x.strokeRect(30, 30, W - 60, H - 60); x.strokeStyle = "#2F4B5E"; x.lineWidth = 5; x.strokeRect(62, 62, W - 124, H - 124);
@@ -3256,12 +3316,15 @@ window.__zwdRooms = function(THREE, o){
   }
 
   // ---------- 6 · a home cinema: Examples on a projector screen, deep red walls, a starry ceiling, recliners ----------
-  function cinema(){
+  function* cinema(){
     var R = Room(0x1A0C10, "#EEF1EE", 0x7A86FF), g = R.root;
     R.scene.environment = envMap([[[1.6, 1.6, 1.7], 3, 2, [0, 1.5, -3.5]], [[.5, .2, .2], 6, 3, [0, 3, 0]]], 0x140A0C);
+    yield;
     var fabric = plaster("#5A2430", [3, 1.2], 6000);
     shell(R, { wall: std(0xFFFFFF, .95, 0, { map: fabric }), back: std(0x100C0E, .98), trim: std(0x2A1418, .7), floor: std(0xFFFFFF, .98, 0, { map: plaster("#2A2228", [3, 3], 5000) }), ceil: std(0x0A0D1A, .95), skirt: false });
+    yield;
     var B = -4.6;
+    yield;
     // the screen, in a black velvet frame, with a warm light strip under it
     put(g, box(2.84, 1.64, .04, std(0x0A0809, 1)), 0, 1.45, B + .02);
     var scr = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.4625), screenMat(R.page)); scr.position.set(0, 1.45, B + .0415); g.add(scr);
@@ -3275,9 +3338,11 @@ window.__zwdRooms = function(THREE, o){
     });
     rod(g, new V3(-2.6, 2.7, B + .16), new V3(2.6, 2.7, B + .16), .015, M.brass);
     [-1, 1].forEach(function(k){ bulb(R, 0xFF9A6A, 1.2, [k * 1.95, 2.35, B + .7], 2.6); });   // a glow down the drapes
+    yield;
     // acoustic panels along the side walls
     var panel = std(0xFFFFFF, .97, 0, { map: plaster("#6A2A36", [1, 1], 3000) });
     [-1, 1].forEach(function(k){ [-3.7, -2.55, -1.4].forEach(function(z){ put(g, box(.05, 1.3, .9, panel), k * 2.675, 1.4, z); }); });
+    yield;
     // the projector on the ceiling, and its beam
     var PZ = -.85;
     rod(g, new V3(0, 2.8, PZ), new V3(0, 2.66, PZ), .02, M.black);
@@ -3292,6 +3357,7 @@ window.__zwdRooms = function(THREE, o){
       vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
       fragmentShader: "varying vec2 vUv;void main(){float e=min(vUv.x,1.0-vUv.x)*2.0,a=.28*(1.0-vUv.y*.65)*smoothstep(0.0,.06,vUv.y)*(.5+.5*smoothstep(0.0,.5,e));gl_FragColor=vec4(vec3(.85,.88,1.0)*a,a);}" }));
     beam.frustumCulled = false; beam.renderOrder = 5; g.add(beam);
+    yield;
     // three recliners facing the screen
     var leather = phys(0x3A2226, .5, { clearcoat: .25, clearcoatRoughness: .5 });
     [-.82, 0, .82].forEach(function(x){
@@ -3300,6 +3366,7 @@ window.__zwdRooms = function(THREE, o){
       var bk = put(c, slab(.62, .74, .2, .09, .03, leather), 0, .78, .36); bk.rotation.x = .2;
       [-1, 1].forEach(function(k){ put(c, pad(.12, .5, .7, .05, leather), k * .37, .27, .05); put(c, cyl(.035, .03, .02, M.black), k * .37, .52, -.18); });
     });
+    yield;
     // sconces washing the walls with warm light, and the stars overhead
     [-1, 1].forEach(function(k){ [-3.15, -1.95].forEach(function(z){
       var sc2 = put(g, cyl(.1, .1, .2, M.brass, 20, true), k * 2.64, 1.95, z); sc2.geometry = new THREE.CylinderGeometry(.1, .07, .18, 20, 1, true, k > 0 ? PI : 0, PI); sc2.material = std(0xC9A15A, .35, 1, { side: THREE.DoubleSide });
@@ -3319,7 +3386,9 @@ window.__zwdRooms = function(THREE, o){
   }
 
   var BUILD = [office, studio, arcade, kitchen, living, cinema];
-  return { WY: WY, count: BUILD.length, build: function(i){ seed = 1101 + i * 7919; return BUILD[i](); }, textures: textures };
+  function* steps(i){ seed = 1101 + i * 7919; return yield* BUILD[i](); }   // a room a part at a time: each yield is a pause, so the "Street" script can let the browser draw a frame between parts
+  function build(i){ var it = steps(i), r; do { r = it.next(); } while (!r.done); return r.value; }   // all at once
+  return { WY: WY, count: BUILD.length, build: build, steps: steps, textures: textures };
 };
 </script>
 
@@ -3348,7 +3417,35 @@ window.__zwdRooms = function(THREE, o){
    Examples stays its own page.
    Tune: FLY (the hold at the summit, the scroll room of the rise and of Nashville, their pace), STOP (scroll room at the street), MOVE
    (seconds to go in, out, and from house to house), FRAME (how the street is framed), FILL (how much of the window a
-   screen fills). __zwdDevices.state() in the browser console shows where it is. */
+   screen fills). __zwdDevices.state() in the browser console shows where it is.
+   Everything is made a little at a time so the page never stalls (2026-11-09): the city and the street just after the
+   opening (in calm moments, or regardless once the film is a third of the way down), then in calm moments only, a short
+   step per frame: the city's programs, its first drawing, each room's parts, programs and first drawing, each page's
+   layout. A house opened before its room is ready gets it at once. */
+
+/* Calm: slow work the page can do ahead of time (building the street's rooms, preparing About us's glass) waits for a
+   calm moment: the visitor hasn't scrolled, touched or pressed a key for a moment, no flight is playing by itself, and
+   the opening is over. Shared by the "Street" and "About" scripts. On a phone a stall in a calm moment is hardly seen;
+   while the page moves under a finger it is. */
+window.__zwdCalm = window.__zwdCalm || (function(){
+  var stir = -1e9, held = 0, last = -1e9, lastBy = null, busy = [], wants = [], root = document.documentElement;
+  function mark(){ stir = performance.now(); }
+  ["scroll", "wheel", "keydown", "pointerdown"].forEach(function(t){ window.addEventListener(t, mark, { passive: true, capture: true }); });   // capture: the screens' own scrolling too
+  ["touchstart", "touchend", "touchcancel"].forEach(function(t){ window.addEventListener(t, function(e){ held = e.touches ? e.touches.length : 0; mark(); }, { passive: true, capture: true }); });
+  function any(list){ for (var i = 0; i < list.length; i++) { try { if (list[i]()) return true; } catch(e){} } return false; }
+  return {
+    now: function(quiet, who){                         // a calm moment? (quiet: ms since the visitor last moved the page, 400 if not given; who: whose step it would be)
+      if (document.hidden) return true;                // nobody is looking
+      var t = performance.now();
+      return !held && t - stir > (quiet == null ? 400 : quiet) && (lastBy === who || t - last > 50) && !root.classList.contains("intro-on") && !any(busy);
+    },
+    did: function(who){ last = performance.now(); lastBy = who; },   // a slow step has just run: someone else's next waits a frame or so
+    busy: function(f){ busy.push(f); },                // f() is true while something plays by itself (a flight)
+    want: function(f){ wants.push(f); },               // f() is true while its work should go first (About us's glass, as the visitor nears it)
+    wanted: function(){ return any(wants); }
+  };
+})();
+
 (function(){
   "use strict";
   var FLY = { hold: .3, rise: 1, city: 4, band: .3, pace: 2.25, back: .5, top: 1900, ease: 3 };   // a hold at the summit; the rise (in the film) and Nashville, in screens of scroll; they play by themselves at pace seconds a screen (Nashville, 4 screens: about 9 s), back in half the time; top: how far up the flight's line it starts (m), in the clouds; ease: how gently it sets off and lands
@@ -3373,13 +3470,21 @@ window.__zwdRooms = function(THREE, o){
     var film = document.querySelector(".film"), filmStage = film && film.querySelector(".film-stage"), about = document.getElementById("about");
     var secs = IDS.map(function(id){ return document.getElementById(id); });
     if (!filmStage || !about || secs.some(function(x){ return !x; })) return noStreet();
-    var go0 = function(){ window.__zwdThreeLoad().then(function(THREE){ try { if (!dead) build(THREE); else shown(); } catch(e){ fail(e); } }, noStreet); };
-    // Build when the opening animation has finished and the page is quiet, or at once if the page opens at a house or the street.
-    if (IDS.concat("nashville").indexOf(location.hash.slice(1)) >= 0) go0();
+    // Build when the opening animation has finished, a part at a time in calm moments (regardless once the visitor is a
+    // third of the way down the film, 6 seconds on, or when the page opened at a link), or all at once if the page opens
+    // at a house or the street.
+    var go0 = function(now){ window.__zwdThreeLoad().then(function(THREE){
+      if (dead) return shown();
+      if (now) { try { var it = build(THREE), r; do { r = it.next(); } while (!r.done); } catch(e){ fail(e); } return; }
+      var t0 = performance.now();
+      stepper(build(THREE), { who: "street", due: function(){ return !!location.hash || root.classList.contains("dev-arriving") || performance.now() - t0 > 6000 || window.scrollY > film.offsetHeight * .33; } });
+    }, noStreet); };
+    if (IDS.concat("nashville").indexOf(location.hash.slice(1)) >= 0) go0(true);
     else (function wait(n){
-      if (document.readyState === "complete" && !root.classList.contains("intro-on")) (window.requestIdleCallback ? requestIdleCallback(go0, { timeout: 1200 }) : setTimeout(go0, 200));
+      var go = function(){ go0(false); };
+      if (document.readyState === "complete" && !root.classList.contains("intro-on")) (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 1200 }) : setTimeout(go, 200));
       else if (n < 60) setTimeout(function(){ wait(n + 1); }, 250);
-      else go0();
+      else go();
     })(0);
   } catch(e){ return shown(); }
 
@@ -3389,7 +3494,41 @@ window.__zwdRooms = function(THREE, o){
     if (e && window.console) console.warn("The street is off:", e);
   }
 
-  function build(THREE){
+  // A job done a step at a time: it.next() makes one short step (a step may yield a promise: the job waits for it).
+  // About BUDGET ms of steps per turn, a turn a frame, in calm moments (o.polite: and not while About us's glass wants to
+  // go first), or regardless while o.due() says it's needed soon. finish(): the rest at once. o.done(value) at the end.
+  var BUDGET = 8;
+  function stepper(it, o){
+    var over = false, waiting = false, t = 0;
+    function later(ms){
+      clearTimeout(t);
+      if (ms || document.hidden) t = setTimeout(turn, ms || 0);
+      else requestAnimationFrame(function(){ clearTimeout(t); t = setTimeout(turn, 0); });   // just after a frame: the most time before the next
+    }
+    function end(v){ over = true; clearTimeout(t); if (o.done) o.done(v); }
+    function go(){ waiting = false; later(0); }
+    function turn(){
+      if (over || waiting || dead) return;
+      try {
+        if (!(o.due && o.due()) && (!__zwdCalm.now(o.quiet, o.who) || (o.polite && __zwdCalm.wanted()))) return later(150);
+        var t0 = performance.now(), r;
+        do {
+          r = it.next();
+          if (r.done) { __zwdCalm.did(o.who); return end(r.value); }
+          if (r.value && typeof r.value.then === "function") { waiting = true; __zwdCalm.did(o.who); r.value.then(go, go); return; }
+        } while (performance.now() - t0 < BUDGET);
+        __zwdCalm.did(o.who); later(0);
+      } catch(e){ over = true; fail(e); }
+    }
+    later(0);
+    return { finish: function(){
+      if (over) return;
+      clearTimeout(t); waiting = false;
+      try { var r; do { r = it.next(); } while (!r.done); end(r.value); } catch(e){ over = true; fail(e); }
+    } };
+  }
+
+  function* build(THREE){                               // a part at a time: each yield is a pause for the browser (see go0 and stepper)
     var V3 = THREE.Vector3, UP = new V3(0, 1, 0);
     // ---------- renderer ----------
     var canvas = document.createElement("canvas"); canvas.setAttribute("aria-hidden", "true");
@@ -3401,21 +3540,34 @@ window.__zwdRooms = function(THREE, o){
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
     var dpr = Math.min(window.devicePixelRatio || 1, 1.5); renderer.setPixelRatio(dpr);
     var cam = new THREE.PerspectiveCamera(FOV, 1, .01, 30);
+    yield;
 
     // ---------- Nashville, the six houses, and their rooms (the "Nashville, 3D" and "Rooms, 3D" scripts) ----------
     var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), DOWN = new V3(50, GROUND, -600), APP = new V3(0, .32, 1).normalize();   // the flight (see flyCam)
-    var city = window.__zwdNashville(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700 });
+    var city = yield* window.__zwdNashville.steps(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700 });
     var houses = city.houses, maker = window.__zwdRooms(THREE, { renderer: renderer }), rooms = [], lit = {};
     var wins = houses.map(function(h){ return new V3(h.win.x, h.win.y, h.win.z); });
-    function room(i){                                   // built the first time it's needed, then kept
-      if (rooms[i]) return rooms[i];
-      var R = maker.build(i); R.root.position.set(houses[i].win.x, WIN.y - maker.WY, houses[i].win.z); R.scene.updateMatrixWorld(true);
+    var building = null;                                // the room being built a part at a time (see ahead): { i, it }
+    function placeRoom(i, R){
+      R.root.position.set(houses[i].win.x, WIN.y - maker.WY, houses[i].win.z); R.scene.updateMatrixWorld(true);
       rooms[i] = R; screens[i].mesh = R.screen.mesh; screens[i].w = R.screen.w; screens[i].h = R.screen.h; screens[i].rad = R.screen.rad;
       if (vpW > 1) posesFor(i);
       return R;
     }
+    function finishRoom(){                              // a room part-built: finish it now (the rooms share their random numbers, so one at a time)
+      if (!building) return;
+      var b = building, r; building = null;
+      do { r = b.it.next(); } while (!r.done);
+      placeRoom(b.i, r.value);
+    }
+    function room(i){                                   // built the first time it's needed, then kept
+      if (rooms[i]) return rooms[i];
+      finishRoom();
+      return rooms[i] || placeRoom(i, maker.build(i));
+    }
     var mistScene = new THREE.Scene(), flatCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), mistQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ color: MIST, transparent: true, toneMapped: false, depthTest: false, depthWrite: false }));
     mistQuad.position.z = -.5; mistQuad.frustumCulled = false; mistScene.add(mistQuad);
+    yield;                                              // the rest at once: the page changes round the street in one go
 
     // ---------- the page: the street's words and labels over the picture, the six sections on six screens ----------
     var header = document.querySelector(".site-header"), skipFilm = film.querySelector(".skip-film"), skipHref = skipFilm && skipFilm.getAttribute("href");
@@ -3741,7 +3893,7 @@ window.__zwdRooms = function(THREE, o){
       abAt = !glideAnim && mode === "scroll" && s >= a - 2 && s <= b + 2 ? Math.max(0, Math.min(1, (s - a) / Math.max(1, b - a))) : -1;
     }
     function onScroll(){
-      var y = window.scrollY, dy = y - lastY; stirred = performance.now();
+      var y = window.scrollY, dy = y - lastY;
       if (sizing) { lastY = y; kick(); return; }          // the window is changing size: the browser moving the page, not the visitor
       if (flight) { clearTimeout(flightT); flightT = setTimeout(landed, 200); }   // a scroll the visitor didn't make, passing through: leave it be
       else if (!auto && !glideAnim && !mouseHeld && mode === "scroll") {   // dragging the scroll bar just scrubs
@@ -3998,45 +4150,58 @@ window.__zwdRooms = function(THREE, o){
     shown();                                              // drawn in the same frame the page appears
     window.addEventListener("load", function(){ if (mode === "room") toTop(st0); else arriveAt(); });
     kick();
-    // Get things ready ahead of time, so nothing stutters: compile the city, draw the start of the flight once unseen, then build and compile the rooms one by one.
-    // Each of those pieces can take a tenth of a second, so after the city's compiling they wait for a pause in the scrolling,
-    // and never run during a flight or a move (a room not ready yet is built when it's first opened).
-    var spare = new THREE.WebGLRenderTarget(4, 4), stirred = 0;
-    function whenQuiet(fn){
-      (function wait(){
-        if (dead) return;
-        var still = function(){ return performance.now() - stirred > 450 && !glideAnim && !move && !auto && !held; };
-        if (still()) (window.requestIdleCallback || setTimeout)(function(){ if (still()) fn(); else wait(); }, { timeout: 400 });
-        else setTimeout(wait, 200);
-      })();
+    // Get things ready ahead of time, so nothing stutters later, a short step at a time in calm moments (never during a
+    // flight or a move; see stepper): the city's programs, one thing at a time, its pictures, and its first drawing (the
+    // start of the flight, unseen); then each room: its parts, its programs, its pictures, and a first drawing off screen
+    // (so its shadows are ready too); then each page laid out once. The rooms wait while About us's glass is being made
+    // (it's needed first); the city's part carries on regardless as the visitor nears the flight to it. A house opened
+    // before its room is ready gets it at once (room).
+    __zwdCalm.busy(function(){ return !dead && !!(glideAnim || move || auto || held); });
+    var spare = new THREE.WebGLRenderTarget(4, 4), phase = "city";
+    function* programs(scene, camera){                    // each thing's program, one at a time (where the browser can't make them in the background, each can stall: Safari)
+      var list = []; scene.traverse(function(o){ if (o.material && (o.isMesh || o.isPoints || o.isLine || o.isSprite)) list.push(o); });
+      for (var i = 0; i < list.length; i++) { renderer.compile(list[i], camera, scene); yield; }
+      if (renderer.compileAsync) yield renderer.compileAsync(scene, camera);   // then wait until they're all ready (nothing new to make: only the waiting)
     }
-    function prep(){                                      // lay each page out once, off screen, and fetch its pictures, so a screen doesn't stall the moment it appears
-      screens.forEach(function(sc){
-        if (sc.el.classList.contains("is-open")) return;
-        sc.el.style.transform = "translate(-300vw,0)"; sc.el.style.visibility = "hidden"; sc.el.classList.add("is-open");
-        sc.el.querySelectorAll("img").forEach(function(im){ im.loading = "eager"; if (im.decode) im.decode().catch(function(){}); });
-      });
+    function* pictures(scene){                            // each texture sent to the graphics chip, one at a time
+      var all = [];
+      scene.traverse(function(o){ [].concat(o.material || []).forEach(function(m){ for (var k in m) { var v = m[k]; if (v && v.isTexture && all.indexOf(v) < 0) all.push(v); } }); });
+      for (var i = 0; i < all.length; i++) { try { renderer.initTexture(all[i]); } catch(_){} yield; }
+    }
+    function prepScreen(sc){                              // a page laid out once, off screen, and its pictures fetched, so its screen doesn't stall the moment it appears
+      if (sc.el.classList.contains("is-open")) return;
+      sc.el.style.transform = "translate(-300vw,0)"; sc.el.style.visibility = "hidden"; sc.el.classList.add("is-open");
+      sc.el.querySelectorAll("img").forEach(function(im){ im.loading = "eager"; if (im.decode) im.decode().catch(function(){}); });
       void stage.offsetHeight;
-      screens.forEach(function(sc){ if (sc.el.style.visibility === "hidden") { sc.el.classList.remove("is-open"); sc.el.style.visibility = ""; } });
+      sc.el.classList.remove("is-open"); sc.el.style.visibility = "";
     }
-    var warm = function(){
-      if (dead) return;
+    function* ahead(){
+      yield* programs(city.scene, cam);
+      yield* programs(mistScene, flatCam);
+      yield* pictures(city.scene);
       var f = flyCam(0); setPose(f, f.fov, 20, 40000); city.update(0, cam, []); if (cur <= 0) { drawScene(city.scene); glKey = ""; }
-      var i = 0;
-      (function one(){
-        if (dead) return;
-        if (i >= IDS.length) { prep(); return; }
-        var R = room(i++), done2 = function(){   // and draw it once, off screen, so its shadows are ready too
-          try { if (!dead && !shadowed[R.scene.uuid]) { renderer.setRenderTarget(spare); drawScene(R.scene); renderer.setRenderTarget(null); } } catch(_){}
-          whenQuiet(one);
-        };
-        if (renderer.compileAsync) renderer.compileAsync(R.scene, cam).then(done2, done2); else done2();
-      })();
-    };
-    (renderer.compileAsync ? renderer.compileAsync(city.scene, cam).then(function(){ return renderer.compileAsync(mistScene, flatCam); }) : Promise.resolve())
-      .then(function(){ whenQuiet(warm); }, function(){});
+      yield;
+      phase = "rooms";
+      for (var i = 0; i < IDS.length; i++) {
+        if (!rooms[i]) {                                  // its parts (unless it was opened, and so built, already)
+          building = { i: i, it: maker.steps(i) };
+          while (building && building.i === i) { var r = building.it.next(); if (r.done) { building = null; placeRoom(i, r.value); } else yield; }
+        }
+        var R = rooms[i];
+        yield* programs(R.scene, cam);
+        yield* pictures(R.scene);
+        try { if (!dead && !shadowed[R.scene.uuid]) {      // drawn once so its shadows are ready too: while the street can't be seen, into a corner of its own
+          if (stage.style.opacity === "0") {               // canvas (so with the programs it will use; drawn over before it shows), else into a little picture off screen
+            renderer.setScissorTest(true); renderer.setScissor(0, 0, 4, 4); drawScene(R.scene); renderer.setScissorTest(false); glKey = "";
+          } else { renderer.setRenderTarget(spare); drawScene(R.scene); renderer.setRenderTarget(null); }
+        } } catch(_){}
+        yield;
+      }
+      for (var k = 0; k < screens.length; k++) { prepScreen(screens[k]); yield; }
+    }
+    stepper(ahead(), { who: "street", polite: true, due: function(){ return phase === "city" && (cur > 0 || mode !== "scroll" || -track.getBoundingClientRect().top > moves.city.a - 1.5 * vpH); } });
     window.__zwdDevices = { pick: function(x, y){ return houseAt(x, y); }, state: function(){ return { mode: mode, room: inRoom, move: move ? { i: move.i, k: +move.k.toFixed(3) } : null, fly: glideAnim ? glideAnim.dir : 0, cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top),
-      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length }; } };
+      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1 }; } };
   }
 })();
 </script>
@@ -4901,8 +5066,16 @@ window.__zwdRooms = function(THREE, o){
     return { p: l.p, u: u };
   }
   function program(vs, fs){ return finish(link(vs, fs)); }
-  var bgProg, glassProg;
-  if (gl) try { bgProg = program(VS_BG, FS_BG); glassProg = program(VS_GLASS, FS_GLASS); } catch(e){ if (window.console) console.warn("About: plain words, no glass:", e); gl = null; }
+  // blocking: this browser makes a program while the page waits (Safari's graphics backend can't link in the background,
+  // WebKit bug 251514; or no KHR_parallel_shader_compile), seen from where the time goes in making the glass's own
+  // program: in link (made there and then), not in finish (made in the background, then waited for). Where it blocks,
+  // each logo's program, and its first drawing, waits for a calm moment (see mayMake).
+  var bgProg, glassProg, blocking = false;
+  if (gl) try {
+    bgProg = program(VS_BG, FS_BG);
+    var lt0 = performance.now(), gl1 = link(VS_GLASS, FS_GLASS), lt1 = performance.now(); glassProg = finish(gl1);
+    blocking = lt1 - lt0 > 1.5 && lt1 - lt0 > performance.now() - lt1;
+  } catch(e){ if (window.console) console.warn("About: plain words, no glass:", e); gl = null; }
   if (!gl) { canvas.remove(); canvas = null; }
   var full, quad, skyTex, skyW = 1, skyH = 1, skyFrom = null, uploads = 0, draws = 0;
   if (gl) {
@@ -5190,7 +5363,17 @@ window.__zwdRooms = function(THREE, o){
     return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", target: kind === "target", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   });
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
+  if (gl && !pcx) blocking = true;                     // no way to ask whether a program is ready without waiting for it
   var fetching = false;                                // a photo is on its way (one at a time, so two never land in the same frame)
+  var madeOne = false;                                 // a program made (or a logo first drawn) in this frame, where that blocks: one a frame at most
+  function mayMake(lg){                                // where making a program stalls the page: only in a calm moment (see "Calm" in the "Street" script), or when its block is about to show
+    if (!blocking) return true;
+    if (madeOne) return false;
+    if (!window.__zwdCalm || __zwdCalm.now(250, "about")) return true;
+    return lg.el.getBoundingClientRect().top < window.innerHeight * 1.5;
+  }
+  function made(){ if (blocking) { madeOne = true; if (window.__zwdCalm) __zwdCalm.did("about"); } }
+  if (window.__zwdCalm) __zwdCalm.want(function(){ return !!gl && near && logos.some(function(lg){ return !lg.failed && (!lg.prog || !lg.warm); }); });   // as the visitor nears About us, its logos go before the street's rooms
   var LK_TW = 1700, LK_PAD = .03, MAX_GLYPHS = 24;
   var PZ_TW = 640, PZ_PAD = .12, PZ_M = .12, PZ_B = .12;   // the puzzle's fields: texels across, the room round it, how far outside its distances go, how far from an outline the lines' field reaches (puzzle widths)     // the lockup's field: texels across, the room round it (logo widths); the letters and pieces the lines can draw (uGlyph in FS_LOCKUP)
   if (gl) logos.forEach(function(lg){ lg.el.classList.add("is-glass"); });   // the glass will draw them (the lines, from nothing): the flat logos and the plain photo never show first
@@ -5328,7 +5511,7 @@ window.__zwdRooms = function(THREE, o){
     if (mayLink && !lg.prog && !lg.making && !lg.failed) {
       var twin = logos.filter(function(o){ return o !== lg && o.kind === lg.kind && o.prog; })[0];   // the second photo: the first one's program
       if (twin) lg.prog = twin.prog;
-      else try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : lg.puzzle ? FS_PUZZLE : lg.target ? FS_TARGET : FS_LOGO); } catch(e){ logoFail(lg, e); }
+      else if (mayMake(lg)) try { lg.making = link(VS_GLASS, lg.lock ? FS_LOCKUP : lg.photo ? FS_PHOTO : lg.puzzle ? FS_PUZZLE : lg.target ? FS_TARGET : FS_LOGO); made(); } catch(e){ logoFail(lg, e); }
     }
   }
   function logoReady(lg){
@@ -5486,8 +5669,9 @@ window.__zwdRooms = function(THREE, o){
 
   // ---------- drawing ----------
   var asked = false, warmed = false, slow = { sky: 0, size: 0, draw: 0, warm: 0 }, blank = null;
-  function fitCanvas(W, H){                            // the canvas's size in pixels: sharp, but at most about 4 million of them
-    var s = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(4.2e6 / (W * H))), cw = Math.round(W * s), ch = Math.round(H * s);
+  var CAPS = [2, 1.5, 1.25, 1], cap = 0;               // the most pixels per CSS pixel: steps down where frames come too slowly (pace)
+  function fitCanvas(W, H){                            // the canvas's size in pixels: sharp, but at most about 4 million of them (and less where frames come too slowly: pace)
+    var s = Math.min(window.devicePixelRatio || 1, CAPS[cap], Math.sqrt(4.2e6 / (W * H))), cw = Math.round(W * s), ch = Math.round(H * s);
     if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
     return s;
   }
@@ -5509,17 +5693,18 @@ window.__zwdRooms = function(THREE, o){
   }
   function ask(){ if (!asked) { asked = true; requestAnimationFrame(draw); } }
   function draw(){
-    asked = false; draws++;
+    asked = false; draws++; madeOne = false;
     var on = place();
     if (!gl || !near) return;
     if (!built && (!document.fonts || document.fonts.status === "loaded")) rebuild();
     if (queue.length && !pending) work();
     logos.forEach(function(lg, i){ prepareLogo(lg, !i || !!logos[i - 1].prog || logos[i - 1].failed, on); });   // each program once the one before is made
-    if (!on) { if (!warmed) warm(); else { var w0 = toWarm(); if (w0) warmLogo(w0); } return; }   // not showing (under the end of the film, or gone by): nothing to draw
+    if (!on) { if (!warmed) warm(); else { var w0 = toWarm(); if (w0 && mayMake(w0)) { warmLogo(w0); made(); } } recheck(); return; }   // not showing (under the end of the film, or gone by): nothing to draw
     var cr = canvas.getBoundingClientRect(), W = canvas.clientWidth, H = canvas.clientHeight, t0 = performance.now();
     if (!W || !H || !useSky()) return;
     var first = toWarm();                                // a logo's first drawing takes the graphics chip a moment: done into one pixel, a frame before it may show
-    if (first) warmLogo(first);
+    if (first && !mayMake(first)) first = null;          // (where that stalls the page, in a calm moment, or as it's about to show)
+    if (first) { warmLogo(first); made(); }
     var t1 = performance.now(), s = fitCanvas(W, H), cw = canvas.width, ch = canvas.height, t2 = performance.now();
     gl.viewport(0, 0, cw, ch);
     var sc = Math.max(W / skyW, H / skyH), mx = 1 / (skyW * sc), my = 1 / (skyH * sc), map = [mx, my, .5 - W / 2 * mx, .5 - H / 2 * my];   // the video fills the stage
@@ -5552,6 +5737,29 @@ window.__zwdRooms = function(THREE, o){
     canvas.classList.add("is-on");
     var t3 = performance.now(); slow.sky = Math.max(slow.sky, t1 - t0); slow.size = Math.max(slow.size, t2 - t1); slow.draw = Math.max(slow.draw, t3 - t2);
     if ((seen && !video.paused && !calm) || moving || first || logos.some(function(lg){ return lg.making || lg.busy; })) ask();   // the video or a logo keeps moving (or a logo is nearly ready): draw again next frame
+    pace(moving && !first);
+    recheck();
+  }
+  var rt0 = 0;
+  function recheck(){                                  // where making waits for a calm moment: look again shortly, even if nothing moves
+    if (!blocking || rt0 || !logos.some(function(lg){ return !lg.failed && (!lg.prog || !lg.warm); })) return;
+    rt0 = setTimeout(function(){ rt0 = 0; ask(); }, 300);
+  }
+  // Frames drawn back to back while a logo moves should come at least ~48 times a second. If the middle of 24 gaps is
+  // slower than that, this sharpness is too much for the device: a step down (CAPS; the film does the same). Gaps over
+  // 100 ms are pauses, or the page busy with something else, not slow frames. A steady 30 a second is left as it is:
+  // that's a browser holding pages to 30 (an iPhone in Low Power Mode), and smooth.
+  var gaps = [], lastDraw = 0;
+  function pace(moving){
+    var t = performance.now(), gap = t - lastDraw;
+    lastDraw = moving ? t : 0;
+    if (!moving || gap > 100 || cap >= CAPS.length - 1) return;
+    gaps.push(gap);
+    if (gaps.length < 24) return;
+    gaps.sort(function(a, b){ return a - b; });
+    var tooSlow = gaps[12] > 21 && !(gaps[6] > 29 && gaps[18] < 38);
+    gaps.length = 0;
+    if (tooSlow) { cap++; ask(); }
   }
   function toWarm(){                                   // the first logo that's ready but hasn't been drawn yet
     for (var i = 0; i < logos.length; i++) { var lg = logos[i]; if (!lg.warm && !lg.failed && logoReady(lg)) return lg; }
@@ -5575,7 +5783,7 @@ window.__zwdRooms = function(THREE, o){
   var fonts = document.fonts ? document.fonts.ready : Promise.resolve();
   fonts.then(function(){ built = 0; ask(); }, function(){ built = 0; ask(); });
   place();
-  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
+  window.__zwdAbout = { items: items, state: function(){ return { flow: flow(), near: near, seen: seen, glass: !!gl, sharp: CAPS[cap], blocking: blocking, shown: items.filter(function(it){ return it.shown; }).length, video: loaded, playing: !video.paused, time: +video.currentTime.toFixed(2), veil: +veil.style.opacity || 0, calm: calm, still: still, draws: draws, uploads: uploads, slowest: slow,
       logo: logoState(pick("logo")[0]), lockup: logoState(pick("lockup")[0]), photo: logoState(pick("photo")[0]), photos: pick("photo").map(logoState), puzzle: logoState(pick("puzzle")[0]), target: logoState(pick("target")[0]) }; },
     logoAt: function(t, which){ pick(which).forEach(function(lg){ lg.at = t; }); ask(); },   // for checking: hold a logo's animation at t seconds (null lets it run); which: "logo", "lockup", "photo" (both photos), "puzzle", "target" or all
     logoAgain: function(which){ pick(which).forEach(function(lg){ lg.t0 = performance.now(); lg.at = null; }); ask(); } };   // play the lines again
