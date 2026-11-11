@@ -454,7 +454,8 @@ html.film-pic .film-media{background:url(media/film-start-wide.webp) center/cove
 .hero-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(42px,7vw,100px);line-height:.9;letter-spacing:.005em}
 .hero-sub{margin-top:18px;max-width:22em;font-size:clamp(22px,2.6vw,34px);line-height:1.2;font-weight:600;color:#F4F6F3;text-wrap:balance}
 .hero-actions{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
-.beat-line{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(44px,7.4vw,104px);line-height:.92}
+.beat-line{font-family:var(--display);font-weight:800;font-size:clamp(34px,4.6vw,66px);line-height:1}   /* sentences in normal case since 2026-11-11 (Jason), smaller than the old three-word lines */
+.beats .beat{max-width:900px}
 .beat-line em{font-style:normal;color:var(--lamp)}
 .beat-final .hero-actions{margin-top:26px}
 .film-meter{position:absolute;right:var(--gutter);top:calc(var(--header-h) + env(safe-area-inset-top,0px) + 28px);display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--mist)}
@@ -476,7 +477,7 @@ html.film-pic .film-media{background:url(media/film-start-wide.webp) center/cove
 .film.is-static .film-copy .wrap{min-height:0;display:grid;gap:48px}
 .film.is-static .beats{display:grid;gap:28px}
 .film.is-static .beat{position:relative;left:auto;right:auto;bottom:auto;opacity:1!important;transform:none!important;visibility:visible!important;pointer-events:auto!important}
-.film.is-static .beat-line{font-size:clamp(34px,5vw,60px)}
+.film.is-static .beat-line{font-size:clamp(30px,4.2vw,52px)}
 
 /* ---------- sections ---------- */
 section.block{padding-block:clamp(72px,11vw,140px)}
@@ -946,11 +947,11 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
 
         <!-- The four moments, layered over the film as live text -->
         <ol class="beats" style="list-style:none;margin:0;padding:0">
-          <li class="beat" data-beat="1"><p class="beat-line">Your business has <em>potential.</em></p></li>
-          <li class="beat" data-beat="2"><p class="beat-line">Give it a website <em>done for you.</em></p></li>
-          <li class="beat" data-beat="3"><p class="beat-line">Turn attention into <em>opportunity.</em></p></li>
+          <li class="beat" data-beat="1"><p class="beat-line">We handle everything about your website, so you can <em>focus on your business.</em></p></li>
+          <li class="beat" data-beat="2"><p class="beat-line">We cut costs and put our services in a subscription so you don’t stress and you can <em>cancel anytime.</em></p></li>
+          <li class="beat" data-beat="3"><p class="beat-line">We make your website turn attention into <em>opportunity.</em></p></li>
           <li class="beat beat-final" data-beat="4">
-            <p class="beat-line">Build your website with <em>ZENGERS.</em></p>
+            <p class="beat-line">Build your website with <em>ZDS.</em></p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="#pricing">Let’s build your website <span class="arrow" aria-hidden="true">→</span></a>
             </div>
