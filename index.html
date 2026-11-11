@@ -4248,8 +4248,9 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     bezel: .75,            // the curved rim, as a share of half a stroke (the rest of the stroke is flat glass)
     thickness: 1.6,        // the glass's thickness, in half-strokes: how far the rim bends what's behind
     round: .3,             // how much the letters' bevels are rounded, in half-strokes
-    tint: [.06, .24],      // white frosting in the glass: headings, paragraphs (paragraphs need more to read)
-    shadow: [.22, .28],    // the soft, warm shadow under the letters
+    tint: [.06, .8],       // white frosting in the glass: headings, paragraphs (frosted so they read easily: .24 until 2026-11-10, Jason)
+    blur: [0, 14],          // px: how far the clouds behind the letters are blurred: headings (clear glass), paragraphs (frosted, since 2026-11-10, Jason: easier to read)
+    shadow: [.22, .55],    // the soft, warm shadow under the letters: headings (and the logos), paragraphs (.28 until 2026-11-10: stronger, so the frosted letters keep a crisp edge)
     light: 30              // degrees: where the light comes from (top left), as in Glisse
   };
   var LOGO = {             // the ZENGERS Z beside the first heading, in 3D glass (see "the logo" below)
@@ -4365,7 +4366,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     "uniform vec4 uMap;           // stage px -> background uv",
     "uniform vec4 uRect;          // this text's field, stage px",
     "uniform vec2 uView, uLight;  // the stage's size; the light's direction (from the top left)",
-    "uniform float uDpr, uTop, uBezel, uThick, uDisp, uTint, uShadow, uSoft, uBand, uEdge;",
+    "uniform float uDpr, uTop, uBezel, uThick, uDisp, uTint, uShadow, uSoft, uBand, uEdge, uBlur;   // uBlur: how far the clouds behind are blurred (px; frosted glass, the paragraphs only)",
     "in vec2 vPx; out vec4 o;",
     "float sd(vec2 p){ return texture(uSdf, (p - uRect.xy) / uRect.zw).r; }      // px inside a letter (+) or outside (-)",
     "vec3 sky(vec2 p){ return texture(uSky, p * uMap.xy + uMap.zw).rgb; }",
@@ -4392,6 +4393,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     "  vec2 off = d < uBezel ? n * bend(dd) : vec2(0.);",
     "  vec3 spec = vec3(1. + .2 * uDisp, 1. + .1 * uDisp, 1.);",
     "  vec3 c = vec3(sky(p + off * spec.r).r, sky(p + off * spec.g).g, sky(p + off * spec.b).b);",
+    "  if (uBlur > 0.) {                                                       // frosted: the clouds behind softened (two rings of taps round the point)",
+    "    vec3 b = c;",
+    "    for (int i = 0; i < 8; i++) { float an = float(i) * .7853982; vec2 dir = vec2(cos(an), sin(an)); b += sky(p + off + dir * uBlur) + sky(p + off + dir.yx * vec2(-1., 1.) * uBlur * .5); }",
+    "    c = b / 17.;",
+    "  }",
     "  float l = dot(c, vec3(.2126, .7152, .0722)); c = clamp(mix(vec3(l), c, 1.5), 0., 1.);   // saturate(1.5)",
     "  c = mix(c, vec3(1.), uTint);",
     "  float lit = -dot(n, uLight);                                            // + facing the light, - facing away",
@@ -5739,7 +5745,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, it.tex);
       gl.uniform4f(U.uRect, r.left - cr.left - it.m, y - it.m, it.tw, it.th);
       gl.uniform1f(U.uBezel, Math.max(.8, half * LENS.bezel)); gl.uniform1f(U.uThick, half * LENS.thickness);
-      gl.uniform1f(U.uBand, Math.max(1, half / 7)); gl.uniform1f(U.uTint, LENS.tint[k]); gl.uniform1f(U.uShadow, LENS.shadow[k]);
+      gl.uniform1f(U.uBand, Math.max(1, half / 7)); gl.uniform1f(U.uTint, LENS.tint[k]); gl.uniform1f(U.uShadow, LENS.shadow[k]); gl.uniform1f(U.uBlur, LENS.blur[k]);
       gl.uniform1f(U.uSoft, Math.max(5, Math.min(14, half * .8))); gl.uniform1f(U.uEdge, Math.max(.6, Math.min(1.6, half * .1)));
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
