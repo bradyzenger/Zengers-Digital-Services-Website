@@ -80,7 +80,7 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Archivo:wdth,wght@118,800&family=Orbitron:wght@800;900&family=Young+Serif&family=Barlow+Condensed:wght@800&family=Cormorant+Garamond:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Archivo:wdth,wght@118,800&family=Rubik+Bubbles&family=Orbitron:wght@800;900&family=Young+Serif&family=Barlow+Condensed:wght@800&family=Cormorant+Garamond:wght@600&display=swap">
 <style>
 /* ============================================================
    ZENGERS Digital Services — single-page site
@@ -454,7 +454,13 @@ html.film-pic .film-media{background:url(media/film-start-wide.webp) center/cove
 .hero-title{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(42px,7vw,100px);line-height:.9;letter-spacing:.005em}
 .hero-sub{margin-top:18px;max-width:22em;font-size:clamp(22px,2.6vw,34px);line-height:1.2;font-weight:600;color:#F4F6F3;text-wrap:balance}
 .hero-actions{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
-.beat-line{font-family:var(--display);font-weight:800;font-size:clamp(34px,4.6vw,66px);line-height:1}   /* sentences in normal case since 2026-11-11 (Jason), smaller than the old three-word lines */
+.beat-line{font-family:"Rubik Bubbles",var(--display);font-weight:400;font-size:clamp(34px,4.6vw,66px);line-height:1.05;letter-spacing:.005em;text-shadow:0 0 24px rgba(244,246,243,.3),0 0 3px rgba(244,246,243,.35)}   /* sentences in normal case (2026-11-11); Rubik Bubbles, puffy like cloud edges, with a soft halo of mist (Jason, 2026-11-11); the "Fog" script makes them behave like clouds */
+.beat-line em{text-shadow:0 0 24px rgba(242,181,68,.38),0 0 3px rgba(242,181,68,.4)}
+.fog-w{display:inline-block;white-space:nowrap;animation:fog-drift var(--t,9s) ease-in-out var(--d,0s) infinite alternate}   /* each word drifts a little, as clouds do */
+.fog-c{display:inline-block}
+.fog-puffs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+@keyframes fog-drift{from{transform:translate(0,0)}to{transform:translate(2px,-3px)}}
+@media (prefers-reduced-motion:reduce){.fog-w{animation:none}}
 .beats .beat{max-width:900px}
 .beat-line em{font-style:normal;color:var(--lamp)}
 .beat-final .hero-actions{margin-top:26px}
@@ -6746,6 +6752,144 @@ var SITE = {
     var onChange = function(e){ if (e.matches && !isStatic) { isStatic = true; film.classList.add("is-static"); win.removeEventListener("scroll", onScroll); if (video) { video.remove(); video = null; videoReady = false; } if (film3d) { film3d.stop(); film3d = null; } useStill(); } };
     if (mq.addEventListener) mq.addEventListener("change", onChange);
   }
+})();
+</script>
+<script>
+/* Fog: the mountain film's four phrases (.beat-line, in Rubik Bubbles) behave like clouds (Jason, 2026-11-11).
+   Each letter is its own piece (words stay whole, so the lines wrap as before; screen readers get each sentence
+   whole from a hidden copy). Moving the mouse, or a finger, through a phrase stirs the letters like gas: they're
+   carried along with the motion, swirled round it (the side set by which way it passes), rise a little, and go soft
+   and faint while stirred; then each springs back to its place and the phrase reads again. A trail of mist puffs
+   rises and fades where it passes. Each phrase condenses out of a blur as it fades in, and blurs away as it goes;
+   at rest the words drift a little (.fog-w, in the styles). Off with reduced motion (the font stays). Tune: GAS. */
+(function(){
+  "use strict";
+  try {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var GAS = {
+      reach: 1.6,      // how far the stir reaches, in the phrase's font sizes
+      push: 1.1,       // how much a letter is carried along with the pointer
+      swirl: .7,       // how much it's swirled round it
+      rise: .18,       // how much a stirred letter rises (gas)
+      spring: .016,    // how strongly it's drawn back to its place, each frame
+      damp: .925,      // how much of its speed it keeps, each frame
+      stir: .028,      // how stirred up a pass makes it (turbulence, blur, fading)
+      calm: .955,      // how fast that settles, each frame
+      blur: 7          // px: the most a stirred letter blurs
+    };
+    var film = document.querySelector(".film"), stage = film && film.querySelector(".film-stage");
+    var lines = film ? [].slice.call(film.querySelectorAll(".beats .beat-line")) : [];
+    if (!stage || !lines.length) return;
+    var chars = [];
+    lines.forEach(function(p){
+      var sr = document.createElement("span"); sr.className = "sr-only"; sr.textContent = p.textContent;
+      var vis = document.createElement("span"); vis.setAttribute("aria-hidden", "true");
+      (function split(src, into){
+        [].slice.call(src.childNodes).forEach(function(n){
+          if (n.nodeType === 3) n.textContent.split(/(\s+)/).forEach(function(part){
+            if (!part) return;
+            if (/^\s+$/.test(part)) { into.appendChild(document.createTextNode(" ")); return; }
+            var w = document.createElement("span"); w.className = "fog-w";
+            w.style.setProperty("--t", (7 + Math.random() * 5).toFixed(2) + "s"); w.style.setProperty("--d", (-Math.random() * 9).toFixed(2) + "s");
+            for (var i = 0; i < part.length; i++) {
+              var c = document.createElement("span"); c.className = "fog-c"; c.textContent = part.charAt(i); w.appendChild(c);
+              chars.push({ el: c, line: p, x: 0, y: 0, vx: 0, vy: 0, r: 0, vr: 0, e: 0, hx: 0, hy: 0, seed: Math.random() * 100, idle: true });
+            }
+            into.appendChild(w);
+          });
+          else if (n.nodeType === 1) { var copy = n.cloneNode(false); into.appendChild(copy); split(n, copy); }
+        });
+      })(p, vis);
+      p.textContent = ""; p.appendChild(sr); p.appendChild(vis);
+    });
+
+    // the mist puffs: a canvas over the film's stage
+    var cv = document.createElement("canvas"); cv.className = "fog-puffs"; cv.setAttribute("aria-hidden", "true"); stage.appendChild(cv);
+    var cx = cv.getContext("2d"), puffs = [], cw = 0, ch = 0;
+
+    // the pointer: where it is, and how fast it's moving (px a frame)
+    var mx = -1e4, my = -1e4, mvx = 0, mvy = 0, lastT = 0, fresh = false, raf = 0;
+    function at(x, y){
+      var t = performance.now(), dt = Math.max(8, t - lastT);
+      if (lastT && t - lastT < 120) { mvx = mvx * .35 + (x - mx) / dt * 16 * .65; mvy = mvy * .35 + (y - my) / dt * 16 * .65; } else { mvx = mvy = 0; }
+      mx = x; my = y; lastT = t; fresh = true; kick();
+    }
+    window.addEventListener("pointermove", function(e){ if (e.pointerType !== "touch") at(e.clientX, e.clientY); }, { passive: true });
+    window.addEventListener("touchmove", function(e){ var t = e.touches && e.touches[0]; if (t) at(t.clientX, t.clientY); }, { passive: true });
+    window.addEventListener("touchend", function(){ lastT = 0; }, { passive: true });
+    window.addEventListener("scroll", kick, { passive: true });
+    function kick(){ if (!raf) raf = requestAnimationFrame(tick); }
+
+    function tick(){
+      raf = 0;
+      var busy = false, now = performance.now();
+      if (now - lastT > 70) { mvx *= .5; mvy *= .5; }
+      var speed = Math.sqrt(mvx * mvx + mvy * mvy), stirring = fresh && speed > .4; fresh = false;
+      var sr = stage.getBoundingClientRect(), near = 0;
+      // each phrase condenses out of a blur as it fades in (the film script sets its opacity)
+      lines.forEach(function(p){
+        var o = parseFloat(p.parentNode.style.opacity); if (isNaN(o)) o = 1;
+        p.__o = o; var b = (1 - o) * 10;
+        p.style.filter = b > .05 ? "blur(" + b.toFixed(1) + "px)" : "";
+        if (stirring && o > .2) p.__fs = parseFloat(getComputedStyle(p).fontSize) || 50;
+      });
+      // where the letters are (all the reading first, then the writing)
+      if (stirring) chars.forEach(function(c){
+        if (c.line.__o <= .2) { c.on = false; return; }
+        var r = c.el.getBoundingClientRect(); c.on = true; c.hx = r.left + r.width / 2 - c.x; c.hy = r.top + r.height / 2 - c.y;
+      });
+      chars.forEach(function(c){
+        if (stirring && c.on) {
+          var dx = c.hx + c.x - mx, dy = c.hy + c.y - my, d = Math.sqrt(dx * dx + dy * dy), R = GAS.reach * c.line.__fs;
+          if (d < R) {
+            var w = 1 - d / R; w *= w;
+            var nx = dx / (d || 1), ny = dy / (d || 1), side = (mvx * ny - mvy * nx) > 0 ? 1 : -1;
+            c.vx += w * (mvx * GAS.push + nx * speed * .12 - ny * side * speed * GAS.swirl);
+            c.vy += w * (mvy * GAS.push + ny * speed * .12 + nx * side * speed * GAS.swirl);
+            c.vr += w * (mvx * .35 + side * speed * .25);
+            c.e = Math.min(1.5, c.e + w * speed * GAS.stir);
+            if (w > .25) near++;
+          }
+        }
+        if (c.e > .003 || Math.abs(c.x) + Math.abs(c.y) + Math.abs(c.r) > .08 || Math.abs(c.vx) + Math.abs(c.vy) > .02) {
+          busy = true;
+          var q = now * .0021 + c.seed;   // a little turbulence while stirred, and a rise; then a spring home
+          c.vx += Math.sin(q * 1.7) * .3 * c.e - c.x * GAS.spring;
+          c.vy += Math.cos(q * 1.3) * .3 * c.e - c.e * GAS.rise - c.y * GAS.spring;
+          c.vr += -c.r * GAS.spring;
+          c.vx *= GAS.damp; c.vy *= GAS.damp; c.vr *= GAS.damp;
+          c.x += c.vx; c.y += c.vy; c.r += c.vr; c.e *= GAS.calm;
+          var b = Math.min(GAS.blur, c.e * 4 + Math.sqrt(c.x * c.x + c.y * c.y) * .035);
+          c.el.style.transform = "translate(" + c.x.toFixed(1) + "px," + c.y.toFixed(1) + "px) rotate(" + c.r.toFixed(1) + "deg) scale(" + (1 + Math.min(.3, c.e * .22)).toFixed(3) + ")";
+          c.el.style.filter = b > .3 ? "blur(" + b.toFixed(1) + "px)" : "";
+          c.el.style.opacity = (1 - Math.min(.55, c.e * .4)).toFixed(3);
+          c.idle = false;
+        } else if (!c.idle) {
+          c.x = c.y = c.vx = c.vy = c.r = c.vr = c.e = 0;
+          c.el.style.transform = c.el.style.filter = c.el.style.opacity = ""; c.idle = true;
+        }
+      });
+      // mist puffs where the pointer passes through the words
+      if (stirring && near && puffs.length < 70) for (var k = 0; k < Math.min(3, near); k++)
+        puffs.push({ x: mx - sr.left + (Math.random() - .5) * 20, y: my - sr.top + (Math.random() - .5) * 20, vx: mvx * .25 + (Math.random() - .5) * .8, vy: mvy * .25 - .3 - Math.random() * .4, r: 14 + Math.random() * 18, life: 1 });
+      if (puffs.length || cw) {
+        var W = Math.round(sr.width), H = Math.round(sr.height);
+        if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+        cx.clearRect(0, 0, W, H); cw = puffs.length;
+        for (var i = puffs.length - 1; i >= 0; i--) {
+          var f = puffs[i]; f.x += f.vx; f.y += f.vy; f.vx *= .97; f.vy = f.vy * .97 - .015; f.r += .6; f.life -= .011;
+          if (f.life <= 0) { puffs.splice(i, 1); continue; }
+          var a = .2 * f.life * Math.min(1, (1 - f.life) * 8), g = cx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+          g.addColorStop(0, "rgba(244,240,234," + a.toFixed(3) + ")"); g.addColorStop(1, "rgba(244,240,234,0)");
+          cx.fillStyle = g; cx.beginPath(); cx.arc(f.x, f.y, f.r, 0, 6.2832); cx.fill();
+        }
+        busy = busy || puffs.length > 0;
+      }
+      if (busy) kick();
+    }
+    window.__zwdFog = { state: function(){ return { letters: chars.length, stirred: chars.filter(function(c){ return !c.idle; }).length, puffs: puffs.length }; } };
+    kick();
+  } catch(e){ if (window.console) console.warn("Fog: off", e); }
 })();
 </script>
 </body>
