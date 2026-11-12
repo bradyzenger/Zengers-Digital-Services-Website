@@ -6792,7 +6792,10 @@ var SITE = {
    carried along with the motion, swirled round it (the side set by which way it passes), rise a little, and go soft
    and faint while stirred; then each springs back to its place and the phrase reads again. A trail of mist puffs
    rises and fades where it passes. Each phrase condenses out of a blur as it fades in, and blurs away as it goes;
-   at rest the words drift a little (.fog-w, in the styles). Off with reduced motion (the font stays). Tune: GAS. */
+   at rest the words drift a little (.fog-w, in the styles). Since 2026-11-12 (Jason) the mouse leaves the same trail of
+   mist anywhere over the film, not only through the words, but only while it moves (none while it's still). A finger
+   still leaves mist only through the words, so scrolling a phone doesn't fill the screen. Off with reduced motion (the
+   font stays). Tune: GAS. */
 (function(){
   "use strict";
   try {
@@ -6806,7 +6809,9 @@ var SITE = {
       damp: .925,      // how much of its speed it keeps, each frame
       stir: .028,      // how stirred up a pass makes it (turbulence, blur, fading)
       calm: .955,      // how fast that settles, each frame
-      blur: 7          // px: the most a stirred letter blurs
+      blur: 7,         // px: the most a stirred letter blurs
+      trail: 10,       // the mouse's mist away from the words: one puff for every this many px a frame it moves (up to 3)
+      puffs: 90        // the most puffs at once
     };
     var film = document.querySelector(".film"), stage = film && film.querySelector(".film-stage");
     var lines = film ? [].slice.call(film.querySelectorAll(".beats .beat-line")) : [];
@@ -6839,13 +6844,14 @@ var SITE = {
     var cx = cv.getContext("2d"), puffs = [], cw = 0, ch = 0;
 
     // the pointer: where it is, and how fast it's moving (px a frame)
-    var mx = -1e4, my = -1e4, mvx = 0, mvy = 0, lastT = 0, fresh = false, raf = 0;
-    function at(x, y){
+    var mx = -1e4, my = -1e4, mvx = 0, mvy = 0, lastT = 0, fresh = false, raf = 0, mouse = false;
+    function at(x, y, isMouse){
+      mouse = !!isMouse;
       var t = performance.now(), dt = Math.max(8, t - lastT);
       if (lastT && t - lastT < 120) { mvx = mvx * .35 + (x - mx) / dt * 16 * .65; mvy = mvy * .35 + (y - my) / dt * 16 * .65; } else { mvx = mvy = 0; }
       mx = x; my = y; lastT = t; fresh = true; kick();
     }
-    window.addEventListener("pointermove", function(e){ if (e.pointerType !== "touch") at(e.clientX, e.clientY); }, { passive: true });
+    window.addEventListener("pointermove", function(e){ if (e.pointerType !== "touch") at(e.clientX, e.clientY, true); }, { passive: true });
     window.addEventListener("touchmove", function(e){ var t = e.touches && e.touches[0]; if (t) at(t.clientX, t.clientY); }, { passive: true });
     window.addEventListener("touchend", function(){ lastT = 0; }, { passive: true });
     window.addEventListener("scroll", kick, { passive: true });
@@ -6900,9 +6906,15 @@ var SITE = {
           c.el.style.transform = c.el.style.filter = c.el.style.opacity = ""; c.idle = true;
         }
       });
-      // mist puffs where the pointer passes through the words
-      if (stirring && near && puffs.length < 70) for (var k = 0; k < Math.min(3, near); k++)
-        puffs.push({ x: mx - sr.left + (Math.random() - .5) * 20, y: my - sr.top + (Math.random() - .5) * 20, vx: mvx * .25 + (Math.random() - .5) * .8, vy: mvy * .25 - .3 - Math.random() * .4, r: 14 + Math.random() * 18, life: 1 });
+      // mist puffs where the pointer passes through the words, and (the mouse) anywhere over the film while it moves;
+      // spread back along the last frame's movement, so a quick sweep leaves an unbroken trail
+      var over = false;   // the mouse over the film itself (not About us laid over its end, nor the header's buttons)
+      if (stirring && !near && mouse && mx >= sr.left && mx <= sr.right && my >= Math.max(0, sr.top) && my <= Math.min(innerHeight, sr.bottom)) { var hit = document.elementFromPoint(mx, my); over = !!hit && film.contains(hit); }
+      var spawn = stirring ? (near ? Math.min(3, near) : over ? Math.min(3, Math.ceil(speed / GAS.trail)) : 0) : 0;
+      for (var k = 0; k < spawn && puffs.length < GAS.puffs; k++) {
+        var back = Math.random();
+        puffs.push({ x: mx - mvx * back - sr.left + (Math.random() - .5) * 20, y: my - mvy * back - sr.top + (Math.random() - .5) * 20, vx: mvx * .25 + (Math.random() - .5) * .8, vy: mvy * .25 - .3 - Math.random() * .4, r: 14 + Math.random() * 18, life: 1 });
+      }
       if (puffs.length || cw) {
         var W = Math.round(sr.width), H = Math.round(sr.height);
         if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
