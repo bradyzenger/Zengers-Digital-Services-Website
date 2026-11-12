@@ -4028,10 +4028,19 @@ window.__zwdCalm = window.__zwdCalm || (function(){
 
     // ---------- the houses: in at a window, out to the street, from one house to another ----------
     function lock(on){ root.classList.toggle("st-in", on); }
+    // "Back to the street": centred in the gap between the header and the top of the room's screen; on a computer (a
+    // mouse, 900 px wide or more) in the gap below the screen instead, at the bottom left, well away from the logo at
+    // the top left so neither is clicked by mistake (Jason, 2026-11-12); where the gap is too small for it (a short
+    // window), it keeps 8 px from the bottom and covers the screen's bottom edge a little
+    var deskBack = window.matchMedia ? matchMedia("(min-width:900px) and (pointer:fine)") : null;
+    function placeBack(sc){
+      var h = back.offsetHeight, below = sc.top + sc.H, room = frameH - below;
+      back.style.top = (deskBack && deskBack.matches ? Math.round(Math.min(frameH - h - 8, below + Math.max(0, (room - h) / 2))) : Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - h) / 2))) + "px";
+    }
     function arrive(i){                                  // in the room: the page is live on its screen
       mode = "room"; inRoom = i; move = null; lock(true); root.classList.remove("dev-moving");
       var sc = screens[i]; sc.el.scrollTop = 0; glKey = ""; draw(performance.now());
-      back.classList.add("is-on"); back.style.top = Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - back.offsetHeight) / 2)) + "px";
+      back.classList.add("is-on"); placeBack(sc);
       sc.el.focus({ preventScroll: true });
     }
     function toStreet(focusLabel){                        // out on the street again: the page scrolls as usual
@@ -4206,7 +4215,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
           if (flying) { var fm = moves[flying.name]; toTop(fm.a + flying.at * (fm.b - fm.a)); playTo(fm, flying.dir); }
           else if (mode !== "scroll" || onStreet) toTop(st0);
           else if (at >= 0) toTop(moves.rise.b + at * (moves.city.a - moves.rise.b));
-          if (mode === "room") { var sc = screens[inRoom]; back.style.top = Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - back.offsetHeight) / 2)) + "px"; }
+          if (mode === "room") { var sc = screens[inRoom]; placeBack(sc); }
           glKey = ""; kick();
         } catch(e){ fail(e); }
         sizing = false; if (!dead) notePlace();
