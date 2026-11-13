@@ -251,6 +251,24 @@ html{scrollbar-gutter:stable}
 .pond-box .who{border-top-color:rgba(243,239,230,.85)}
 .pond-box .who h3{color:#FBF7EE;text-shadow:0 1px 8px rgba(4,12,20,.5)}
 .pond-box .who p{color:rgba(243,239,230,.84);text-shadow:0 1px 8px rgba(4,12,20,.5)}
+/* The footer mowed into the lawn past the pond (the "Street" script, since 2026-11-12): its letters are fresh-cut grass,
+   drawn by the city's lawn; the footer lies over them, fitted like the form, its words invisible (there to click, to
+   reach with the keyboard and to read aloud). A little larger than on the page, so the mown letters read. */
+.lawn-box{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;pointer-events:none}
+.lawn-box.is-on{pointer-events:auto}
+.lawn-box .site-footer{background:none;border:0;padding-block:36px 44px;font-size:19px}
+.lawn-box .site-footer,.lawn-box .site-footer *{color:transparent!important;border-color:transparent!important;text-shadow:none!important}
+.lawn-box .wrap{max-width:none;padding-inline:0;margin:0}
+.lawn-box .footer-grid{gap:40px}
+.lawn-box .site-footer h2{font-size:15px;font-weight:700}
+.lawn-box .site-footer ul{gap:10px}
+.lawn-box .footer-bottom{font-size:16px;margin-top:40px}
+.lawn-box .site-footer p{font-weight:600}
+.lawn-box .site-footer a{border-radius:6px;transition:background-color .2s ease}
+.lawn-box .site-footer a:hover{background:rgba(255,246,214,.18)}
+.lawn-box .site-footer a:focus-visible{outline:2px solid #FFF1C2;outline-offset:3px}
+.lawn-box img{opacity:0}
+.lawn-box ::selection{background:rgba(255,246,214,.35)}
 html.st-in body{overflow:hidden}               /* inside a house the page itself holds still; the screen scrolls (on the body, not the root, so the street stays pinned) */
 html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera moves by itself, a swipe doesn't scroll (it would jump) */
 .dev-screen section.block{padding-block:clamp(48px,7cqw,96px)!important}
@@ -2236,10 +2254,16 @@ window.__zwdNashville.steps = function*(THREE, o){
   var NOISE = "float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}" +
     "float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y);}\n";
   var groundMat = new THREE.MeshLambertMaterial();
+  // the footer mowed into the park's lawn (Jason, 2026-11-12; the "Street" script draws its letters into uFoot with
+  // lawn.set): short, fresh-cut grass where the letters are, lighter, in fine mower stripes; the taller grass round them
+  // throws a little shadow across the cut on the side away from the sun and catches the light on the side toward it
+  var blank = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); blank.needsUpdate = true;
+  var lawnU = { uFoot: { value: blank }, uFootB: { value: new THREE.Vector4(0, 0, 0, 0) } };
   groundMat.onBeforeCompile = function(sh){
+    sh.uniforms.uFoot = lawnU.uFoot; sh.uniforms.uFootB = lawnU.uFootB;
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vP;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvP = (modelMatrix * vec4(position, 1.0)).xz;");
-    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec2 vP;\n" + NOISE +
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec2 vP;uniform sampler2D uFoot;uniform vec4 uFootB;\n" + NOISE +
       "vec3 groundCol(vec2 p){float rv=-800.0+110.0*sin(p.x/600.0+.6),n=vn(p*.02)*.55+vn(p*.11)*.3+vn(p*.7)*.15;" +
       "vec3 c=mix(vec3(.12,.15,.085),vec3(.2,.22,.12),n);" +
       "float sz=abs(mod(p.y-13.5+55.0,110.0)-55.0),sx=abs(mod(p.x+100.0,200.0)-100.0),m=min(sz,sx);" +
@@ -2252,6 +2276,16 @@ window.__zwdNashville.steps = function*(THREE, o){
       "float pk=smoothstep(" + (rowL - 18).toFixed(1) + "," + (rowL - 16.5).toFixed(1) + ",p.x)*smoothstep(" + (rowR + 18).toFixed(1) + "," + (rowR + 16.5).toFixed(1) + ",p.x)*smoothstep(18.3,18.9,p.y)*smoothstep(97.0,94.0,p.y);" +   // the park: a fresher lawn, mown in stripes
       "vec3 lawn=mix(vec3(.15,.23,.08),vec3(.2,.29,.1),n)*(1.0+.06*sign(sin(p.x*.55)));" +
       "c=mix(c,lawn,pk);" +
+      "vec2 fu=(p-uFootB.xy)/max(uFootB.zw,vec2(1e-3));" +
+      "if(uFootB.z>0.0&&fu.x>-.02&&fu.x<1.02&&fu.y>-.02&&fu.y<1.02){" +
+      "vec2 ts=normalize(vec2(-.62,.76))*.028/uFootB.zw;" +                                      // a short step toward the sun, in the mask's units
+      "float m=smoothstep(.25,.6,texture2D(uFoot,fu,-.8).r),mt=smoothstep(.25,.6,texture2D(uFoot,fu+ts,-.8).r),ma=smoothstep(.25,.6,texture2D(uFoot,fu-ts,-.8).r);" +   // sharp, even from a little way off
+      "float near=smoothstep(.02,.3,texture2D(uFoot,fu,2.5).r);" +                                 // round the letters (a blurred look at the mask)
+      "vec3 mown=vec3(.56,.72,.25)*(.92+.16*n)*(1.0+.05*sign(sin(p.y*9.0)));" +                    // fresh-cut: a light, fresh green, in fine stripes
+      "vec3 g=mix(lawn*(1.0-.14*near),mown,m);" +                                                  // the long grass by the letters a little darker: trodden and in their shade
+      "g*=1.0-.45*m*(1.0-mt);" +                                                                    // the taller grass' shadow across the cut, away from the sun
+      "g*=1.0+.3*(1.0-m)*ma;" +                                                                     // its face catching the light, toward the sun
+      "c=mix(c,g,pk);}" +
       "return c;}")
       .replace("vec4 diffuseColor = vec4( diffuse, opacity );", "vec4 diffuseColor = vec4( groundCol(vP), 1.0 );");
   };
@@ -2555,7 +2589,7 @@ window.__zwdNashville.steps = function*(THREE, o){
 
   yield;
   // ---------- the little park across the street: a path, lamps, benches, low planting along the street ----------
-  var pathC = new THREE.CatmullRomCurve3([new V3(rowL - 14, G, 19), new V3(ROW.x - 22, G, 40), new V3(ROW.x + 10, G, 58), new V3(rowR + 16, G, 92)]), pp = [], pi = [];
+  var pathC = new THREE.CatmullRomCurve3([new V3(rowL - 14, G, 19), new V3(ROW.x - 30, G, 48), new V3(ROW.x + 4, G, 70), new V3(rowR + 16, G, 92)]), pp = [], pi = [];
   for (i = 0; i <= 80; i++) {
     var pt = pathC.getPoint(i / 80), tg = pathC.getTangent(i / 80), nx = -tg.z, nz = tg.x, nl = Math.sqrt(nx * nx + nz * nz);
     pp.push(pt.x + nx / nl * 1.1, G + .04, pt.z + nz / nl * 1.1, pt.x - nx / nl * 1.1, G + .04, pt.z - nz / nl * 1.1);
@@ -2966,7 +3000,7 @@ window.__zwdNashville.steps = function*(THREE, o){
     });
   }
   yield;
-  return { scene: scene, update: update, mistAt: mistAt, pond: pond, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
+  return { scene: scene, update: update, mistAt: mistAt, pond: pond, lawn: { set: function(tex, x0, z0, w, h){ lawnU.uFoot.value = tex || blank; lawnU.uFootB.value.set(x0, z0, w, h); } }, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
 };
 </script>
 
@@ -3678,7 +3712,9 @@ window.__zwdRooms = function(THREE, o){
    Scrolling on from the street, the camera turns down over the road, the near sidewalk and a strip of grass to a pond
    in the park (since 2026-11-12, Jason): the question form (#contact) lies on its water, fitted there like the pages
    on the screens, at the size it would have on the page, and scrolling glides the camera along the pond as the form
-   reads on (POND). Then the page carries on to the footer. Scrolling up from the pond turns back up to the street;
+   reads on (POND), and on over the grass to the footer, mowed into the lawn (since 2026-11-12, Jason: its letters are
+   fresh-cut grass; the real links lie over them, invisible, so they work as ever), where the page ends. Scrolling up
+   from the pond turns back up to the street;
    scrolling up from the street flies back into the cloud, to About us's last words, and scrolling up from its first
    words sinks back to the summit. Contact us links go to the pond.
    While a flight plays by itself the page holds still; a firm scroll, swipe or key the other way turns it round.
@@ -3882,17 +3918,29 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       pondQ = new THREE.Object3D(); pondQ.rotation.x = -Math.PI / 2; city.scene.add(pondQ);   // lying on the water, its top toward the houses
       stage.appendChild(pondBox);
     }
+    // the footer, mowed into the lawn past the pond: its letters drawn into a mask (footMask) that the city's lawn shows
+    // as fresh-cut grass; the footer itself lies over them, fitted like the form, its words invisible but there to click,
+    // to reach with the keyboard and to read aloud
+    var footer = document.querySelector(".site-footer"), lawnBox = null, lawnQ = null, footHome = null, footMask = null, footTex = null;
+    if (pondBox && footer) {
+      lawnBox = document.createElement("div"); lawnBox.className = "lawn-box";
+      lawnQ = new THREE.Object3D(); lawnQ.rotation.x = -Math.PI / 2; city.scene.add(lawnQ);
+      footMask = document.createElement("canvas"); footTex = new THREE.CanvasTexture(footMask); footTex.anisotropy = 4; footTex.flipY = false;   // its top row at the footer's top edge
+      stage.appendChild(lawnBox);
+    }
     stage.appendChild(back);
     track.appendChild(stage);
     var home = secs.map(function(s){ return { parent: s.parentNode, next: s.nextSibling, hidden: s.hidden }; });
     secs[0].parentNode.insertBefore(track, secs[0]);
     screens.forEach(function(sc){ sc.page.appendChild(sc.sec); sc.sec.hidden = false; });
     if (pondBox) { contactHome = { parent: contact.parentNode, next: contact.nextSibling }; pondBox.appendChild(contact); }
+    if (lawnBox) { footHome = { parent: footer.parentNode, next: footer.nextSibling }; lawnBox.appendChild(footer); footer.querySelectorAll("img").forEach(function(im){ im.loading = "eager"; }); }
     about.classList.add("ab-flow");                      // About us sits in the cloud between the film and the street (the "About" script)
     restore = function(){
       film.style.removeProperty("--film-tail"); delete film.dataset.tail; delete film.dataset.rise; root.classList.remove("dev-moving", "st-in");
       about.classList.remove("ab-flow"); about.style.marginTop = "";
       for (var i = secs.length - 1; i >= 0; i--) { var h = home[i]; h.parent.insertBefore(secs[i], h.next && h.next.parentNode === h.parent ? h.next : null); secs[i].hidden = h.hidden; }
+      if (footHome) footHome.parent.insertBefore(footer, footHome.next && footHome.next.parentNode === footHome.parent ? footHome.next : null);
       if (contactHome) contactHome.parent.insertBefore(contact, contactHome.next && contactHome.next.parentNode === contactHome.parent ? contactHome.next : null);
       if (track.parentNode) track.parentNode.removeChild(track);
       if ("scrollRestoration" in history) history.scrollRestoration = "auto";
@@ -3901,7 +3949,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
 
     // ---------- layout: the street's framing, each device's pose, how much scrolling each part gets ----------
     var vpW = 1, vpH = 1, frameH = 1, hdr = 64, tall = false, fillW = .86, fillH = .86, P = 0, st0 = 0, fly = [0, 1], abA = 0, abZ = 0, moves = {}, poses = [], lastW = 0, lastH = 0;
-    var pd = { A: 0, B: 0, W: 1, H: 1, sc: 1, d: 20, c0: 0, pan: 0, z0: 0 };   // the pond: where the turn down to it starts and ends (scroll), the form's size (px) and how it lies on the water
+    var pd = { A: 0, B: 0, W: 1, H: 1, sc: 1, d: 20, c0: 0, pan: 0, z0: 0, c1: 0, c2: 0, Hf: 0, zf: 0 };   // the pond: where the turn down to it starts and ends (scroll), the form's size (px) and how it lies on the water
     var frame = { fov: 33, D: 60, h: 13, pitch: 0 }, stops = [ROW.x], page = 0, panX = ROW.x, panTo = ROW.x, perPage = 6;
     function street(x){                                 // the camera at rest over the park, facing the row; x: along the street
       var pos = new V3(x, GROUND + frame.h, ROW.z + frame.D);
@@ -3953,7 +4001,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       about.style.marginTop = -vpH + "px";
       abZ = parseFloat(getComputedStyle(about.querySelector(".ab-text")).paddingTop) || vpH / 2; abA = about.offsetHeight - vpH;
       fly = [0, FLY.city * vpH]; st0 = fly[1] + FLY.band * vpH; P = st0 + STOP * vpH;
-      if (pondBox) { pondLayout(); pd.A = P; pd.B = P + POND.run * vpH; P = pd.B + pd.pan + POND.hold * vpH; moves.pond = { name: "pond", a: pd.A, b: pd.B, land: [st0, pd.B], secs: POND.secs, back: POND.back }; }
+      if (pondBox) { pondLayout(); pd.A = P; pd.B = P + POND.run * vpH; P = pd.B + pd.pan + (lawnBox ? 0 : POND.hold * vpH); moves.pond = { name: "pond", a: pd.A, b: pd.B, land: [st0, pd.B], secs: POND.secs, back: POND.back }; }
       moves.rise = { name: "rise", a: -abA - R, b: -abA + abZ, land: [-abA - R - Hd + 4, -abA + abZ], secs: pace * (R + abZ) / vpH, back: FLY.back };
       moves.city = { name: "city", a: -abZ, b: fly[1], land: [-abZ, st0], secs: pace * (abZ + fly[1]) / vpH, back: FLY.back };
       track.style.marginTop = -vpH + "px"; track.style.height = (vpH + P) + "px";
@@ -3970,17 +4018,54 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       var H = Math.max(200, Math.ceil(contact.offsetHeight)); pondBox.style.height = H + "px";
       var th = POND.tilt * Math.PI / 180, cs = Math.cos(th), tv = Math.tan(POND.fov * Math.PI / 360), k = POND.k;
       var c0 = ((frameH - hdr) / 2 - 14) / (sc * cs);           // half the form's height that shows below the header, in its own px
-      pd.W = W; pd.H = H; pd.sc = sc; pd.d = k * frameH / (2 * tv * sc); pd.c0 = c0; pd.pan = Math.max(0, H - 2 * c0) * sc * cs;
+      pd.W = W; pd.H = H; pd.sc = sc; pd.d = k * frameH / (2 * tv * sc); pd.c0 = c0;
       var mx = Math.max(.25, (vpW / sc - W) / 2 * k * .6), mz = POND.mz;   // the water beyond its sides: most of what the screen shows there
       pd.z0 = POND.top + mz;                                     // the form's top edge on the water
       var x0 = ROW.x - W * k / 2, x1 = ROW.x + W * k / 2, z1 = pd.z0 + H * k;
       city.pond.shape([x0, pd.z0, x1, z1], mx, mz);
       pondQ.position.set(ROW.x, GROUND + .075, pd.z0 + H * k / 2); pondQ.updateMatrixWorld(true);
+      var Ht = H;                                                // the strip the camera glides along, in the form's px: the form, the grass, the footer
+      if (lawnBox) {
+        lawnBox.style.width = W + "px"; lawnBox.style.height = "auto";
+        var Hf = Math.ceil(footer.offsetHeight); lawnBox.style.height = Hf + "px";
+        pd.zf = pd.z0 + H * k / 2 + 1.075 * (H * k / 2 + mz) + 2.6;   // past the pond's far bank (its wobble too) and its reeds, on the lawn
+        pd.Hf = Hf; Ht = (pd.zf - pd.z0) / k + Hf;
+        lawnQ.position.set(ROW.x, GROUND + .01, pd.zf + Hf * k / 2); lawnQ.updateMatrixWorld(true);
+        drawFoot(W, Hf); city.lawn.set(footTex, x0 - FOOT_PAD * k, pd.zf - FOOT_PAD * k, (W + 2 * FOOT_PAD) * k, (Hf + 2 * FOOT_PAD) * k);
+      }
+      pd.c1 = H <= 2 * c0 ? H / 2 : c0; pd.c2 = Math.max(pd.c1, Ht - c0);   // from the form (centred if it fits) to the end of the strip
+      pd.pan = (pd.c2 - pd.c1) * sc * cs;
       shadowed[city.scene.uuid] = 0;                             // the new stones and reeds cast new shadows
+    }
+    var FOOT_PAD = 40;                                          // px of plain lawn round the footer's letters in the mask
+    function drawFoot(W, H){                                    // the footer's letters, logo and rule into the mask, white on black, at twice its size
+      var S = 2, PAD = FOOT_PAD, cv = footMask, x = cv.getContext("2d"), was = lawnBox.style.transform;   // a blank border round it, so the lawn never repeats an edge letter beyond it
+      cv.width = (W + 2 * PAD) * S; cv.height = (H + 2 * PAD) * S; x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = "#000"; x.fillRect(0, 0, cv.width, cv.height); x.fillStyle = "#fff"; x.translate(PAD * S, PAD * S);
+      lawnBox.style.transform = "none"; var br = lawnBox.getBoundingClientRect(), rg = document.createRange();
+      var walk = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT), node;
+      while ((node = walk.nextNode())) {                         // each letter where the page puts it (so letter spacing and wrapping are the page's own)
+        var el = node.parentElement, cs2 = el && getComputedStyle(el); if (!cs2 || cs2.display === "none" || cs2.visibility === "hidden") continue;
+        var fs = parseFloat(cs2.fontSize) * S, up = cs2.textTransform === "uppercase", s2 = node.textContent;
+        x.font = cs2.fontStyle + " " + cs2.fontWeight + " " + fs + "px " + cs2.fontFamily;
+        for (var i = 0; i < s2.length; i++) {
+          var ch = s2.charAt(i); if (/\s/.test(ch)) continue; if (up) ch = ch.toUpperCase();
+          rg.setStart(node, i); rg.setEnd(node, i + 1); var r = rg.getClientRects()[0]; if (!r) continue;
+          var m = x.measureText(ch), as = m.fontBoundingBoxAscent || fs * .8, de = m.fontBoundingBoxDescent || fs * .2;
+          x.fillText(ch, (r.left - br.left) * S, (r.top - br.top) * S + (r.height * S - as - de) / 2 + as);
+        }
+      }
+      footer.querySelectorAll("img").forEach(function(im){       // the logo: its shape, all white
+        if (!im.complete || !im.naturalWidth) { im.addEventListener("load", function(){ drawFoot(pd.W, pd.Hf); }, { once: true }); return; }
+        var r = im.getBoundingClientRect(), t2 = document.createElement("canvas"); t2.width = Math.max(1, Math.round(r.width * S)); t2.height = Math.max(1, Math.round(r.height * S));
+        var tx = t2.getContext("2d"); tx.drawImage(im, 0, 0, t2.width, t2.height); tx.globalCompositeOperation = "source-in"; tx.fillStyle = "#fff"; tx.fillRect(0, 0, t2.width, t2.height);
+        x.drawImage(t2, (r.left - br.left) * S, (r.top - br.top) * S);
+      });
+      footer.querySelectorAll(".footer-bottom").forEach(function(el2){ var r = el2.getBoundingClientRect(); x.fillRect((r.left - br.left) * S, (r.top - br.top) * S, r.width * S, 2 * S); });   // its rule, a mown strip
+      lawnBox.style.transform = was; footTex.needsUpdate = true; shadowed[city.scene.uuid] = 0; glKey = "";
     }
     function pondPose(u){                                        // looking down at the form, u: how far along it (0 → 1)
       var k = POND.k, th = POND.tilt * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th);
-      var c = pd.H <= 2 * pd.c0 ? pd.H / 2 : pd.c0 + clamp(u) * (pd.H - 2 * pd.c0);   // the form's px that sits in the middle of the space below the header
+      var c = pd.c1 + clamp(u) * (pd.c2 - pd.c1);              // the strip's px that sits in the middle of the space below the header
       var z = pd.z0 + c * k - (hdr / 2) / (pd.sc * cs) * k, y = GROUND + .075;   // aim a little beyond it, so it sits below the header
       return { pos: new V3(ROW.x, y + pd.d * cs, z + pd.d * sn), target: new V3(ROW.x, y, z), up: UP, fov: POND.fov };
     }
@@ -4101,7 +4186,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     function draw(now){
       var v = view();
       stage.style.opacity = v ? "1" : "0"; stage.style.pointerEvents = v ? "auto" : "none";
-      if (!v) { screens.forEach(hide); if (pondBox) { pondBox.style.opacity = "0"; pondBox.classList.remove("is-on"); } return; }
+      if (!v) { screens.forEach(hide); if (pondBox) { pondBox.style.opacity = "0"; pondBox.classList.remove("is-on"); } if (lawnBox) { lawnBox.style.opacity = "0"; lawnBox.classList.remove("is-on"); } return; }
       var nr = .01, fr = 30;                              // a room needs 30 m; outside, the depth range follows the distance to the nearest window
       if (v.out) { var dmin = 1e9; for (var i = 0; i < wins.length; i++) dmin = Math.min(dmin, v.pose.pos.distanceTo(wins[i])); nr = Math.min(4, Math.max(.01, dmin * .02)); fr = 40000; }
       setPose(v.pose, v.fov, nr, fr);
@@ -4132,6 +4217,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         var pq = v.pond > 0 && corners(pondQ, pd.W * POND.k, pd.H * POND.k), pm = pq && fit(pd.W, pd.H, pq);
         if (pm) { pondBox.style.transform = pm; pondBox.style.opacity = smooth(.55, .95, v.pond).toFixed(3); } else pondBox.style.opacity = "0";
         pondBox.classList.toggle("is-on", v.pond >= 1 && !glideAnim);
+        if (lawnBox) {
+          var lq = v.pond > 0 && corners(lawnQ, pd.W * POND.k, pd.Hf * POND.k), lm = lq && fit(pd.W, pd.Hf, lq);
+          if (lm) { lawnBox.style.transform = lm; lawnBox.style.opacity = "1"; } else lawnBox.style.opacity = "0";
+          lawnBox.classList.toggle("is-on", v.pond >= 1 && !glideAnim);
+        }
       }
     }
     function hide(sc){ if (sc.el.classList.contains("is-open")) { sc.el.classList.remove("is-open", "is-on"); sc.el.style.opacity = "0"; } }
@@ -4437,6 +4527,15 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         if (mode !== "scroll") { move = null; toStreet(false); }
         cancelAuto(); stopFly(); toTop(pd.B); glKey = ""; kick();
       });
+      if (lawnBox) {
+        lawnBox.addEventListener("focusin", function(){
+          var s = -track.getBoundingClientRect().top;
+          if (mode === "scroll" && pondAt(s) >= 1 && !glideAnim) return;
+          if (mode !== "scroll") { move = null; toStreet(false); }
+          cancelAuto(); stopFly(); toTop(P); glKey = ""; kick();
+        });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if (!dead) { sizing = true; clearTimeout(rt); rt = setTimeout(relayout, 60); } });
+      }
       if (window.ResizeObserver) new ResizeObserver(function(){   // the form grew or shrank (a message, fonts arriving): the pond follows
         var h = Math.ceil(contact.offsetHeight); if (Math.abs(h - pd.H) < 2 || sizing) return;
         sizing = true; clearTimeout(rt); rt = setTimeout(relayout, 120);
@@ -4489,7 +4588,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     next.addEventListener("click", function(){ turnPage(1); });
     var drag = null;
     stage.addEventListener("pointerdown", function(e){
-      if (mode !== "scroll" || cur < 1 || pondAt(-track.getBoundingClientRect().top) > 0 || e.target.closest(".st-house, .st-arrow, .dev-screen, .st-back, .pond-box")) return;
+      if (mode !== "scroll" || cur < 1 || pondAt(-track.getBoundingClientRect().top) > 0 || e.target.closest(".st-house, .st-arrow, .dev-screen, .st-back, .pond-box, .lawn-box")) return;
       drag = { x: e.clientX, y: e.clientY, p: panX, t: performance.now(), moved: false, id: e.pointerId, v: 0, lx: e.clientX, lt: performance.now() };
     });
     stage.addEventListener("pointermove", function(e){
@@ -4615,7 +4714,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
     stepper(ahead(), { who: "street", polite: true, due: function(){ return phase === "city" && (cur > 0 || mode !== "scroll" || -track.getBoundingClientRect().top > moves.city.a - 1.5 * vpH); } });
     window.__zwdDevices = { pick: function(x, y){ return houseAt(x, y); }, state: function(){ return { mode: mode, room: inRoom, move: move ? { i: move.i, k: +move.k.toFixed(3) } : null, fly: glideAnim ? glideAnim.dir : 0, cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top),
-      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1, pond: pondBox ? { a: Math.round(pd.A), b: Math.round(pd.B), pan: Math.round(pd.pan), W: pd.W, H: pd.H, at: +pondAt(-track.getBoundingClientRect().top).toFixed(3) } : null }; } };
+      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1, pond: pondBox ? { a: Math.round(pd.A), b: Math.round(pd.B), pan: Math.round(pd.pan), W: pd.W, H: pd.H, Hf: pd.Hf, at: +pondAt(-track.getBoundingClientRect().top).toFixed(3) } : null }; } };
   }
 })();
 </script>
