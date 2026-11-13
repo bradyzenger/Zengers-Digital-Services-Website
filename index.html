@@ -234,6 +234,23 @@ html.intro-3d .intro-skip:hover{border-color:var(--gold);color:#fff}
 .dev-screen.is-on{pointer-events:auto}
 .dev-screen.is-dark{background:var(--ink);scrollbar-color:rgba(238,241,238,.35) transparent}
 html{scrollbar-gutter:stable}
+/* The pond (the "Street" script, since 2026-11-12): the question form lies on its water, a box fitted onto the 3D water
+   every frame like the screens. On the water the words are pale and the fields nearly white, so they read on the dark,
+   calm water under them. */
+.pond-box{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;pointer-events:none;color:#F3EFE6;--text:#F3EFE6;--muted:rgba(243,239,230,.8)}
+.pond-box.is-on{pointer-events:auto}
+.pond-box section.block{padding-block:26px 40px!important;background:none}
+.pond-box .wrap{max-width:none;padding-inline:0;margin:0}
+.pond-box .section-title{color:#FBF7EE;text-shadow:0 2px 16px rgba(4,12,20,.5)}
+.pond-box .section-intro{color:rgba(243,239,230,.9);text-shadow:0 1px 8px rgba(4,12,20,.55)}
+.pond-box .field label{color:#F6F2EA;text-shadow:0 1px 6px rgba(4,12,20,.6)}
+.pond-box .field .opt{color:rgba(243,239,230,.72)}
+.pond-box .field input,.pond-box .field textarea{color:#0E1822;background:rgba(250,248,243,.95);border-color:rgba(255,255,255,.55);box-shadow:0 6px 18px rgba(4,12,20,.22)}
+.pond-box .field input:focus-visible,.pond-box .field textarea:focus-visible{border-color:#0E1822}
+.pond-box .field-error{color:#FFC2B8}
+.pond-box .who{border-top-color:rgba(243,239,230,.85)}
+.pond-box .who h3{color:#FBF7EE;text-shadow:0 1px 8px rgba(4,12,20,.5)}
+.pond-box .who p{color:rgba(243,239,230,.84);text-shadow:0 1px 8px rgba(4,12,20,.5)}
 html.st-in body{overflow:hidden}               /* inside a house the page itself holds still; the screen scrolls (on the body, not the root, so the street stays pinned) */
 html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera moves by itself, a swipe doesn't scroll (it would jump) */
 .dev-screen section.block{padding-block:clamp(48px,7cqw,96px)!important}
@@ -2232,6 +2249,9 @@ window.__zwdNashville.steps = function*(THREE, o){
       "vec3 t=mix(vec3(.36,.35,.34),vec3(.44,.42,.4),n);t=mix(t,vec3(.17,.17,.18),1.0-smoothstep(6.0,6.4,min(tz,tx)));" +
       "c=mix(c,t,smoothstep(rv-110.0,rv-150.0,p.y));" +
       "c=mix(c,vec3(.08,.11,.06),1.0-smoothstep(100.0,140.0,abs(p.y-rv)));" +
+      "float pk=smoothstep(" + (rowL - 18).toFixed(1) + "," + (rowL - 16.5).toFixed(1) + ",p.x)*smoothstep(" + (rowR + 18).toFixed(1) + "," + (rowR + 16.5).toFixed(1) + ",p.x)*smoothstep(18.3,18.9,p.y)*smoothstep(97.0,94.0,p.y);" +   // the park: a fresher lawn, mown in stripes
+      "vec3 lawn=mix(vec3(.15,.23,.08),vec3(.2,.29,.1),n)*(1.0+.06*sign(sin(p.x*.55)));" +
+      "c=mix(c,lawn,pk);" +
       "return c;}")
       .replace("vec4 diffuseColor = vec4( diffuse, opacity );", "vec4 diffuseColor = vec4( groundCol(vP), 1.0 );");
   };
@@ -2535,7 +2555,7 @@ window.__zwdNashville.steps = function*(THREE, o){
 
   yield;
   // ---------- the little park across the street: a path, lamps, benches, low planting along the street ----------
-  var pathC = new THREE.CatmullRomCurve3([new V3(rowL - 14, G, 19), new V3(ROW.x - 14, G, 40), new V3(ROW.x + 10, G, 58), new V3(rowR + 16, G, 92)]), pp = [], pi = [];
+  var pathC = new THREE.CatmullRomCurve3([new V3(rowL - 14, G, 19), new V3(ROW.x - 22, G, 40), new V3(ROW.x + 10, G, 58), new V3(rowR + 16, G, 92)]), pp = [], pi = [];
   for (i = 0; i <= 80; i++) {
     var pt = pathC.getPoint(i / 80), tg = pathC.getTangent(i / 80), nx = -tg.z, nz = tg.x, nl = Math.sqrt(nx * nx + nz * nz);
     pp.push(pt.x + nx / nl * 1.1, G + .04, pt.z + nz / nl * 1.1, pt.x - nx / nl * 1.1, G + .04, pt.z - nz / nl * 1.1);
@@ -2552,8 +2572,127 @@ window.__zwdNashville.steps = function*(THREE, o){
   });
   for (i = 0; i < 26; i++) {                                 // low planting along the park's edge by the street
     var bx2 = rowL - 14 + i * ((rowR - rowL + 28) / 25) + (rnd() - .5) * 1.5;
-    var sb = new THREE.Mesh(crowns[3], new THREE.MeshLambertMaterial({ vertexColors: true, color: LEAF[(rnd() * 6) | 0] })); sb.position.set(bx2, G + .35, 18.6 + rnd() * .8); sb.scale.set(.9 + rnd() * .5, .4, .7); scene.add(sb);
+    var sb = new THREE.Mesh(crowns[3], new THREE.MeshLambertMaterial({ vertexColors: true, color: LEAF[(rnd() * 6) | 0] })); sb.position.set(bx2, G + .35, 18.6 + rnd() * .8); sb.scale.set(.9 + rnd() * .5, .4, .7);
+    if (Math.abs(bx2 - ROW.x) > 13) scene.add(sb);          // none in front of the pond: sidewalk, grass, then the water (the same random numbers drawn either way)
   }
+
+  // ---------- the pond in the park (Jason, 2026-11-12): across the sidewalk and a strip of grass from the street, in
+  // front of the middle of the row. The question form lies on its water (the "Street" script fits it there and sets the
+  // pond's size to the screen with shape(): the form at a sharp size, the banks round it). Clear water with soft ripples,
+  // calmer and a little darker under the form so it reads, mirroring the morning sky; a rim of stones half in the water,
+  // reeds on the bank, a few lily pads where there's room. Its own random numbers, so the city is unchanged ----------
+  var pond = (function(){
+    var ps = 46; function prnd(){ ps = (ps * 16807) % 2147483647; return (ps - 1) / 2147483646; }
+    var U = { uTime: { value: 0 }, uRect: { value: new THREE.Vector4(0, 0, 0, 0) } };
+    var waterMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: .1, metalness: .2, envMapIntensity: 1.2 });
+    waterMat.onBeforeCompile = function(sh){
+      sh.uniforms.uTime = U.uTime; sh.uniforms.uRect = U.uRect;
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;attribute float aDeep;varying float vDeep;")
+        .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWp = (modelMatrix * vec4(position, 1.0)).xyz;vDeep = aDeep;");
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;varying float vDeep;uniform float uTime;uniform vec4 uRect;\n" +
+        "float calmAt(vec2 p){vec2 a=smoothstep(uRect.xy-.7,uRect.xy+.5,p)*smoothstep(uRect.zw+.7,uRect.zw-.5,p);return a.x*a.y;}\n" +
+        "vec2 ripple(vec2 p,float t){vec2 g=vec2(0.0);" +                              // the slope of a few slow swells and finer wind ripples
+        "vec2 d=normalize(vec2(.8,.6));g+=d*cos(dot(d,p)*1.1+t*.9)*.05;" +
+        "d=normalize(vec2(-.5,.9));g+=d*cos(dot(d,p)*1.9+t*1.3)*.035;" +
+        "d=normalize(vec2(.95,-.3));g+=d*cos(dot(d,p)*3.7+t*2.1)*.022;" +
+        "d=normalize(vec2(-.2,-1.0));g+=d*cos(dot(d,p)*6.3+t*2.9)*.014;" +
+        "d=normalize(vec2(.6,.8));g+=d*cos(dot(d,p)*11.0+t*4.1)*.008;return g;}")
+        .replace("vec4 diffuseColor = vec4( diffuse, opacity );", "float calm = calmAt(vWp.xz);\n" +
+          "vec3 wc = mix(vec3(.2,.2,.11), mix(vec3(.05,.15,.16), vec3(.025,.085,.11), smoothstep(.25,.8,vDeep)), smoothstep(0.0,.22,vDeep));\n" +   // shallow and murky at the bank, deep teal toward the middle
+          "vec4 diffuseColor = vec4( wc * (1.0 - .4 * calm), opacity );")
+        .replace("#include <normal_fragment_maps>", "#include <normal_fragment_maps>\nvec2 rg=ripple(vWp.xz,uTime)*(1.6-1.3*calm);vec3 nW=normalize(vec3(-rg.x,1.0,-rg.y));normal=normalize((viewMatrix*vec4(nW,0.0)).xyz);")
+        .replace("#include <opaque_fragment>", "{vec3 rw=reflect(normalize(vWp-cameraPosition),nW);float gl=pow(max(dot(rw,normalize(vec3(.1,.86,-.5))),0.0),90.0);" +   // light from the bright sky glinting off the ripples (hardly any under the form, so it reads)
+          "outgoingLight+=vec3(1.0,.9,.82)*gl*.42*(1.0-.94*calm)+vec3(.04,.06,.09)*(1.0-.9*calm)*smoothstep(.0,.04,length(rg));}\n#include <opaque_fragment>");
+    };
+    var water = new THREE.Mesh(new THREE.BufferGeometry(), waterMat); water.receiveShadow = true; water.frustumCulled = false; scene.add(water);
+    var bed = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshLambertMaterial({ color: 0x4A4632 })); bed.receiveShadow = true; bed.frustumCulled = false; scene.add(bed);   // a darker damp ring of earth round it
+    var MAXS = 180, MAXR = 140, MAXL = 14;
+    var stoneG = new THREE.DodecahedronGeometry(1, 0), stones = new THREE.InstancedMesh(stoneG, new THREE.MeshLambertMaterial({ color: 0xFFFFFF }), MAXS);
+    stones.castShadow = stones.receiveShadow = true; stones.frustumCulled = false; scene.add(stones);
+    var reedG = new THREE.CylinderGeometry(0, .055, 1, 5, 1); reedG.translate(0, .5, 0);
+    var reeds = new THREE.InstancedMesh(reedG, new THREE.MeshLambertMaterial({ color: 0xFFFFFF }), MAXR); reeds.castShadow = true; reeds.frustumCulled = false; scene.add(reeds);
+    var padG = new THREE.CircleGeometry(.42, 14, .35, Math.PI * 2 - .7); padG.rotateX(-Math.PI / 2);
+    var pads = new THREE.InstancedMesh(padG, new THREE.MeshLambertMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide }), MAXL); pads.receiveShadow = true; pads.frustumCulled = false; scene.add(pads);
+    var m4 = new THREE.Matrix4(), q4 = new THREE.Quaternion(), e4 = new THREE.Euler(), s4 = new V3(), p4 = new V3(), c4 = new THREE.Color();
+    var STONE = [0x9A9384, 0xA8A190, 0x878073, 0xB1A893, 0x7A7468], REED = [0x5E7A30, 0x6C8838, 0x7E8E40, 0x4F6A2C];
+    // the outline: a rounded rectangle round the form's rectangle, the corners rounded as far as the margins allow, and a
+    // gentle wobble outward only, so it never cuts into the form
+    function outline(cx, cz, a, b, rc, n){
+      var pts = [], L = 2 * (a + b) * 2, per = [];
+      for (var i = 0; i < n; i++) {
+        var u = i / n * Math.PI * 2, c = Math.cos(u), s = Math.sin(u);
+        var x = Math.sign(c) * Math.min(a, Math.abs(c) * 1e3), z = Math.sign(s) * Math.min(b, Math.abs(s) * 1e3);
+        // a ray from the middle to the rounded rectangle
+        var tx = a / Math.max(1e-6, Math.abs(c)), tz = b / Math.max(1e-6, Math.abs(s)), tt = Math.min(tx, tz);
+        x = c * tt; z = s * tt;
+        var ex = Math.abs(x) - (a - rc), ez = Math.abs(z) - (b - rc);
+        if (ex > 0 && ez > 0) {                               // in a corner: onto the arc
+          var dx = Math.abs(c), dz = Math.abs(s), ox = a - rc, oz = b - rc;   // solve |o + t·dir - corner centre| = rc for the ray
+          var B2 = -2 * (dx * ox + dz * oz), C2 = ox * ox + oz * oz - rc * rc, t2 = (-B2 + Math.sqrt(Math.max(0, B2 * B2 - 4 * C2))) / 2;
+          x = Math.sign(c) * dx * t2; z = Math.sign(s) * dz * t2;
+        }
+        var w = 1 + .045 * (.5 + .5 * Math.sin(u * 3 + 1.1)) + .03 * (.5 + .5 * Math.sin(u * 7 + .4));
+        pts.push([cx + x * w, cz + z * w]);
+      }
+      return pts;
+    }
+    function fan(pts, cx, cz, y, grow){                       // a flat fan of triangles over the outline (grown outward by grow m)
+      var p = [], deep = [], idx = [], R = 6;                  // rings from the middle out, so the depth falls off smoothly
+      for (var r = 0; r <= R; r++) pts.forEach(function(q){ var dx = q[0] - cx, dz = q[1] - cz, l = Math.sqrt(dx * dx + dz * dz) || 1, f = r / R, e = f * (l + (r === R ? grow : 0)) / l;
+        p.push(cx + dx * e, y, cz + dz * e); deep.push(1 - Math.pow(f, 1.6)); });
+      var n = pts.length;
+      for (var r2 = 0; r2 < R; r2++) for (var i = 0; i < n; i++) { var a0 = r2 * n + i, a1 = r2 * n + (i + 1) % n, b0 = a0 + n, b1 = a1 + n; idx.push(a0, b1, b0, a0, a1, b1); }
+      var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(p, 3)); g.setAttribute("aDeep", new THREE.Float32BufferAttribute(deep, 1)); g.setIndex(idx); g.computeVertexNormals(); return g;
+    }
+    // shape(rect, mx, mz): the form's rectangle on the water (x0, z0, x1, z1, in metres) and the margins of water round it
+    function shape(r, mx, mz){
+      ps = 46;                                               // the same stones, reeds and pads for the same size
+      var cx = (r[0] + r[2]) / 2, cz = (r[1] + r[3]) / 2, A = (r[2] - r[0]) / 2, B = (r[3] - r[1]) / 2, a = A + mx, b = B + mz;
+      var rc = Math.max(.3, Math.min(a, b, 3.2 * Math.min(mx, mz)));
+      var pts = outline(cx, cz, a, b, rc, 160);
+      water.geometry.dispose(); water.geometry = fan(pts, cx, cz, G + .07, 0);
+      bed.geometry.dispose(); bed.geometry = fan(pts, cx, cz, G + .035, .32);
+      U.uRect.value.set(r[0], r[1], r[2], r[3]);
+      var per = 0, i, ns = 0;                                // stones every half metre or so round the edge, half in the water
+      for (i = 0; i < pts.length; i++) { var q = pts[i], q2 = pts[(i + 1) % pts.length]; per += Math.hypot(q2[0] - q[0], q2[1] - q[1]); }
+      var step = Math.max(.62, per / MAXS), acc = 0;
+      for (i = 0; i < pts.length && ns < MAXS; i++) {
+        var A0 = pts[i], A1 = pts[(i + 1) % pts.length], seg = Math.hypot(A1[0] - A0[0], A1[1] - A0[1]);
+        acc += seg;
+        while (acc >= step && ns < MAXS) {
+          acc -= step; var f = 1 - acc / seg, x = A0[0] + (A1[0] - A0[0]) * f, z = A0[1] + (A1[1] - A0[1]) * f, ox = x - cx, oz = z - cz, ol = Math.hypot(ox, oz) || 1, out = (prnd() - .3) * .18;
+          var sz = .13 + prnd() * .15;
+          p4.set(x + ox / ol * out, G + .02, z + oz / ol * out); e4.set(prnd() * .5, prnd() * 6.3, prnd() * .5); q4.setFromEuler(e4); s4.set(sz * (1 + prnd() * .5), sz * (.35 + prnd() * .25), sz * (1 + prnd() * .4));
+          stones.setMatrixAt(ns, m4.compose(p4, q4, s4)); stones.setColorAt(ns, c4.setHex(STONE[(prnd() * STONE.length) | 0]).multiplyScalar(.85 + prnd() * .3)); ns++;
+        }
+      }
+      stones.count = ns; stones.instanceMatrix.needsUpdate = true; if (stones.instanceColor) stones.instanceColor.needsUpdate = true;
+      var nr = 0, spots = [.07, .2, .31, .45, .58, .69, .83, .94];   // reeds in clumps on the bank, more at the far end and the sides
+      spots.forEach(function(u0){
+        var k = Math.round(u0 * pts.length) % pts.length, q = pts[k], ox = q[0] - cx, oz = q[1] - cz, ol = Math.hypot(ox, oz) || 1, nC = 14 + ((prnd() * 4) | 0);
+        for (var j = 0; j < nC && nr < MAXR; j++) {
+          var rr = .25 + prnd() * .7, an = prnd() * 6.3, h = .7 + prnd() * .8;
+          p4.set(q[0] + ox / ol * (.35 + prnd() * .5) + Math.cos(an) * rr * .5, G, q[1] + oz / ol * (.35 + prnd() * .5) + Math.sin(an) * rr * .5);
+          e4.set((prnd() - .5) * .35, 0, (prnd() - .5) * .35); q4.setFromEuler(e4); s4.set(1, h, 1);
+          reeds.setMatrixAt(nr, m4.compose(p4, q4, s4)); reeds.setColorAt(nr, c4.setHex(REED[(prnd() * REED.length) | 0])); nr++;
+        }
+      });
+      reeds.count = nr; reeds.instanceMatrix.needsUpdate = true; if (reeds.instanceColor) reeds.instanceColor.needsUpdate = true;
+      var np = 0;                                            // lily pads in the water beyond the form's corners, where there's room
+      [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(function(sg){
+        var room = Math.min(mx, mz); if (room < .9) return;
+        for (var j = 0; j < 3 && np < MAXL; j++) {
+          var px = cx + sg[0] * (A + mx * (.25 + prnd() * .35)), pz = cz + sg[1] * (B + mz * (.25 + prnd() * .35)), sc = .55 + prnd() * .5;
+          if (Math.abs(px - cx) > a - .5 || Math.abs(pz - cz) > b - .5) continue;
+          p4.set(px, G + .09, pz); e4.set(0, prnd() * 6.3, 0); q4.setFromEuler(e4); s4.set(sc, 1, sc);
+          pads.setMatrixAt(np, m4.compose(p4, q4, s4)); pads.setColorAt(np, c4.setHex(prnd() < .5 ? 0x4B6B33 : 0x3E5E2C)); np++;
+        }
+      });
+      pads.count = np; pads.instanceMatrix.needsUpdate = true; if (pads.instanceColor) pads.instanceColor.needsUpdate = true;
+    }
+    shape([ROW.x - 8, 23, ROW.x + 8, 32], 1.4, 1.4);          // a first shape, so it's built and drawn ready; the "Street" script sets it to the screen
+    return { shape: shape, uniforms: U, water: water };
+  })();
 
   yield;
   // ---------- the ways in: each house's upper window shows its room's light from outside (glass); when the camera
@@ -2762,7 +2901,7 @@ window.__zwdNashville.steps = function*(THREE, o){
     });
   }
   yield;
-  return { scene: scene, update: update, mistAt: mistAt, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
+  return { scene: scene, update: update, mistAt: mistAt, pond: pond, textures: textures, houses: ways.map(function(w){ return { x: w.c.x, z: w.c.z, win: { x: w.c.x, y: w.c.y, w: WIN.w, h: WIN.h, z: w.c.z }, top: w.top, box: w.box }; }) };
 };
 </script>
 
@@ -3471,8 +3610,12 @@ window.__zwdRooms = function(THREE, o){
    tablet, a TV, a projector screen. The page scrolls on its screen. "Back to the street", Esc or the browser's Back
    flies out again; a link to another house goes there directly. On a phone the street shows about two houses at a
    time: swipe along it, or use the arrows.
-   Scrolling on from the street carries on down the page to the question form; scrolling up from the street flies
-   back into the cloud, to About us's last words, and scrolling up from its first words sinks back to the summit.
+   Scrolling on from the street, the camera turns down over the road, the near sidewalk and a strip of grass to a pond
+   in the park (since 2026-11-12, Jason): the question form (#contact) lies on its water, fitted there like the pages
+   on the screens, at the size it would have on the page, and scrolling glides the camera along the pond as the form
+   reads on (POND). Then the page carries on to the footer. Scrolling up from the pond turns back up to the street;
+   scrolling up from the street flies back into the cloud, to About us's last words, and scrolling up from its first
+   words sinks back to the summit. Contact us links go to the pond.
    While a flight plays by itself the page holds still; a firm scroll, swipe or key the other way turns it round.
    The pages on the screens are the real sections (links, search engines, screen readers): each one is moved into a
    box fitted onto its 3D screen every frame (a CSS matrix3d). Without this script (reduced motion, Data Saver, slow
@@ -3512,7 +3655,8 @@ window.__zwdCalm = window.__zwdCalm || (function(){
 (function(){
   "use strict";
   var FLY = { hold: .3, rise: 1, city: 4, band: .3, pace: 2.25, back: .5, top: 1900, ease: 3 };   // a hold at the summit; the rise (in the film) and Nashville, in screens of scroll; they play by themselves at pace seconds a screen (Nashville, 4 screens: about 9 s), back in half the time; top: how far up the flight's line it starts (m), in the clouds; ease: how gently it sets off and lands
-  var STOP = .9;                              // scroll room at the street, in screen heights, before the page carries on
+  var STOP = .05;                             // scroll room at the street, in screen heights, before the turn down to the pond (any scroll on starts it)
+  var POND = { run: .9, secs: 2.1, back: .8, hold: .35, k: .0145, tilt: 24, fov: 30, top: 21.5, mz: 1.6 };   // the pond: the turn down to it (screens of scroll, seconds, back in .8 of the time), scroll room at its end before the footer; k: metres a pixel of the form; tilt: the camera's angle from straight down (degrees); fov; where its far bank is (z, m); the water beyond the form at each end (m)
   var MOVE = { dive: 2.3, out: 1.8, hop: [1.3, 1.9] };   // seconds: in at a window, out to the street, from house to house (out, in)
   var FRAME = { wide: { fov: 33, across: 61, h: 13, base: .87 }, tall: { fov: 42, perPx: 1 / 19, min: 19.5, h: 12, base: .9 } };   // the street at rest: lens, metres across at the houses, camera height, where the houses' feet sit
   var FILL = { wide: [.86, .86], tall: [.94, .88] };
@@ -3666,16 +3810,25 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       sc.page.className = "dev-page"; sc.el.appendChild(sc.page); stage.appendChild(sc.el);
       return sc;
     });
+    // the pond: the question form lies on its water (a box fitted onto the 3D water every frame, as the screens are)
+    var contact = document.getElementById("contact"), pondBox = null, pondQ = null, contactHome = null;
+    if (contact) {
+      pondBox = document.createElement("div"); pondBox.className = "pond-box"; pondBox.setAttribute("role", "region"); pondBox.setAttribute("aria-label", "Contact us");
+      pondQ = new THREE.Object3D(); pondQ.rotation.x = -Math.PI / 2; city.scene.add(pondQ);   // lying on the water, its top toward the houses
+      stage.appendChild(pondBox);
+    }
     stage.appendChild(back);
     track.appendChild(stage);
     var home = secs.map(function(s){ return { parent: s.parentNode, next: s.nextSibling, hidden: s.hidden }; });
     secs[0].parentNode.insertBefore(track, secs[0]);
     screens.forEach(function(sc){ sc.page.appendChild(sc.sec); sc.sec.hidden = false; });
+    if (pondBox) { contactHome = { parent: contact.parentNode, next: contact.nextSibling }; pondBox.appendChild(contact); }
     about.classList.add("ab-flow");                      // About us sits in the cloud between the film and the street (the "About" script)
     restore = function(){
       film.style.removeProperty("--film-tail"); delete film.dataset.tail; delete film.dataset.rise; root.classList.remove("dev-moving", "st-in");
       about.classList.remove("ab-flow"); about.style.marginTop = "";
       for (var i = secs.length - 1; i >= 0; i--) { var h = home[i]; h.parent.insertBefore(secs[i], h.next && h.next.parentNode === h.parent ? h.next : null); secs[i].hidden = h.hidden; }
+      if (contactHome) contactHome.parent.insertBefore(contact, contactHome.next && contactHome.next.parentNode === contactHome.parent ? contactHome.next : null);
       if (track.parentNode) track.parentNode.removeChild(track);
       if ("scrollRestoration" in history) history.scrollRestoration = "auto";
       restore = null;
@@ -3683,6 +3836,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
 
     // ---------- layout: the street's framing, each device's pose, how much scrolling each part gets ----------
     var vpW = 1, vpH = 1, frameH = 1, hdr = 64, tall = false, fillW = .86, fillH = .86, P = 0, st0 = 0, fly = [0, 1], abA = 0, abZ = 0, moves = {}, poses = [], lastW = 0, lastH = 0;
+    var pd = { A: 0, B: 0, W: 1, H: 1, sc: 1, d: 20, c0: 0, pan: 0, z0: 0 };   // the pond: where the turn down to it starts and ends (scroll), the form's size (px) and how it lies on the water
     var frame = { fov: 33, D: 60, h: 13, pitch: 0 }, stops = [ROW.x], page = 0, panX = ROW.x, panTo = ROW.x, perPage = 6;
     function street(x){                                 // the camera at rest over the park, facing the row; x: along the street
       var pos = new V3(x, GROUND + frame.h, ROW.z + frame.D);
@@ -3734,12 +3888,46 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       about.style.marginTop = -vpH + "px";
       abZ = parseFloat(getComputedStyle(about.querySelector(".ab-text")).paddingTop) || vpH / 2; abA = about.offsetHeight - vpH;
       fly = [0, FLY.city * vpH]; st0 = fly[1] + FLY.band * vpH; P = st0 + STOP * vpH;
+      if (pondBox) { pondLayout(); pd.A = P; pd.B = P + POND.run * vpH; P = pd.B + pd.pan + POND.hold * vpH; moves.pond = { name: "pond", a: pd.A, b: pd.B, land: [st0, pd.B], secs: POND.secs, back: POND.back }; }
       moves.rise = { name: "rise", a: -abA - R, b: -abA + abZ, land: [-abA - R - Hd + 4, -abA + abZ], secs: pace * (R + abZ) / vpH, back: FLY.back };
       moves.city = { name: "city", a: -abZ, b: fly[1], land: [-abZ, st0], secs: pace * (abZ + fly[1]) / vpH, back: FLY.back };
       track.style.marginTop = -vpH + "px"; track.style.height = (vpH + P) + "px";
       glKey = "";
       lastW = window.innerWidth; lastH = window.innerHeight;
     }
+    // The form on the water: at the width it would have on the page and its natural height, shown at its own size (on a
+    // phone a little smaller, so the banks show at the sides), k metres a pixel. The camera looks down at it at POND.tilt
+    // from straight down; scrolling glides it along the form at a pixel a pixel (pan), so a long form reads on. The pond
+    // is shaped round it: water beyond its sides as far as the screen allows, POND.mz at each end.
+    function pondLayout(){
+      var gut = Math.max(20, Math.min(56, vpW * .05)), W = Math.round(Math.min(1120, vpW - 2 * gut)), sc = vpW < 700 ? .9 : 1;
+      pondBox.style.width = W + "px";
+      var H = Math.max(200, Math.ceil(contact.offsetHeight)); pondBox.style.height = H + "px";
+      var th = POND.tilt * Math.PI / 180, cs = Math.cos(th), tv = Math.tan(POND.fov * Math.PI / 360), k = POND.k;
+      var c0 = ((frameH - hdr) / 2 - 14) / (sc * cs);           // half the form's height that shows below the header, in its own px
+      pd.W = W; pd.H = H; pd.sc = sc; pd.d = k * frameH / (2 * tv * sc); pd.c0 = c0; pd.pan = Math.max(0, H - 2 * c0) * sc * cs;
+      var mx = Math.max(.25, (vpW / sc - W) / 2 * k * .6), mz = POND.mz;   // the water beyond its sides: most of what the screen shows there
+      pd.z0 = POND.top + mz;                                     // the form's top edge on the water
+      var x0 = ROW.x - W * k / 2, x1 = ROW.x + W * k / 2, z1 = pd.z0 + H * k;
+      city.pond.shape([x0, pd.z0, x1, z1], mx, mz);
+      pondQ.position.set(ROW.x, GROUND + .075, pd.z0 + H * k / 2); pondQ.updateMatrixWorld(true);
+      shadowed[city.scene.uuid] = 0;                             // the new stones and reeds cast new shadows
+    }
+    function pondPose(u){                                        // looking down at the form, u: how far along it (0 → 1)
+      var k = POND.k, th = POND.tilt * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th);
+      var c = pd.H <= 2 * pd.c0 ? pd.H / 2 : pd.c0 + clamp(u) * (pd.H - 2 * pd.c0);   // the form's px that sits in the middle of the space below the header
+      var z = pd.z0 + c * k - (hdr / 2) / (pd.sc * cs) * k, y = GROUND + .075;   // aim a little beyond it, so it sits below the header
+      return { pos: new V3(ROW.x, y + pd.d * cs, z + pd.d * sn), target: new V3(ROW.x, y, z), up: UP, fov: POND.fov };
+    }
+    var qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), m4 = new THREE.Matrix4();
+    function pondTurn(k){                                        // from the street down to the pond: over the road, the sidewalk and the grass
+      var S = street(panX), R = pondPose(0), e = inOut(k);
+      qa.setFromRotationMatrix(m4.lookAt(S.pos, S.target, UP)); qb.setFromRotationMatrix(m4.lookAt(R.pos, R.target, UP)); qa.slerp(qb, smooth(0, 1, e * 1.08 - .04));
+      var pos = S.pos.clone().lerp(R.pos, e), fwd = new V3(0, 0, -1).applyQuaternion(qa);
+      pos.x = S.pos.x + (R.pos.x - S.pos.x) * inOut(k / .6);   // along the street to the pond's line early (on a phone the street may be at its first houses)
+      return { pos: pos, target: pos.clone().addScaledVector(fwd, 10), up: new V3(0, 1, 0).applyQuaternion(qa), fov: S.fov + (POND.fov - S.fov) * e };
+    }
+    function pondAt(s){ return !pondBox || s <= pd.A ? 0 : s < pd.B - 1.5 ? (s - pd.A) / (pd.B - pd.A) : 1; }   // (the page scrolls in whole pixels)   // 0 the street, 1 the pond
     function curAt(s){ return s <= fly[0] ? 0 : s < fly[1] ? (s - fly[0]) / (fly[1] - fly[0]) : 1; }   // 0 the film or About us, (the flight over Nashville), 1 the street
 
     // ---------- camera, screens, windows ----------
@@ -3837,6 +4025,8 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         var k = cur, fc = flyCam(k);
         return { pose: fc, fov: fc.fov, fly: k, mist: Math.max(city.mistAt(fc.pos), 1 - smooth(0, .1, k)), open: [], out: true, win: -1 };   // inside a cloud: its colour, the colour About us ends in, thinning as it comes out
       }
+      var s = -track.getBoundingClientRect().top, pk = pondAt(s);
+      if (pk > 0) { var pp = pk < 1 ? pondTurn(pk) : pondPose((s - pd.B) / Math.max(1, pd.pan)); return { pose: pp, fov: pp.fov, open: [], out: true, win: -1, pond: pk }; }
       var S = street(panX); return { pose: S, fov: S.fov, open: [], out: true, win: -1, street: true };
     }
     function drawScene(scene){                           // each scene's shadows are drawn once
@@ -3846,11 +4036,12 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     function draw(now){
       var v = view();
       stage.style.opacity = v ? "1" : "0"; stage.style.pointerEvents = v ? "auto" : "none";
-      if (!v) { screens.forEach(hide); return; }
+      if (!v) { screens.forEach(hide); if (pondBox) { pondBox.style.opacity = "0"; pondBox.classList.remove("is-on"); } return; }
       var nr = .01, fr = 30;                              // a room needs 30 m; outside, the depth range follows the distance to the nearest window
       if (v.out) { var dmin = 1e9; for (var i = 0; i < wins.length; i++) dmin = Math.min(dmin, v.pose.pos.distanceTo(wins[i])); nr = Math.min(4, Math.max(.01, dmin * .02)); fr = 40000; }
       setPose(v.pose, v.fov, nr, fr);
-      var key = [cam.position.x, cam.position.y, cam.position.z, v.pose.target.x, v.pose.target.y, v.pose.target.z, cam.fov, vpW, vpH, (v.open || []).join(), v.mist || 0].map(function(x){ return typeof x === "number" ? x.toFixed(4) : x; }).join("|");
+      if (v.pond > 0) city.pond.uniforms.uTime.value = waterT;
+      var key = [cam.position.x, cam.position.y, cam.position.z, v.pose.target.x, v.pose.target.y, v.pose.target.z, cam.fov, vpW, vpH, (v.open || []).join(), v.mist || 0, v.pond > 0 ? waterT : 0].map(function(x){ return typeof x === "number" ? x.toFixed(4) : x; }).join("|");
       if (key !== glKey) {
         glKey = key;
         city.update(v.fly >= 0 ? v.fly : 1, cam, v.open);
@@ -3872,6 +4063,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         sc.el.classList.toggle("is-on", mode === "room");
       }
       placeLabels(v.street);
+      if (pondBox) {
+        var pq = v.pond > 0 && corners(pondQ, pd.W * POND.k, pd.H * POND.k), pm = pq && fit(pd.W, pd.H, pq);
+        if (pm) { pondBox.style.transform = pm; pondBox.style.opacity = smooth(.55, .95, v.pond).toFixed(3); } else pondBox.style.opacity = "0";
+        pondBox.classList.toggle("is-on", v.pond >= 1 && !glideAnim);
+      }
     }
     function hide(sc){ if (sc.el.classList.contains("is-open")) { sc.el.classList.remove("is-open", "is-on"); sc.el.style.opacity = "0"; } }
     function placeLabels(on){                            // the labels sit on the houses' ridges
@@ -3888,7 +4084,9 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
 
     // ---------- each frame ----------
-    var raf = 0, last = 0, slow = 0, sprayT = 0, focusAfter = -1;
+    var raf = 0, last = 0, slow = 0, sprayT = 0, focusAfter = -1, waterT = 0, waterAt = 0, stirT = performance.now();
+    ["scroll", "pointermove", "keydown", "touchstart", "input"].forEach(function(ty){ window.addEventListener(ty, function(){ stirT = performance.now(); if (pondBox && pondAt(-track.getBoundingClientRect().top) > 0) kick(); }, { passive: true, capture: true }); });
+    function streetEnd(){ return pondBox ? pd.A + 4 : P + vpH * .5; }   // as far down as the street still shows
     function tick(now){
       raf = 0;
       if (dead) return;
@@ -3905,6 +4103,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
           if (tg >= 1) {
             var risen = g.m === moves.rise && g.dir > 0;
             stopFly(); lastY = window.scrollY;
+            if (g.m === moves.pond && g.dir > 0 && focusForm) formFocus();
             if (risen && focusAbout) { focusAbout = false; var ht = about.querySelector("#about-title") || about; ht.setAttribute("tabindex", "-1"); ht.focus({ preventScroll: true }); }   // "Skip the intro" from the keyboard
           }
         }
@@ -3915,13 +4114,16 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         if (Math.abs(panTo - panX) > .002) panX += (panTo - panX) * Math.min(1, dt * 7); else panX = panTo;
         var s = -track.getBoundingClientRect().top, wasStreet = cur >= 1;
         cur = curAt(s);
-        var atStreet = mode === "scroll" && cur >= 1 && s <= P + vpH * .5;
+        var atStreet = mode === "scroll" && cur >= 1 && s <= streetEnd();
         var on = atStreet && !glideAnim;
         if (on && !ui.classList.contains("is-on") && !sprayT) sprayT = setTimeout(function(){ ui.classList.add("sprayed"); }, 2800);   // the spray plays once; after that the words just fade in
         ui.classList.toggle("is-on", on);
         draw(now);
         if (focusAfter >= 0 && on) { labels[focusAfter].focus({ preventScroll: true }); focusAfter = -1; }
         var going = !!auto || !!glideAnim || !!move || panX !== panTo;
+        var wet = pondBox && mode === "scroll" && near && pondAt(s) > 0 && now - stirT < 12000;   // the water moves while the pond shows (and stills once nobody has moved for a while)
+        if (!wet) waterAt = 0; else if (now - waterAt > 30) { waterT += waterAt ? Math.min(.1, (now - waterAt) / 1000) : 0; waterAt = now; }   // about 30 times a second
+        if (wet && !going) { raf = requestAnimationFrame(tick); return; }
         if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
         if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
       } catch(e){ fail(e); }
@@ -3950,7 +4152,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     function settle(){
       if (auto || glideAnim || held || flight || dead || mode !== "scroll") return;
       if (performance.now() - wheelAt < 150) { quiet = setTimeout(settle, 150); return; }   // trackpad momentum still coming
-      var s = -track.getBoundingClientRect().top, m = s > moves.rise.a + 2 && s < moves.rise.b - 2 ? moves.rise : s > moves.city.a + 2 && s < moves.city.b - 2 ? moves.city : null;
+      var s = -track.getBoundingClientRect().top, m = s > moves.rise.a + 2 && s < moves.rise.b - 2 ? moves.rise : s > moves.city.a + 2 && s < moves.city.b - 2 ? moves.city : moves.pond && s > moves.pond.a + 2 && s < moves.pond.b - 2 ? moves.pond : null;
       if (m) { var f = (s - m.a) / (m.b - m.a); playTo(m, dirY > 0 ? (f > .2 ? 1 : -1) : (f > .8 ? 1 : -1)); }   // left part-way through a move: it finishes, one way or the other
       else if (s >= fly[1] - 2 && s < st0 - 2) { auto = { y0: window.scrollY, y1: window.scrollY + (st0 - s), t0: performance.now(), d: 400 }; kick(); }   // in the still band before the street: on to it
     }
@@ -3971,6 +4173,8 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         else if (dy < 0 && s > r.a && s <= r.b - give) playTo(r, -1);                               // back up from About us's first words: down to the summit
         else if (dy > 0 && s >= c.a + give && s < c.b) playTo(c, 1);                                // on from its last words: out over Nashville to the street
         else if (dy < 0 && s <= st0 - FLY.band * vpH / 2 && s > c.a) playTo(c, -1);                // back up from the street: into the cloud again
+        else if (moves.pond && dy > 0 && s >= st0 + 8 && s < moves.pond.b) playTo(moves.pond, 1);   // on from the street: down to the pond
+        else if (moves.pond && dy < 0 && s <= moves.pond.b - give && s > moves.pond.a) playTo(moves.pond, -1);   // back up from the pond: up to the street
       }
       notePlace(); lastY = y; kick();
     }
@@ -4060,7 +4264,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       if (mode === "room" && inRoom === i) { screens[i].el.focus({ preventScroll: true }); return; }
       if (mode === "move") { queued = i; return; }
       cancelAuto(); stopFly(); room(i);
-      var s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s <= P + vpH * .5;
+      var s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s <= streetEnd();
       if (!animate || (mode === "scroll" && !onStreet)) { if (mode === "scroll") { pageFor(i, true); toTop(st0); } arrive(i); return; }
       if (mode === "room") {                                // from another house: out to a point between them, then in
         var a = inRoom, M = midPose(a, i);
@@ -4090,7 +4294,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       var h = u.hash.slice(1); return h === "nashville" ? -1 : IDS.indexOf(h) >= 0 ? IDS.indexOf(h) : null;
     }
     var lastHash = location.hash;
-    function atStreet(){ var s = -track.getBoundingClientRect().top; return mode !== "scroll" || (cur >= 1 && s >= st0 - 2 && s <= P + vpH * .5); }
+    function atStreet(){ var s = -track.getBoundingClientRect().top; return mode !== "scroll" || (cur >= 1 && s >= st0 - 2 && s <= streetEnd()); }
     function go(i, push){                                 // a house (0–5) or the street (-1), from a link or the address
       if (push && history.pushState) {                    // the page remembers where it was, for the browser's Back
         var here = atStreet(), was = history.state && typeof history.state === "object" ? history.state : {};
@@ -4103,7 +4307,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         return;
       }
       var s = -track.getBoundingClientRect().top;
-      enter(i, mode !== "scroll" || (cur >= 1 && s <= P + vpH * .5));
+      enter(i, mode !== "scroll" || (cur >= 1 && s <= streetEnd()));
     }
     document.addEventListener("click", function(e){
       if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -4112,6 +4316,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       if (i !== null) { e.preventDefault(); go(i, true); return; }
       var u; try { u = new URL(a.href, location.href); } catch(_){ return; }
       if (u.pathname !== location.pathname || !u.hash || u.origin !== location.origin) return;
+      if (u.hash === "#contact" && pondBox) { e.preventDefault(); toPond(true, true, !e.detail); return; }   // the question form: down to the pond
       if (u.hash === "#about") {                         // About us: to its first words (the browser would stop in the cloud before them)
         e.preventDefault(); if (mode !== "scroll") { move = null; toStreet(false); }
         if (history.pushState) { try { history.replaceState(Object.assign({}, history.state || {}, { y: window.scrollY }), ""); history.pushState({}, "", "#about"); lastHash = location.hash; } catch(_){} }
@@ -4120,6 +4325,31 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       if (mode !== "scroll") { move = null; toStreet(false); }   // anywhere else on the page (the form, the top): out of the house at once, then the browser's own scroll
       flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400); auto = null; stopFly();
     });
+    // To the pond (a Contact us link, the address #contact): from the street the camera turns down to it; from anywhere
+    // else (a house, the film, the footer) the page goes straight there. From the keyboard the form's first field gets the focus.
+    var focusForm = false;
+    function toPond(animate, push, keys){
+      if (push && history.pushState) { try { history.replaceState(Object.assign({}, history.state || {}, { y: window.scrollY }), ""); history.pushState({}, "", "#contact"); lastHash = location.hash; } catch(_){} }
+      if (mode !== "scroll") { move = null; toStreet(false); }
+      cancelAuto(); stopFly(); clearTimeout(quiet);
+      var s = -track.getBoundingClientRect().top;
+      focusForm = !!keys;
+      if (animate && cur >= 1 && s >= st0 - 2 && s < pd.B) playTo(moves.pond, 1);
+      else { toTop(pd.B); glKey = ""; kick(); if (keys) setTimeout(formFocus, 60); }
+    }
+    function formFocus(){ focusForm = false; var f = contact.querySelector("input:not([type=hidden]):not([tabindex='-1']), textarea"); if (f) f.focus({ preventScroll: true }); }
+    if (pondBox) {
+      pondBox.addEventListener("focusin", function(){          // the keyboard reached the form while it's not in view: go to the pond
+        var s = -track.getBoundingClientRect().top;
+        if (mode === "scroll" && pondAt(s) >= 1 && !glideAnim) return;
+        if (mode !== "scroll") { move = null; toStreet(false); }
+        cancelAuto(); stopFly(); toTop(pd.B); glKey = ""; kick();
+      });
+      if (window.ResizeObserver) new ResizeObserver(function(){   // the form grew or shrank (a message, fonts arriving): the pond follows
+        var h = Math.ceil(contact.offsetHeight); if (Math.abs(h - pd.H) < 2 || sizing) return;
+        sizing = true; clearTimeout(rt); rt = setTimeout(relayout, 120);
+      }).observe(contact);
+    }
     back.addEventListener("click", function(){
       var st = history.state;
       if (st && st.zwd >= 0 && st.from === -1) history.back();   // came in from the street: go back through the history
@@ -4136,7 +4366,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       else {                                              // back to somewhere else on the page: out of the house at once, and back where it was
         if (mode !== "scroll") { move = null; toStreet(false); }
         reland = null; clearTimeout(flightT); flight = true; flightT = setTimeout(landed, 400);
-        if (was.y != null) window.scrollTo({ top: was.y, behavior: "instant" }); else if (h === "about") toTop(moves.rise.b); else { var el = h && document.getElementById(h); if (el) el.scrollIntoView({ block: "start", behavior: "instant" }); }
+        if (was.y != null) window.scrollTo({ top: was.y, behavior: "instant" }); else if (h === "about") toTop(moves.rise.b); else if (h === "contact" && pondBox) toTop(pd.B); else { var el = h && document.getElementById(h); if (el) el.scrollIntoView({ block: "start", behavior: "instant" }); }
       }
     }
     window.addEventListener("popstate", route);
@@ -4167,12 +4397,12 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     next.addEventListener("click", function(){ turnPage(1); });
     var drag = null;
     stage.addEventListener("pointerdown", function(e){
-      if (mode !== "scroll" || cur < 1 || e.target.closest(".st-house, .st-arrow, .dev-screen, .st-back")) return;
+      if (mode !== "scroll" || cur < 1 || pondAt(-track.getBoundingClientRect().top) > 0 || e.target.closest(".st-house, .st-arrow, .dev-screen, .st-back, .pond-box")) return;
       drag = { x: e.clientX, y: e.clientY, p: panX, t: performance.now(), moved: false, id: e.pointerId, v: 0, lx: e.clientX, lt: performance.now() };
     });
     stage.addEventListener("pointermove", function(e){
       if (mode !== "scroll" || cur < 1) return;
-      if (!drag) { if (e.pointerType === "mouse") setHot(houseAt(e.clientX, e.clientY)); return; }
+      if (!drag) { if (e.pointerType === "mouse") setHot(pondAt(-track.getBoundingClientRect().top) > 0 ? -1 : houseAt(e.clientX, e.clientY)); return; }
       var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (!drag.moved && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) && stops.length > 1) { drag.moved = true; try { stage.setPointerCapture(e.pointerId); } catch(_){} }
       if (drag.moved) {
@@ -4209,11 +4439,12 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }).observe(about);
     function relayout(){
         try {
-          var flying = glideAnim && { name: glideAnim.m.name, dir: glideAnim.dir, at: (-track.getBoundingClientRect().top - glideAnim.m.a) / (glideAnim.m.b - glideAnim.m.a) }, s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s >= st0 - 2 && s <= P;
+          var flying = glideAnim && { name: glideAnim.m.name, dir: glideAnim.dir, at: (-track.getBoundingClientRect().top - glideAnim.m.a) / (glideAnim.m.b - glideAnim.m.a) }, s = -track.getBoundingClientRect().top, onStreet = mode === "scroll" && cur >= 1 && s >= st0 - 2 && s <= streetEnd(), atPond = !flying && mode === "scroll" && pondBox && s >= pd.B - 2 && s <= P + 2 ? (s - pd.B) / Math.max(1, P - pd.B) : -1;
           var at = flying || mode !== "scroll" ? -1 : abAt;   // reading About us: back to the same place in it
           stopFly(); layout();
           if (flying) { var fm = moves[flying.name]; toTop(fm.a + flying.at * (fm.b - fm.a)); playTo(fm, flying.dir); }
           else if (mode !== "scroll" || onStreet) toTop(st0);
+          else if (atPond >= 0) toTop(pd.B + atPond * (P - pd.B));
           else if (at >= 0) toTop(moves.rise.b + at * (moves.city.a - moves.rise.b));
           if (mode === "room") { var sc = screens[inRoom]; placeBack(sc); }
           glKey = ""; kick();
@@ -4226,16 +4457,16 @@ window.__zwdCalm = window.__zwdCalm || (function(){
 
     function arriveAt(){                                  // opened at a link to part of the page: the browser may still be scrolling there, so let it finish, then put it right
       var h = location.hash.slice(1), i = IDS.indexOf(h), el = i < 0 && h && h !== "nashville" ? document.getElementById(h) : null;
-      if (el && track.contains(el)) el = null;
+      if (el && track.contains(el) && !(h === "contact" && pondBox)) el = null;
       if (i < 0 && h !== "nashville" && !el) return false;
-      var put = function(){ if (i >= 0) { if (!(mode === "room" && inRoom === i)) enter(i, false); else toTop(st0); } else if (h === "nashville") { toTop(st0); kick(); } else if (h === "about") { toTop(moves.rise.b); kick(); } else if (el.isConnected) el.scrollIntoView({ block: "start", behavior: "instant" }); };
+      var put = function(){ if (h === "contact" && pondBox) { toTop(pd.B); kick(); return; } if (i >= 0) { if (!(mode === "room" && inRoom === i)) enter(i, false); else toTop(st0); } else if (h === "nashville") { toTop(st0); kick(); } else if (h === "about") { toTop(moves.rise.b); kick(); } else if (el.isConnected) el.scrollIntoView({ block: "start", behavior: "instant" }); };
       put(); reland = put;
       flight = true; clearTimeout(flightT); flightT = setTimeout(landed, 400);
       return true;
     }
     layout();
     var below = !location.hash && (window.scrollY > 0);
-    if (!arriveAt() && below) { var sTop = -track.getBoundingClientRect().top; if (sTop > 0 && sTop < P) toTop(st0); }   // opened further down: stay at the street
+    if (!arriveAt() && below) { var sTop = -track.getBoundingClientRect().top; if (sTop > 0 && sTop < (pondBox ? pd.A : P)) toTop(st0); else if (pondBox && sTop < pd.B) toTop(pd.B); }   // opened further down: stay at the street (or the pond)
     cur = curAt(-track.getBoundingClientRect().top);
     if (mode === "scroll") draw(performance.now());
     shown();                                              // drawn in the same frame the page appears
@@ -4292,7 +4523,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
     stepper(ahead(), { who: "street", polite: true, due: function(){ return phase === "city" && (cur > 0 || mode !== "scroll" || -track.getBoundingClientRect().top > moves.city.a - 1.5 * vpH); } });
     window.__zwdDevices = { pick: function(x, y){ return houseAt(x, y); }, state: function(){ return { mode: mode, room: inRoom, move: move ? { i: move.i, k: +move.k.toFixed(3) } : null, fly: glideAnim ? glideAnim.dir : 0, cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top),
-      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1 }; } };
+      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1, pond: pondBox ? { a: Math.round(pd.A), b: Math.round(pd.B), pan: Math.round(pd.pan), W: pd.W, H: pd.H, at: +pondAt(-track.getBoundingClientRect().top).toFixed(3) } : null }; } };
   }
 })();
 </script>
