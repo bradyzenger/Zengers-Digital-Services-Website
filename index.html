@@ -2578,33 +2578,97 @@ window.__zwdNashville.steps = function*(THREE, o){
 
   // ---------- the pond in the park (Jason, 2026-11-12): across the sidewalk and a strip of grass from the street, in
   // front of the middle of the row. The question form lies on its water (the "Street" script fits it there and sets the
-  // pond's size to the screen with shape(): the form at a sharp size, the banks round it). Clear water with soft ripples,
-  // calmer and a little darker under the form so it reads, mirroring the morning sky; a rim of stones half in the water,
-  // reeds on the bank, a few lily pads where there's room. Its own random numbers, so the city is unchanged ----------
+  // pond's size to the screen with shape(): the form at a sharp size, the banks round it). Cartoon water with real
+  // physics (Jason, the same day): one navy all over, lit by the scene's sun and shaded by its shadows, with flat, stepped
+  // highlights instead of reflections; under it a wave simulation (sim): rings from the pointer or a finger drawn across
+  // it, from typing in the form, and the odd drop, spread at a ripple's real speed, bounce off the banks and die away;
+  // the wind draws drifting streaks (calmer under the form, so it reads); the lily pads ride the waves and the reeds
+  // sway. A rim of stones half in the water, reeds on the bank, lily pads where there's room. Its own random numbers, so
+  // the city is unchanged. Tune: NAVY, SIM ----------
   var pond = (function(){
     var ps = 46; function prnd(){ ps = (ps * 16807) % 2147483647; return (ps - 1) / 2147483646; }
-    var U = { uTime: { value: 0 }, uRect: { value: new THREE.Vector4(0, 0, 0, 0) } };
-    var waterMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: .1, metalness: .2, envMapIntensity: 1.2 });
+    var NAVY = 0x2B4A9C;                                     // the water's colour before the light (lit by the low sun it's navy)
+    var SIM = { cells: 170, speed: 1, damp: .9935, drops: .35, drop: .55 };   // the grid across the pond's longer side; ripple speed (m/s); how much of a wave is left each step (60 a second); drops a second; how big
+    var U = { uTime: { value: 0 }, uRect: { value: new THREE.Vector4(0, 0, 0, 0) }, uH: { value: null }, uHB: { value: new THREE.Vector4(0, 0, 1, 1) }, uTx: { value: new THREE.Vector2(.01, .01) } };
+    var waterMat = new THREE.MeshLambertMaterial({ color: NAVY });
     waterMat.onBeforeCompile = function(sh){
-      sh.uniforms.uTime = U.uTime; sh.uniforms.uRect = U.uRect;
-      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;attribute float aDeep;varying float vDeep;")
-        .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWp = (modelMatrix * vec4(position, 1.0)).xyz;vDeep = aDeep;");
-      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;varying float vDeep;uniform float uTime;uniform vec4 uRect;\n" +
+      for (var k in U) sh.uniforms[k] = U[k];
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;")
+        .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWp = (modelMatrix * vec4(position, 1.0)).xyz;");
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vWp;uniform float uTime;uniform vec4 uRect,uHB;uniform sampler2D uH;uniform vec2 uTx;\n" +
         "float calmAt(vec2 p){vec2 a=smoothstep(uRect.xy-.7,uRect.xy+.5,p)*smoothstep(uRect.zw+.7,uRect.zw-.5,p);return a.x*a.y;}\n" +
-        "vec2 ripple(vec2 p,float t){vec2 g=vec2(0.0);" +                              // the slope of a few slow swells and finer wind ripples
-        "vec2 d=normalize(vec2(.8,.6));g+=d*cos(dot(d,p)*1.1+t*.9)*.05;" +
-        "d=normalize(vec2(-.5,.9));g+=d*cos(dot(d,p)*1.9+t*1.3)*.035;" +
-        "d=normalize(vec2(.95,-.3));g+=d*cos(dot(d,p)*3.7+t*2.1)*.022;" +
-        "d=normalize(vec2(-.2,-1.0));g+=d*cos(dot(d,p)*6.3+t*2.9)*.014;" +
-        "d=normalize(vec2(.6,.8));g+=d*cos(dot(d,p)*11.0+t*4.1)*.008;return g;}")
-        .replace("vec4 diffuseColor = vec4( diffuse, opacity );", "float calm = calmAt(vWp.xz);\n" +
-          "vec3 wc = mix(vec3(.2,.2,.11), mix(vec3(.05,.15,.16), vec3(.025,.085,.11), smoothstep(.25,.8,vDeep)), smoothstep(0.0,.22,vDeep));\n" +   // shallow and murky at the bank, deep teal toward the middle
-          "vec4 diffuseColor = vec4( wc * (1.0 - .4 * calm), opacity );")
-        .replace("#include <normal_fragment_maps>", "#include <normal_fragment_maps>\nvec2 rg=ripple(vWp.xz,uTime)*(1.6-1.3*calm);vec3 nW=normalize(vec3(-rg.x,1.0,-rg.y));normal=normalize((viewMatrix*vec4(nW,0.0)).xyz);")
-        .replace("#include <opaque_fragment>", "{vec3 rw=reflect(normalize(vWp-cameraPosition),nW);float gl=pow(max(dot(rw,normalize(vec3(.1,.86,-.5))),0.0),90.0);" +   // light from the bright sky glinting off the ripples (hardly any under the form, so it reads)
-          "outgoingLight+=vec3(1.0,.9,.82)*gl*.42*(1.0-.94*calm)+vec3(.04,.06,.09)*(1.0-.9*calm)*smoothstep(.0,.04,length(rg));}\n#include <opaque_fragment>");
+        "float wind(vec2 p,float t){" +                                                // drifting wind streaks: long in the wind's direction, moving with it
+        "vec2 q=vec2(dot(p,vec2(.8,.6)),dot(p,vec2(-.6,.8)));" +
+        "return (sin(q.y*2.3+sin(q.x*.35+t*.2)*1.6-t*.55)*.55+sin(q.y*4.1+q.x*.6+sin(q.x*.5-t*.3)*1.2-t*.9)*.3+sin(q.y*7.7-q.x*.9+t*.4)*.15);}\n" +
+        "float hAt(vec2 uv){return texture2D(uH,uv).r*2.0-1.0;}")
+        .replace("#include <opaque_fragment>",
+          "{float calm=calmAt(vWp.xz);vec2 uv=(vWp.xz-uHB.xy)/uHB.zw;float h=hAt(uv)*(1.0-.35*calm);" +
+          "float w=wind(vWp.xz,uTime)*(1.0-.6*calm);" +
+          "float tone=1.0+.18*smoothstep(.56,.6,w)-.08*smoothstep(-.62,-.66,w);" +          // flat steps, not gradients: the cartoon look
+          "tone+=.16*smoothstep(.07,.1,h)-.1*smoothstep(-.07,-.1,h);" +                       // each wave's crest a flat lighter navy, its trough a darker one
+          "float fw=max(fwidth(h),1e-4),line=0.0;" +
+          "for(int i=0;i<2;i++){float L=.13+.17*float(i);line=max(line,1.0-smoothstep(.9,2.1,abs(h-L)/fw));}" +   // crisp pale lines round the crests, a few pixels wide whatever the distance
+          "outgoingLight=mix(outgoingLight*tone,outgoingLight*2.0+vec3(.016,.024,.05),line*.8*(1.0-.4*calm));}\n#include <opaque_fragment>");
     };
     var water = new THREE.Mesh(new THREE.BufferGeometry(), waterMat); water.receiveShadow = true; water.frustumCulled = false; scene.add(water);
+    // the wave simulation: heights on a grid over the pond (2 buffers, the wave equation), the banks hold still so the
+    // waves bounce off them; sent to the graphics chip as a small picture each frame it moves
+    var sim = { nx: 2, nz: 2, cs: 1, x0: 0, z0: 0, cur: new Float32Array(4), old: new Float32Array(4), mask: new Uint8Array(4), tex: null, acc: 0, t: 0, live: 0 };
+    function simGrid(pts){
+      var x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
+      pts.forEach(function(q){ x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); z0 = Math.min(z0, q[1]); z1 = Math.max(z1, q[1]); });
+      var cs = Math.max(x1 - x0, z1 - z0) / SIM.cells, nx = Math.ceil((x1 - x0) / cs) + 3, nz = Math.ceil((z1 - z0) / cs) + 3, n = nx * nz;
+      sim.cs = cs; sim.nx = nx; sim.nz = nz; sim.x0 = x0 - cs; sim.z0 = z0 - cs;
+      sim.cur = new Float32Array(n); sim.old = new Float32Array(n); sim.mask = new Uint8Array(n);
+      for (var j = 1; j < nz - 1; j++) for (var i = 1; i < nx - 1; i++) {   // in the water? (a point-in-polygon test of the cell's middle)
+        var px = sim.x0 + (i + .5) * cs, pz = sim.z0 + (j + .5) * cs, inside = false;
+        for (var a = 0, b = pts.length - 1; a < pts.length; b = a++) { var A = pts[a], B = pts[b]; if ((A[1] > pz) !== (B[1] > pz) && px < (B[0] - A[0]) * (pz - A[1]) / (B[1] - A[1]) + A[0]) inside = !inside; }
+        sim.mask[j * nx + i] = inside ? 1 : 0;
+      }
+      if (sim.tex) sim.tex.dispose();
+      sim.tex = new THREE.DataTexture(new Uint16Array(n).fill(THREE.DataUtils.toHalfFloat(.5)), nx, nz, THREE.RedFormat, THREE.HalfFloatType);
+      sim.tex.minFilter = sim.tex.magFilter = THREE.LinearFilter; sim.tex.needsUpdate = true; textures.push(sim.tex);
+      U.uH.value = sim.tex; U.uHB.value.set(sim.x0, sim.z0, nx * cs, nz * cs); U.uTx.value.set(1 / nx, 1 / nz);
+    }
+    function poke(x, z, s, r){                               // a push on the water at x, z (m): s how hard (down), r how wide (m)
+      var cs = sim.cs, ci = (x - sim.x0) / cs - .5, cj = (z - sim.z0) / cs - .5, R = Math.max(1.2, (r || .14) / cs), R2 = 2 * R * R, e = Math.ceil(R * 2.2);
+      for (var j = Math.max(1, Math.floor(cj - e)); j <= Math.min(sim.nz - 2, Math.ceil(cj + e)); j++) for (var i = Math.max(1, Math.floor(ci - e)); i <= Math.min(sim.nx - 2, Math.ceil(ci + e)); i++) {
+        var k = j * sim.nx + i; if (!sim.mask[k]) continue;
+        var d2 = (i - ci) * (i - ci) + (j - cj) * (j - cj); sim.cur[k] -= s * Math.exp(-d2 / R2);
+      }
+      sim.live = 4;                                          // seconds to keep stepping after the last push
+    }
+    function hAt(x, z){ var i = Math.round((x - sim.x0) / sim.cs - .5), j = Math.round((z - sim.z0) / sim.cs - .5); return i > 0 && j > 0 && i < sim.nx - 1 && j < sim.nz - 1 ? sim.cur[j * sim.nx + i] : 0; }
+    function step(){
+      var nx = sim.nx, nz = sim.nz, c = sim.cur, o = sim.old, m = sim.mask, dt = 1 / 60, c2 = Math.min(.45, Math.pow(SIM.speed * dt / sim.cs, 2) * 4), d = SIM.damp;
+      for (var j = 1; j < nz - 1; j++) { var r = j * nx; for (var i = 1; i < nx - 1; i++) { var k = r + i;
+        if (!m[k]) { o[k] = 0; continue; }
+        o[k] = (2 * c[k] - o[k] + c2 * ((c[k - 1] + c[k + 1] + c[k - nx] + c[k + nx]) * .25 - c[k])) * d;
+      } }
+      sim.cur = o; sim.old = c;
+    }
+    var reedRest = [], padRest = [];
+    function tick(dt, t){                                   // each frame the pond shows: the wind, the drops, the waves, the pads and the reeds
+      U.uTime.value = t;
+      if (Math.random() < SIM.drops * dt) {                   // the odd drop, somewhere on the water
+        for (var tries = 0; tries < 8; tries++) { var i = 1 + ((Math.random() * (sim.nx - 2)) | 0), j = 1 + ((Math.random() * (sim.nz - 2)) | 0);
+          if (sim.mask[j * sim.nx + i]) { poke(sim.x0 + (i + .5) * sim.cs, sim.z0 + (j + .5) * sim.cs, SIM.drop * (.5 + Math.random() * .5), .09); break; } }
+      }
+      sim.acc = Math.min(sim.acc + dt, 4 / 60);
+      var stepped = false;
+      if (sim.live > 0) { sim.live -= dt; while (sim.acc >= 1 / 60) { step(); sim.acc -= 1 / 60; stepped = true; } }
+      if (stepped) { var c = sim.cur, px = sim.tex.image.data, hf = THREE.DataUtils.toHalfFloat; for (var k = 0; k < c.length; k++) px[k] = hf(.5 + c[k] * .45); sim.tex.needsUpdate = true; }
+      for (var p = 0; p < padRest.length; p++) {              // the lily pads ride the waves
+        var q = padRest[p], h = hAt(q.x, q.z), gx = hAt(q.x + .3, q.z) - hAt(q.x - .3, q.z), gz = hAt(q.x, q.z + .3) - hAt(q.x, q.z - .3);
+        p4.set(q.x, G + .09 + h * .035, q.z); e4.set(gz * .25, q.ry, -gx * .25); q4.setFromEuler(e4); s4.set(q.s, 1, q.s); pads.setMatrixAt(p, m4.compose(p4, q4, s4));
+      }
+      if (padRest.length) pads.instanceMatrix.needsUpdate = true;
+      for (var r = 0; r < reedRest.length; r++) {             // the reeds sway in the breeze, each a little out of step
+        var e = reedRest[r], sw = Math.sin(t * 1.3 + e.ph) * .05 + Math.sin(t * 2.9 + e.ph * 2.1) * .02;
+        e4.set(e.rx + sw * .6, 0, e.rz + sw); q4.setFromEuler(e4); s4.set(1, e.h, 1); reeds.setMatrixAt(r, m4.compose(e.p, q4, s4));
+      }
+      if (reedRest.length) reeds.instanceMatrix.needsUpdate = true;
+    }
     var bed = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshLambertMaterial({ color: 0x4A4632 })); bed.receiveShadow = true; bed.frustumCulled = false; scene.add(bed);   // a darker damp ring of earth round it
     var MAXS = 180, MAXR = 140, MAXL = 14;
     var stoneG = new THREE.DodecahedronGeometry(1, 0), stones = new THREE.InstancedMesh(stoneG, new THREE.MeshLambertMaterial({ color: 0xFFFFFF }), MAXS);
@@ -2651,6 +2715,7 @@ window.__zwdNashville.steps = function*(THREE, o){
       var rc = Math.max(.3, Math.min(a, b, 3.2 * Math.min(mx, mz)));
       var pts = outline(cx, cz, a, b, rc, 160);
       water.geometry.dispose(); water.geometry = fan(pts, cx, cz, G + .07, 0);
+      simGrid(pts); reedRest = []; padRest = [];
       bed.geometry.dispose(); bed.geometry = fan(pts, cx, cz, G + .035, .32);
       U.uRect.value.set(r[0], r[1], r[2], r[3]);
       var per = 0, i, ns = 0;                                // stones every half metre or so round the edge, half in the water
@@ -2673,7 +2738,7 @@ window.__zwdNashville.steps = function*(THREE, o){
         for (var j = 0; j < nC && nr < MAXR; j++) {
           var rr = .25 + prnd() * .7, an = prnd() * 6.3, h = .7 + prnd() * .8;
           p4.set(q[0] + ox / ol * (.35 + prnd() * .5) + Math.cos(an) * rr * .5, G, q[1] + oz / ol * (.35 + prnd() * .5) + Math.sin(an) * rr * .5);
-          e4.set((prnd() - .5) * .35, 0, (prnd() - .5) * .35); q4.setFromEuler(e4); s4.set(1, h, 1);
+          e4.set((prnd() - .5) * .35, 0, (prnd() - .5) * .35); q4.setFromEuler(e4); s4.set(1, h, 1); reedRest.push({ p: p4.clone(), rx: e4.x, rz: e4.z, h: h, ph: prnd() * 6.3 });
           reeds.setMatrixAt(nr, m4.compose(p4, q4, s4)); reeds.setColorAt(nr, c4.setHex(REED[(prnd() * REED.length) | 0])); nr++;
         }
       });
@@ -2684,14 +2749,14 @@ window.__zwdNashville.steps = function*(THREE, o){
         for (var j = 0; j < 3 && np < MAXL; j++) {
           var px = cx + sg[0] * (A + mx * (.25 + prnd() * .35)), pz = cz + sg[1] * (B + mz * (.25 + prnd() * .35)), sc = .55 + prnd() * .5;
           if (Math.abs(px - cx) > a - .5 || Math.abs(pz - cz) > b - .5) continue;
-          p4.set(px, G + .09, pz); e4.set(0, prnd() * 6.3, 0); q4.setFromEuler(e4); s4.set(sc, 1, sc);
+          p4.set(px, G + .09, pz); e4.set(0, prnd() * 6.3, 0); q4.setFromEuler(e4); s4.set(sc, 1, sc); padRest.push({ x: px, z: pz, ry: e4.y, s: sc });
           pads.setMatrixAt(np, m4.compose(p4, q4, s4)); pads.setColorAt(np, c4.setHex(prnd() < .5 ? 0x4B6B33 : 0x3E5E2C)); np++;
         }
       });
       pads.count = np; pads.instanceMatrix.needsUpdate = true; if (pads.instanceColor) pads.instanceColor.needsUpdate = true;
     }
     shape([ROW.x - 8, 23, ROW.x + 8, 32], 1.4, 1.4);          // a first shape, so it's built and drawn ready; the "Street" script sets it to the screen
-    return { shape: shape, uniforms: U, water: water };
+    return { shape: shape, uniforms: U, water: water, tick: tick, poke: poke, y: G + .07 };
   })();
 
   yield;
@@ -4086,6 +4151,33 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     // ---------- each frame ----------
     var raf = 0, last = 0, slow = 0, sprayT = 0, focusAfter = -1, waterT = 0, waterAt = 0, stirT = performance.now();
     ["scroll", "pointermove", "keydown", "touchstart", "input"].forEach(function(ty){ window.addEventListener(ty, function(){ stirT = performance.now(); if (pondBox && pondAt(-track.getBoundingClientRect().top) > 0) kick(); }, { passive: true, capture: true }); });
+    // the pointer, a finger, or typing in the form push the water (the "Nashville, 3D" script's pond simulates the waves)
+    var pondPlane = new THREE.Plane(new V3(0, -1, 0), 0), pondHit = new V3(), lastPoke = null;
+    function pondPoint(x, y){
+      var v = view(); if (!v || !(v.pond > 0)) return null;
+      var r = canvas.getBoundingClientRect(); ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+      setPose(v.pose, v.fov, 1, 40000); ray.setFromCamera(ndc, cam); pondPlane.constant = city.pond.y;
+      return ray.ray.intersectPlane(pondPlane, pondHit) ? pondHit.clone() : null;
+    }
+    function stir(x, y, hard){
+      if (!pondBox || mode !== "scroll" || pondAt(-track.getBoundingClientRect().top) <= 0) { lastPoke = null; return; }
+      var p = pondPoint(x, y); if (!p) return;
+      var now = performance.now(), L = lastPoke && now - lastPoke.t < 150 ? lastPoke : null;
+      if (hard) city.pond.poke(p.x, p.z, hard, .18);
+      else if (L) {                                        // a wake along the way it moved: the faster, the bigger
+        var d = Math.hypot(p.x - L.p.x, p.z - L.p.z), n = Math.min(8, Math.ceil(d / .12));
+        for (var i = 1; i <= n && d > .01; i++) city.pond.poke(L.p.x + (p.x - L.p.x) * i / n, L.p.z + (p.z - L.p.z) * i / n, Math.min(.24, d * .8) / Math.sqrt(n), .14);
+      }
+      lastPoke = { p: p, t: now }; kick();
+    }
+    window.addEventListener("pointermove", function(e){ if (e.pointerType !== "touch") stir(e.clientX, e.clientY, 0); }, { passive: true });
+    window.addEventListener("pointerdown", function(e){ if (e.pointerType !== "touch" && !(e.target.closest && e.target.closest("input, textarea, button, a"))) stir(e.clientX, e.clientY, .8); }, { passive: true });
+    window.addEventListener("touchmove", function(e){ var q = e.touches && e.touches[0]; if (q) stir(q.clientX, q.clientY, 0); }, { passive: true });
+    window.addEventListener("touchend", function(){ lastPoke = null; }, { passive: true });
+    if (pondBox) contact.addEventListener("input", function(e){   // typing: a little ring from the field, as if a drop fell from it
+      var r = e.target.getBoundingClientRect && e.target.getBoundingClientRect(); if (!r) return;
+      stir(r.left + r.width * (.15 + Math.random() * .7), r.bottom + 6, .3);
+    });
     function streetEnd(){ return pondBox ? pd.A + 4 : P + vpH * .5; }   // as far down as the street still shows
     function tick(now){
       raf = 0;
@@ -4122,7 +4214,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         if (focusAfter >= 0 && on) { labels[focusAfter].focus({ preventScroll: true }); focusAfter = -1; }
         var going = !!auto || !!glideAnim || !!move || panX !== panTo;
         var wet = pondBox && mode === "scroll" && near && pondAt(s) > 0 && now - stirT < 12000;   // the water moves while the pond shows (and stills once nobody has moved for a while)
-        if (!wet) waterAt = 0; else if (now - waterAt > 30) { waterT += waterAt ? Math.min(.1, (now - waterAt) / 1000) : 0; waterAt = now; }   // about 30 times a second
+        if (!wet) waterAt = 0; else if (now - waterAt > 30) { var wdt = waterAt ? Math.min(.1, (now - waterAt) / 1000) : 0; waterT += wdt; waterAt = now; city.pond.tick(wdt, waterT); }   // about 30 times a second: the wind, the waves, the pads and the reeds
         if (wet && !going) { raf = requestAnimationFrame(tick); return; }
         if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
         if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
