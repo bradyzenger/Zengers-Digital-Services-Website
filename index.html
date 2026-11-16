@@ -799,7 +799,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
             "@type": "Service",
             "name": "Starter website plan",
             "serviceType": "Website design, hosting and updates",
-            "description": "Best for businesses just starting out. One-page website. Branded to your business. Hosting and security. Small changes when you need them. Tap-to-call and tap-to-email buttons.",
+            "description": "Best for businesses just starting out. One-page website. Branded to your business. Hosting and security. SEO management. Small changes when you need them. Tap-to-call and tap-to-email buttons.",
             "provider": {
               "@id": "https://zengersdigital.com/#organization"
             },
@@ -831,7 +831,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
             "@type": "Service",
             "name": "Pro website plan",
             "serviceType": "Website design, hosting and updates",
-            "description": "Best for local businesses. Everything in Starter. Up to 5 pages. Scheduling and service-payment integration. A big change every week, and small changes any time.",
+            "description": "Best for local businesses. Everything in Starter. Up to 5 pages. Scheduling and service-payment integration. CRM management. A big change every week, and small changes any time.",
             "provider": {
               "@id": "https://zengersdigital.com/#organization"
             },
@@ -863,7 +863,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
             "@type": "Service",
             "name": "Premier website plan",
             "serviceType": "Website design, hosting and updates",
-            "description": "Best for e-commerce and scalable businesses. Everything in Pro. Up to 10 pages. Weekly website status updates. Any reasonable change, any time.",
+            "description": "Best for e-commerce and scalable businesses. Everything in Pro. Up to 10 pages. Weekly website status updates. Any integrations. Any reasonable change, any time.",
             "provider": {
               "@id": "https://zengersdigital.com/#organization"
             },
@@ -1321,6 +1321,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>One-page website.</li>
           <li>Branded to your business.</li>
           <li>Hosting and security.</li>
+          <li>SEO management.</li>
           <li>Small changes when you need them.</li>
           <li>Tap-to-call and tap-to-email buttons.</li>
         </ul>
@@ -1341,6 +1342,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>Everything in Starter.</li>
           <li>Up to 5 pages.</li>
           <li>Scheduling and service-payment integration.</li>
+          <li>CRM management.</li>
           <li>A big change every week, and small changes any time.</li>
         </ul>
         <button class="btn btn-primary" type="button" data-plan="Pro" data-price="99" aria-label="Buy now: Pro plan">Buy now</button>
@@ -1359,6 +1361,7 @@ fieldset.group > legend{font-family:var(--mono);font-size:12.5px;letter-spacing:
           <li>Everything in Pro.</li>
           <li>Up to 10 pages.</li>
           <li>Weekly website status updates.</li>
+          <li>Any integrations.</li>
           <li>Any reasonable change, any time.</li>
         </ul>
         <button class="btn btn-ghost-dark" type="button" data-plan="Premier" data-price="199" aria-label="Buy now: Premier plan">Buy now</button>
@@ -2225,6 +2228,41 @@ window.__zwdNashville.steps = function*(THREE, o){
   function smooth(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
   function river(x){ return -800 + 110 * Math.sin(x / 600 + .6); }   // the river's centre line (z) at x
   var scene = new THREE.Scene(), SUN = new V3(-.62, .21, .76).normalize(), textures = [];
+  // ---------- the landmarks, modelled in Blender from photographs of the real skyline (since 2026-11-16, Jason:
+  // resources/blender builds them and writes media/models/nashville.zwdm; the "Street" script fetches it and hands it
+  // over as o.models). Each model is a few parts, one per kind of surface: "solid" (plain, its own colours), "facade"
+  // (the towers' window pattern, tinted), "glass" (smooth, mirroring the sky). Their colours carry soft shading baked
+  // in Blender. Without the file the city is as it was before them (NEW false): the simple shapes below ----------
+  var MODELS = null;
+  try { if (o.models) MODELS = (function(buf){
+    var dv = new DataView(buf); if (dv.getUint32(0, true) !== 0x4D44575A) return null;   // "ZWDM"
+    var n = dv.getUint32(4, true), head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, n)));
+    if (head.v !== 1) return null;
+    for (var mn in head.models) for (var pi0 = 0; pi0 < head.models[mn].parts.length; pi0++) {   // a file cut short is no file
+      var hp = head.models[mn].parts[pi0]; if (8 + n + Math.max(hp.pos + hp.n * 6, hp.nrm + hp.n * 3, hp.col + hp.n * 3, hp.idx + hp.ni * (hp.big ? 4 : 2)) > buf.byteLength) return null;
+    }
+    return { buf: buf, base: 8 + n, models: head.models };
+  })(o.models); } catch(e){ MODELS = null; }
+  var NEW = !!(MODELS && MODELS.models.downtown && MODELS.models.stadium), LIN = new Float32Array(256);
+  for (var li = 0; li < 256; li++) { var lc = li / 255; LIN[li] = lc <= .04045 ? lc / 12.92 : Math.pow((lc + .055) / 1.055, 2.4); }
+  function modelParts(name){                                 // a model's parts as geometries: [{ kind, geo }]
+    return MODELS.models[name].parts.map(function(p){
+      var b = MODELS.buf, at = MODELS.base, q = new Uint16Array(b, at + p.pos, p.n * 3), nb = new Int8Array(b, at + p.nrm, p.n * 3), cb = new Uint8Array(b, at + p.col, p.n * 3);
+      var P = new Float32Array(p.n * 3), N = new Float32Array(p.n * 3), Cc = new Float32Array(p.n * 3), U = p.kind === "facade" ? new Float32Array(p.n * 2) : null;
+      for (var i = 0; i < p.n * 3; i++) { var k = i % 3; P[i] = p.min[k] + q[i] / 65535 * (p.max[k] - p.min[k]); N[i] = nb[i] / 127; Cc[i] = LIN[cb[i]]; }
+      if (U) for (var j = 0; j < p.n; j++) {                 // the window pattern, in metres along each wall (as the city's own blocks); roofs and ledges plain
+        var nx = N[j * 3], ny = N[j * 3 + 1], nz = N[j * 3 + 2], hl = Math.sqrt(nx * nx + nz * nz);
+        if (Math.abs(ny) > .5 || hl < 1e-4) { U[j * 2] = .02; U[j * 2 + 1] = .5; }
+        else { U[j * 2] = (P[j * 3] * nz / hl - P[j * 3 + 2] * nx / hl) / 25.6; U[j * 2 + 1] = P[j * 3 + 1] / 30.4; }
+      }
+      var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(P, 3)); g.setAttribute("normal", new THREE.BufferAttribute(N, 3)); g.setAttribute("color", new THREE.BufferAttribute(Cc, 3));
+      if (U) g.setAttribute("uv", new THREE.BufferAttribute(U, 2));
+      g.setIndex(new THREE.BufferAttribute(p.big ? new Uint32Array(b, at + p.idx, p.ni) : new Uint16Array(b, at + p.idx, p.ni), 1));
+      return { kind: p.kind, geo: g };
+    });
+  }
+  var LOT = { x: 320, z: -440, hx: 196, hz: 160 };            // the stadium's lot on the east bank (NEW): no houses or trees there
+  function inLot(x, z, m){ return NEW && Math.abs(x - LOT.x) < LOT.hx + (m || 0) && Math.abs(z - LOT.z) < LOT.hz + (m || 0); }
   scene.fog = new THREE.FogExp2(0xC2BDD0, .00024);
 
   // ---------- the sky, looking west at sunrise: blue overhead, a pink band low down, the earth's blue shadow along
@@ -2276,6 +2314,12 @@ window.__zwdNashville.steps = function*(THREE, o){
       "float pk=smoothstep(" + (rowL - 18).toFixed(1) + "," + (rowL - 16.5).toFixed(1) + ",p.x)*smoothstep(" + (rowR + 18).toFixed(1) + "," + (rowR + 16.5).toFixed(1) + ",p.x)*smoothstep(18.3,18.9,p.y)*smoothstep(97.0,94.0,p.y);" +   // the park: a fresher lawn, mown in stripes
       "vec3 lawn=mix(vec3(.15,.23,.08),vec3(.2,.29,.1),n)*(1.0+.06*sign(sin(p.x*.55)));" +
       "c=mix(c,lawn,pk);" +
+      (NEW ? "vec2 sp=p-vec2(" + LOT.x.toFixed(1) + "," + LOT.z.toFixed(1) + ");" +                 // the stadium's lot: asphalt, with a paler apron round the bowl
+        "float lm=(1.0-smoothstep(" + (LOT.hx - 8).toFixed(1) + "," + LOT.hx.toFixed(1) + ",abs(sp.x)))*(1.0-smoothstep(" + (LOT.hz - 8).toFixed(1) + "," + LOT.hz.toFixed(1) + ",abs(sp.y)));" +
+        "vec3 lotc=mix(vec3(.19,.19,.2),vec3(.24,.24,.25),n)*(1.0+.07*sin(sp.y*.35));" +
+        "float ap=1.0-smoothstep(.92,1.0,length(sp/vec2(150.0,112.0)));" +
+        "lotc=mix(lotc,mix(vec3(.5,.49,.46),vec3(.56,.55,.52),n),ap);" +
+        "c=mix(c,lotc,lm);" : "") +
       "vec2 fu=(p-uFootB.xy)/max(uFootB.zw,vec2(1e-3));" +
       "if(uFootB.z>0.0&&fu.x>-.02&&fu.x<1.02&&fu.y>-.02&&fu.y<1.02){" +
       "vec2 ts=normalize(vec2(-.62,.76))*.028/uFootB.zw;" +                                      // a short step toward the sun, in the mask's units
@@ -2342,7 +2386,11 @@ window.__zwdNashville.steps = function*(THREE, o){
   var F = facade(); F[0].colorSpace = F[2].colorSpace = THREE.SRGBColorSpace;
   var towerMat = new THREE.MeshStandardMaterial({ map: F[0], roughnessMap: F[1], metalnessMap: F[1], emissiveMap: F[2], emissive: 0xFFB06A, emissiveIntensity: .35, vertexColors: true, envMapIntensity: 1.2 });
   var town = new Batch(), STONE = [C(0xEADAC0), C(0xDDD6CC), C(0xC9D2DA), C(0xEBD6B8), C(0xBAC7D2), C(0xF0E8DA)];
+  if (NEW) { STONE[2] = C(0xA9C1D8); STONE[4] = C(0x94AEC8); STONE[1] = C(0xD9D4CC); }
+  var BRICK = [C(0xB05A40), C(0xD2B48A), C(0x9C4B38), C(0xC4704E), C(0xBF8A62), C(0xE4D8C0)];   // with the models, more of the blocks are glass, as today's skyline is (the same six choices, so the same blocks)
   var GLASS = C(0xA8BDD0), DARK = C(0x8593A0), Z = function(z){ return z + DT; };
+  var nul = new Batch();                                     // a block that isn't wanted is still worked out (the same random numbers), then dropped
+  if (!NEW) {
   town.box(40, G, Z(-1880), 52, 150, 32, DARK).box(40, G + 150, Z(-1880), 46, 12, 28, DARK);              // the "Batman" tower: shaft and crown,
   town.geo(pyramid(1, 16, 40, G + 162, Z(-1880), 28, 17), DARK);                                            // its hipped top
   [-1, 1].forEach(function(s){ var sp = new THREE.CylinderGeometry(.2, 3.2, 44, 4, 1); sp.rotateY(Math.PI / 4); sp.translate(40 + s * 22, G + 172, Z(-1880)); town.geo(flat(sp), DARK); });   // and its two spires
@@ -2358,6 +2406,13 @@ window.__zwdNashville.steps = function*(THREE, o){
   var mound = new THREE.SphereGeometry(1, 24, 8, 0, Math.PI * 2, 0, Math.PI / 2); mound.scale(170, 24, 140); mound.translate(520, G, Z(-2150)); town.geo(mound, C(0x5E6B40));   // Capitol hill,
   town.box(520, G + 22, Z(-2150), 58, 18, 26, C(0xEDE6D4), true).box(520, G + 40, Z(-2150), 12, 14, 12, C(0xEDE6D4), true).box(520, G + 54, Z(-2150), 8, 10, 8, C(0xEDE6D4), true);   // and its capitol
   var cup = new THREE.CylinderGeometry(0, 5, 8, 8); cup.translate(520, G + 68, Z(-2150)); town.geo(cup, C(0xEDE6D4));
+  }
+  function kept(cx, cz, w, d){                               // with the models: not where the arena, the white tower at the north end or First Avenue's row stand
+    if (!NEW) return true;
+    if (Math.abs(cx + 230) < 62 + w / 2 && Math.abs(cz - Z(-1560)) < 48 + d / 2) return false;
+    if (Math.abs(cx - 445) < 22 + w / 2 && Math.abs(cz - Z(-1990)) < 22 + d / 2) return false;
+    return !(cx + w / 2 > -45 && cx - w / 2 < 420 && cz + d / 2 > river(cx) - 136);
+  }
   var taken = [[40, -1880, 60], [140, -1940, 40], [-60, -1960, 45], [-140, -1700, 40], [-40, -1760, 45], [230, -2050, 45], [330, -2150, 75], [80, -2080, 45], [-120, -1950, 45],
     [-350, -2300, 40], [-300, -2380, 36], [-420, -2220, 45], [-230, -1560, 90], [520, -2150, 120]].map(function(t){ return [t[0], Z(t[1]), t[2]]; });
   for (var bx = -720; bx <= 860; bx += 95) for (var bz = Z(-1450); bz >= Z(-3000); bz -= 95) {   // the rest of the blocks: taller toward the middle
@@ -2367,10 +2422,12 @@ window.__zwdNashville.steps = function*(THREE, o){
       var w = 20 + rnd() * 30, d = 20 + rnd() * 30, cx = bx + (rnd() - .5) * (80 - w), cz = bz + (rnd() - .5) * (80 - d), clash = false;
       for (var t = 0; t < taken.length; t++) if (Math.abs(cx - taken[t][0]) < taken[t][2] / 2 + w / 2 && Math.abs(cz - taken[t][1]) < taken[t][2] / 2 + d / 2) clash = true;
       if (clash) continue;
-      var h = 10 + 100 * Math.exp(-Math.pow(dc / 500, 2)) * Math.pow(rnd(), 1.3) + rnd() * 14;
-      town.box(cx, G, cz, w, h, d, STONE[(rnd() * STONE.length) | 0]);
-      if (h > 45 && rnd() < .6) town.box(cx, G + h, cz, w * .72, h * .1, d * .72, STONE[(rnd() * STONE.length) | 0]);   // a setback,
-      if (h > 30 && rnd() < .5) town.box(cx + (rnd() - .5) * w * .4, G + h, cz + (rnd() - .5) * d * .4, 5 + rnd() * 5, 3, 5 + rnd() * 5, C(0x8A8A86), true);   // and plant on the roof
+      var h = 10 + 100 * Math.exp(-Math.pow(dc / 500, 2)) * Math.pow(rnd(), 1.3) + rnd() * 14, tb = kept(cx, cz, w, d) ? town : nul;
+      var oldTown = NEW && Math.abs(cx - 40) < 42 + w / 2 && cz > Z(-1880) + 12, pick = (rnd() * STONE.length) | 0;   // between the tall tower and the river: low, old brick, as there is, so the tower's whole face shows from the street
+      tb.box(cx, G, cz, w, oldTown ? Math.min(h, 13 + (h * 7) % 9) : h, d, oldTown ? BRICK[pick] : STONE[pick]);
+      if (oldTown) tb = nul;
+      if (h > 45 && rnd() < .6) tb.box(cx, G + h, cz, w * .72, h * .1, d * .72, STONE[(rnd() * STONE.length) | 0]);   // a setback,
+      if (h > 30 && rnd() < .5) tb.box(cx + (rnd() - .5) * w * .4, G + h, cz + (rnd() - .5) * d * .4, 5 + rnd() * 5, 3, 5 + rnd() * 5, C(0x8A8A86), true);   // and plant on the roof
       taken.push([cx, cz, Math.max(w, d)]);
     }
   }
@@ -2378,38 +2435,53 @@ window.__zwdNashville.steps = function*(THREE, o){
 
   yield;
   // ---------- bridges and the stadium ----------
-  var steel = new Batch(), STEEL = C(0x6A7987), CON = C(0xC4BFB4);
+  var steel = new Batch(), STEEL = C(0x6A7987), CON = C(0xC4BFB4), WHITE = C(0xF1F0EA), SILVER = C(0xD9DDE2);
+  // With the models the bridges stand where Nashville's do, seen from the east (south on the left): the arched road bridge
+  // (Korean Veterans Boulevard), the white truss footbridge (John Seigenthaler) just south of the tall tower, then, north
+  // of the stadium, two plain road bridges (Woodland Street, Victory Memorial)
   (function footbridge(x){   // a camelback truss footbridge across the river
-    var z0 = river(x) + 130, z1 = river(x) - 130, deck = G + 16, spans = 4, L = (z0 - z1) / spans;
+    var z0 = river(x) + 130, z1 = river(x) - 130, deck = G + 16, spans = 4, L = (z0 - z1) / spans, TRUSS = NEW ? WHITE : STEEL;
     steel.box(x, deck - 1.2, (z0 + z1) / 2, 7, 1.2, z0 - z1, CON, true);
     for (var s = 0; s < spans; s++) for (var side = -1; side <= 1; side += 2) {
       var za = z0 - s * L, prev = null;
       for (var j = 0; j <= 10; j++) {
         var z = za - L * j / 10, top = deck + 6 + 6 * Math.sin(Math.PI * j / 10), pt = new V3(x + side * 3.6, top, z);
-        steel.box(x + side * 3.6, deck, z, .4, top - deck, .4, STEEL, true);
+        steel.box(x + side * 3.6, deck, z, .4, top - deck, .4, TRUSS, true);
         if (prev) { var mid = prev.clone().add(pt).multiplyScalar(.5), len = prev.distanceTo(pt), bar = new THREE.BoxGeometry(.5, .5, len);
-          bar.lookAt(pt.clone().sub(prev)); bar.translate(mid.x, mid.y, mid.z); steel.geo(bar, STEEL);
+          bar.lookAt(pt.clone().sub(prev)); bar.translate(mid.x, mid.y, mid.z); steel.geo(bar, TRUSS);
           var dg = new THREE.BoxGeometry(.3, .3, 1), a = new V3(x + side * 3.6, deck, prev.z), dl = a.distanceTo(pt); dg.scale(1, 1, dl);
-          dg.lookAt(pt.clone().sub(a)); dg.translate((a.x + pt.x) / 2, (a.y + pt.y) / 2, (a.z + pt.z) / 2); steel.geo(dg, STEEL); }
+          dg.lookAt(pt.clone().sub(a)); dg.translate((a.x + pt.x) / 2, (a.y + pt.y) / 2, (a.z + pt.z) / 2); steel.geo(dg, TRUSS); }
         prev = pt;
       }
     }
     for (var pi = 1; pi < spans; pi++) steel.box(x, G, z0 - pi * L, 6, deck - G - 1.2, 4, CON, true);
-  })(-300);
+  })(NEW ? -70 : -300);
   (function arches(x){   // a road bridge under two steel arches
     var z0 = river(x) + 120, z1 = river(x) - 120, deck = G + 14;
     steel.box(x, deck - 1.5, (z0 + z1) / 2, 22, 1.5, z0 - z1, CON, true);
     [-9, 9].forEach(function(dx){ var c = new THREE.EllipseCurve(0, 0, (z0 - z1) / 2, 34, 0, Math.PI), pts = c.getPoints(40).map(function(p){ return new V3(x + dx, deck + p.y, (z0 + z1) / 2 + p.x); });
-      steel.geo(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, .9, 6), STEEL);
-      for (var j = 1; j < 12; j++) { var p = pts[Math.round(j * 40 / 12)]; steel.box(p.x, deck, p.z, .15, p.y - deck, .15, STEEL, true); } });
-  })(-560);
-  steel.box(80, G + 12, river(80), 18, 1.5, 250, CON, true); [-60, 0, 60].forEach(function(dz){ steel.box(80, G, river(80) + dz, 5, 12, 4, CON, true); });
-  (function stadium(x, z){   // the stadium on the east bank: a bowl of stands round a green field
+      steel.geo(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, .9, 6), NEW ? SILVER : STEEL);
+      for (var j = 1; j < 12; j++) { var p = pts[Math.round(j * 40 / 12)]; steel.box(p.x, deck, p.z, .15, p.y - deck, .15, NEW ? SILVER : STEEL, true); } });
+  })(NEW ? -610 : -560);
+  (NEW ? [560, 760] : [80]).forEach(function(bx2){
+    steel.box(bx2, G + 12, river(bx2), 18, 1.5, 250, CON, true); [-60, 0, 60].forEach(function(dz){ steel.box(bx2, G, river(bx2) + dz, 5, 12, 4, CON, true); });
+  });
+  if (!NEW) (function stadium(x, z){   // the stadium on the east bank: a bowl of stands round a green field
     var ring = new THREE.LatheGeometry([new THREE.Vector2(118, 0), new THREE.Vector2(118, 30), new THREE.Vector2(112, 31), new THREE.Vector2(70, 6), new THREE.Vector2(66, 1)], 48);
     ring.scale(1.25, 1, 1); ring.translate(x, G, z); steel.geo(ring, C(0xC9C4B9));
     var field = new THREE.CircleGeometry(66, 32); field.rotateX(-Math.PI / 2); field.scale(1.25, 1, 1); field.translate(x, G + 1.2, z); steel.geo(field, C(0x4A7434));
   })(-430, -590);
-  scene.add(steel.mesh(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7, metalness: .2, side: THREE.DoubleSide })));
+  var plainMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7, metalness: .2, side: THREE.DoubleSide });
+  scene.add(steel.mesh(plainMat));
+  if (NEW) {                                                 // the landmarks: downtown's towers, the arena, the Capitol, First Avenue; the stadium
+    var glassMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .22, metalness: .35, envMapIntensity: .85, side: THREE.DoubleSide });
+    var MATS = { solid: plainMat, facade: towerMat, glass: glassMat, leaf: plainMat }, names = ["downtown", "stadium"];
+    for (var mi = 0; mi < names.length; mi++) {
+      var parts = modelParts(names[mi]);
+      for (var pj = 0; pj < parts.length; pj++) { var mm = new THREE.Mesh(parts[pj].geo, MATS[parts[pj].kind] || plainMat); mm.position.y = G; mm.frustumCulled = false; scene.add(mm); }
+      yield;
+    }
+  }
 
   yield;
   // ---------- the neighbourhood: houses on long streets under big trees; low-rise city out to the horizon ----------
@@ -2444,7 +2516,8 @@ window.__zwdNashville.steps = function*(THREE, o){
     trees.push([ax, az, low2 ? 4 + rnd() * 2 : 4.5 + rnd() * 4]);
   }
   for (i = 0; i < (fine ? 600 : 260); i++) { var bxr = (rnd() - .5) * 5000, bk = river(bxr) + (rnd() < .5 ? 1 : -1) * (100 + rnd() * 40); trees.push([bxr, bk, 4.5 + rnd() * 3]); }
-  var dummy = new THREE.Object3D(), tint = new THREE.Color();
+  var dummy = new THREE.Object3D(), tint = new THREE.Color(), GONE = new THREE.Matrix4().makeScale(0, 0, 0);
+  if (NEW) { houses.forEach(function(list){ list.forEach(function(h){ if (inLot(h[0], h[1], 10)) h[4] = 1; }); }); }   // houses on the stadium's lot: counted as before, not shown
   function prism(ends){   // a gable: the triangle (-1, 0) (1, 0) (0, 1) across, run along z from -.5 to .5: its two slopes, and its ends if asked
     var p = [], A = [-1, 0], B = [1, 0], T = [0, 1];
     function slope(a, b){ p.push(a[0], a[1], .5, b[0], b[1], .5, b[0], b[1], -.5, a[0], a[1], .5, b[0], b[1], -.5, a[0], a[1], -.5); }
@@ -2461,10 +2534,10 @@ window.__zwdNashville.steps = function*(THREE, o){
     walls.castShadow = walls.receiveShadow = gables.castShadow = gables.receiveShadow = roofs.castShadow = roofs.receiveShadow = true;
     list.forEach(function(h, i){
       var wallH = fl ? 6.6 : 3.6, half = h[2] / 2, k = .8 + .25 * Math.abs(Math.sin(h[0] * 1.37 + h[1] * .71)), o = .45;   // pitch about 39° to 46°; eaves 45 cm out
-      dummy.position.set(h[0], G + wallH / 2, h[1]); dummy.scale.set(h[2], wallH, h[3]); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); walls.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(h[0], G + wallH / 2, h[1]); dummy.scale.set(h[2], wallH, h[3]); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); walls.setMatrixAt(i, h[4] ? GONE : dummy.matrix);
       tint.setHex(SIDING[(rnd() * SIDING.length) | 0]); walls.setColorAt(i, tint); gables.setColorAt(i, tint);
-      dummy.position.set(h[0], G + wallH, h[1]); dummy.scale.set(half, half * k, h[3]); dummy.updateMatrix(); gables.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(h[0], G + wallH - o * k + .12, h[1]); dummy.scale.set(half + o, (half + o) * k, h[3] + .8); dummy.updateMatrix(); roofs.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(h[0], G + wallH, h[1]); dummy.scale.set(half, half * k, h[3]); dummy.updateMatrix(); gables.setMatrixAt(i, h[4] ? GONE : dummy.matrix);
+      dummy.position.set(h[0], G + wallH - o * k + .12, h[1]); dummy.scale.set(half + o, (half + o) * k, h[3] + .8); dummy.updateMatrix(); roofs.setMatrixAt(i, h[4] ? GONE : dummy.matrix);
       roofs.setColorAt(i, tint.setHex(ROOF[(rnd() * ROOF.length) | 0]));
     });
     scene.add(walls, gables, roofs);
@@ -2493,15 +2566,23 @@ window.__zwdNashville.steps = function*(THREE, o){
   var big = merge([lump(2, 0, 0, 0, .8, 0), lump(2, .45, -.12, .2, .62, 1.3), lump(2, -.38, -.05, -.3, .66, 2.9), lump(1, .05, .35, -.05, .55, 4.1)]);   // by the house: a fine cluster
   var crowns = [big, merge([lump(1, 0, 0, 0, .8, 0), lump(1, .45, -.12, .2, .62, 1.3), lump(1, -.38, -.05, -.3, .66, 2.9)]), lump(1, 0, 0, 0, 1, .7), lump(0, 0, 0, 0, 1, .7)];   // round about the house, near, further, far
   var LEAF = [0x4E6E34, 0x5A7B38, 0x68853F, 0x4A673A, 0x719046, 0x435E37, 0xAE8F40, 0xA06A3A];
+  var trunkG = new THREE.CylinderGeometry(.07, .11, 1, 6); trunkG.translate(0, .5, 0);
   [0, 1, 2, 3].forEach(function(tier){
     var list = trees.filter(function(t){ var d = Math.abs(t[0] - RC.x) + Math.abs(t[1] - RC.z); return tier === (d < 110 ? 0 : d < 340 ? 1 : d < 900 ? 2 : 3); });
-    var m = new THREE.InstancedMesh(crowns[tier], new THREE.MeshLambertMaterial({ vertexColors: true }), list.length);
-    m.castShadow = true;
+    // near the six houses the crowns are the ones made in Blender (two shapes, turn about; soft shade baked between their
+    // lumps), and each tree stands on a trunk; further off, and without the models, the simple lumps
+    var fine2 = NEW && tier < 2 && MODELS.models["crown_a" + tier] && MODELS.models["crown_b" + tier];
+    var geos = fine2 ? [modelParts("crown_a" + tier)[0].geo, modelParts("crown_b" + tier)[0].geo] : [crowns[tier]], leafMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+    var ms = geos.map(function(g, v){ var m = new THREE.InstancedMesh(g, leafMat, Math.max(1, Math.ceil((list.length - v) / geos.length))); m.count = Math.ceil((list.length - v) / geos.length); m.castShadow = true; return m; });
+    var trunks = fine2 ? new THREE.InstancedMesh(trunkG, new THREE.MeshLambertMaterial({ color: 0x3B2E24 }), Math.max(1, list.length)) : null;
     list.forEach(function(t, i){
-      dummy.position.set(t[0], G + t[2] * 1.7, t[1]); dummy.scale.set(t[2], t[2] * (.9 + rnd() * .25), t[2]); dummy.rotation.set(0, rnd() * 6.3, 0); dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
-      m.setColorAt(i, tint.setHex(LEAF[rnd() < .07 ? 6 + ((rnd() * 2) | 0) : (rnd() * 6) | 0]));
+      var m = ms[i % ms.length], j = (i / ms.length) | 0, gone = inLot(t[0], t[1], t[2] + 3);
+      dummy.position.set(t[0], G + t[2] * 1.7, t[1]); dummy.scale.set(t[2], t[2] * (.9 + rnd() * .25), t[2]); dummy.rotation.set(0, rnd() * 6.3, 0); dummy.updateMatrix(); m.setMatrixAt(j, gone ? GONE : dummy.matrix);
+      m.setColorAt(j, tint.setHex(LEAF[rnd() < .07 ? 6 + ((rnd() * 2) | 0) : (rnd() * 6) | 0]));
+      if (trunks) { dummy.position.set(t[0], G, t[1]); dummy.scale.set(t[2], t[2] * 1.3, t[2]); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); trunks.setMatrixAt(i, gone ? GONE : dummy.matrix); }
     });
-    scene.add(m);
+    ms.forEach(function(m){ scene.add(m); });
+    if (trunks) { trunks.count = list.length; trunks.castShadow = true; scene.add(trunks); }
   });
 
   yield;
@@ -2598,12 +2679,31 @@ window.__zwdNashville.steps = function*(THREE, o){
   var pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(pp, 3)); pg.setIndex(pi); pg.computeVertexNormals();
   var pathM = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({ color: 0xB8AE9C, side: THREE.DoubleSide })); pathM.receiveShadow = true; scene.add(pathM);
   var lampM = new THREE.MeshLambertMaterial({ color: 0x1E2124 }), lampG = new THREE.MeshBasicMaterial({ color: 0xFFD9A0, toneMapped: false, fog: false });
+  var lampsAt = [], fineLamp = NEW && !!MODELS.models.lamp;   // with the models: old-fashioned lamps made in Blender, here and along the houses' sidewalk
   [.12, .38, .62, .88].forEach(function(u, j){
     var pt = pathC.getPoint(u), tg = pathC.getTangent(u), s = j % 2 ? 1 : -1, lx2 = pt.x - tg.z * 2 * s, lz2 = pt.z + tg.x * 2 * s;
+    if (fineLamp) lampsAt.push([lx2, lz2]);
+    else {
     var post = new THREE.Mesh(new THREE.CylinderGeometry(.06, .08, 3.6, 8), lampM); post.position.set(lx2, G + 1.8, lz2); post.castShadow = true; scene.add(post);
     var lan = new THREE.Mesh(new THREE.BoxGeometry(.3, .4, .3), lampG); lan.position.set(lx2, G + 3.75, lz2); scene.add(lan);
+    }
     if (j < 3) { var bench = new THREE.Mesh(new THREE.BoxGeometry(1.6, .45, .5), new THREE.MeshLambertMaterial({ color: 0x6A4E36 })); bench.position.set(pt.x + tg.z * 2.2 * s, G + .25, pt.z - tg.x * 2.2 * s); bench.rotation.y = Math.atan2(tg.x, tg.z); bench.castShadow = true; scene.add(bench); }
   });
+  if (fineLamp) {
+    [(HX[0] + HX[1]) / 2, (HX[2] + HX[3]) / 2, (HX[4] + HX[5]) / 2].forEach(function(lx3){ lampsAt.push([lx3, 10.25]); });   // three by the kerb in front of the houses, in the gaps
+    modelParts("lamp").forEach(function(p){
+      var lm = new THREE.InstancedMesh(p.geo, p.kind === "glow" ? lampG : new THREE.MeshLambertMaterial({ vertexColors: true }), lampsAt.length);
+      lampsAt.forEach(function(q, k){ dummy.position.set(q[0], G, q[1]); dummy.scale.set(1, 1, 1); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); lm.setMatrixAt(k, dummy.matrix); });
+      lm.castShadow = p.kind !== "glow"; lm.frustumCulled = false; scene.add(lm);
+    });
+    var poolT = (function(){ var c = document.createElement("canvas"); c.width = c.height = 64; var x = c.getContext("2d"), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);   // a pool of warm light on the ground under each
+      g.addColorStop(0, "rgba(255,255,255,.85)"); g.addColorStop(.35, "rgba(255,255,255,.3)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+      var tx = new THREE.CanvasTexture(c); textures.push(tx); return tx; })();
+    var poolG = new THREE.CircleGeometry(4.4, 28); poolG.rotateX(-Math.PI / 2);
+    var pools = new THREE.InstancedMesh(poolG, new THREE.MeshBasicMaterial({ map: poolT, color: 0xFFB866, transparent: true, opacity: .34, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }), lampsAt.length);
+    lampsAt.forEach(function(q, k){ dummy.position.set(q[0], G + .09, q[1]); dummy.scale.set(1, 1, 1); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); pools.setMatrixAt(k, dummy.matrix); });
+    pools.frustumCulled = false; pools.renderOrder = 1; scene.add(pools);
+  }
   for (i = 0; i < 26; i++) {                                 // low planting along the park's edge by the street
     var bx2 = rowL - 14 + i * ((rowR - rowL + 28) / 25) + (rnd() - .5) * 1.5;
     var sb = new THREE.Mesh(crowns[3], new THREE.MeshLambertMaterial({ vertexColors: true, color: LEAF[(rnd() * 6) | 0] })); sb.position.set(bx2, G + .35, 18.6 + rnd() * .8); sb.scale.set(.9 + rnd() * .5, .4, .7);
@@ -3767,7 +3867,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
   var IDS = ["services", "benefits", "why-us", "process", "pricing", "examples"];
   var NAMES = ["Services", "Why it matters", "Why choose us?", "Process", "Pricing", "Examples"];
   var GLASS = [0xFFB070, 0xE4ECF6, 0xC24CE6, 0xFFD08A, 0xFF9A50, 0x7A86FF];   // each room's light, seen from the street
-  var root = document.documentElement, dead = false, restore = null;
+  var root = document.documentElement, dead = false, restore = null, cityModels = null;
   function shown(){ root.classList.remove("dev-arriving"); }   // opened at a house: show the page (see the <head>)
 
   try {
@@ -3781,7 +3881,15 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     // Build when the opening animation has finished, a part at a time in calm moments (regardless once the visitor is a
     // third of the way down the film, 6 seconds on, or when the page opened at a link), or all at once if the page opens
     // at a house or the street.
-    var go0 = function(now){ window.__zwdThreeLoad().then(function(THREE){
+    // The landmarks' models (made in Blender: resources/blender) are fetched while the opening plays; the city waits
+    // for them (8 seconds at most; without them it builds its simple stand-ins)
+    var modelsP = new Promise(function(done){
+      var t = setTimeout(function(){ done(null); }, 8000);
+      try { fetch("media/models/nashville.zwdm", { priority: "low" }).then(function(r){ return r.ok ? r.arrayBuffer() : null; }).then(function(b){ clearTimeout(t); done(b); }, function(){ clearTimeout(t); done(null); }); }
+      catch(e){ clearTimeout(t); done(null); }
+    });
+    var go0 = function(now){ Promise.all([window.__zwdThreeLoad(), modelsP]).then(function(got){
+      var THREE = got[0]; cityModels = got[1];
       if (dead) return shown();
       if (now) { try { var it = build(THREE), r; do { r = it.next(); } while (!r.done); } catch(e){ fail(e); } return; }
       var t0 = performance.now();
@@ -3846,13 +3954,13 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5); renderer.setPixelRatio(dpr);
+    var dpr = Math.min(window.devicePixelRatio || 1, Math.min(screen.width, screen.height) >= 700 ? 2 : 1.5); renderer.setPixelRatio(dpr);   // sharp on a Retina laptop or tablet (2 since 2026-11-16; it was 1.5); phones stay at 1.5
     var cam = new THREE.PerspectiveCamera(FOV, 1, .01, 30);
     yield;
 
     // ---------- Nashville, the six houses, and their rooms (the "Nashville, 3D" and "Rooms, 3D" scripts) ----------
     var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), DOWN = new V3(50, GROUND, -600), APP = new V3(0, .32, 1).normalize();   // the flight (see flyCam)
-    var city = yield* window.__zwdNashville.steps(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700 });
+    var city = yield* window.__zwdNashville.steps(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700, models: cityModels });
     var houses = city.houses, maker = window.__zwdRooms(THREE, { renderer: renderer }), rooms = [], lit = {};
     var wins = houses.map(function(h){ return new V3(h.win.x, h.win.y, h.win.z); });
     var building = null;                                // the room being built a part at a time (see ahead): { i, it }
@@ -4306,7 +4414,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         var wet = pondBox && mode === "scroll" && near && pondAt(s) > 0 && now - stirT < 12000;   // the water moves while the pond shows (and stills once nobody has moved for a while)
         if (!wet) waterAt = 0; else if (now - waterAt > 30) { var wdt = waterAt ? Math.min(.1, (now - waterAt) / 1000) : 0; waterT += wdt; waterAt = now; city.pond.tick(wdt, waterT); }   // about 30 times a second: the wind, the waves, the pads and the reeds
         if (wet && !going) { raf = requestAnimationFrame(tick); return; }
-        if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = 1; renderer.setPixelRatio(1); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels
+        if (going && dt > 1 / 40 && ++slow > 40 && dpr > 1) { dpr = dpr > 1.5 ? 1.5 : 1; renderer.setPixelRatio(dpr); renderer.setSize(vpW, vpH, false); glKey = ""; slow = 0; }   // a slower computer: fewer pixels, a step at a time (2, 1.5, 1)
         if (going) { last = now; raf = requestAnimationFrame(tick); } else last = 0;
       } catch(e){ fail(e); }
     }
