@@ -5080,6 +5080,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     turn: [-16, 8], sway: [3.5, 2.2], tilt: 5,   // degrees, as the logos
     timing: { draw: .5, per: .1, fill: [.4, .75], swell: .45, fly: [1.3, 1.62], ripple: .6, flash: .2, trail: .35, turn: [1.9, 2.8], glint: [2.1, 2.9], line: [1.05, 1.55] }   // seconds from when it first shows: each one's lines (the bullseye first, each ring per later), glass and swell; the arrow's flight (it hits at the end); after the hit: the ripple, the flash, the trail fading
   };
+  // The paragraphs' letters are drawn into the canvas (build) from these static copies of Instrument Sans (OFL; their
+  // licence is in each file), not from Google's variable font: Safari's canvas doesn't take a variable font's weights,
+  // and fakes the bold, so the frosted letters came out fat with their holes filled (Jason, 2026-11-17). Only the glass
+  // uses them, and only once About us is near; without them it uses the page's font.
+  var GLASS_FONTS = { 600: "media/fonts/instrument-sans-600.ttf", 700: "media/fonts/instrument-sans-700.ttf" };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text"), skip = sec.querySelector(".ab-skip"), gctl = sec.querySelector(".ab-glassctl"), gin = gctl && gctl.querySelector(".ab-gc-in");
   var header = document.querySelector(".site-header");
@@ -5097,7 +5102,17 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     ask();                                             // it starts playing once the section is showing (place)
   }
   function play(){ if (!calm && loaded) { var p = video.play(); if (p && p.catch) p.catch(function(){}); } }
-  new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) load(); }, { rootMargin: "150% 0px" }).observe(sec);
+  new IntersectionObserver(function(es){ near = es[es.length - 1].isIntersecting; if (near) { load(); loadFonts(); } }, { rootMargin: "150% 0px" }).observe(sec);
+  var fontsAsked = false, fontsSettled = false, glassFont = false;   // the static copies: asked for, done (loaded or not), loaded
+  function loadFonts(){
+    if (fontsAsked) return; fontsAsked = true;
+    var done = function(ok){ if (fontsSettled) return; fontsSettled = true; glassFont = ok; built = 0; ask(); };
+    if (!gl || !window.FontFace || !document.fonts || !document.fonts.add) return done(false);   // (no glass: no need)
+    setTimeout(function(){ done(false); }, 5000);   // slow: the page's font
+    Promise.all(Object.keys(GLASS_FONTS).map(function(w){
+      return new FontFace("ZWD Glass Sans", "url(" + GLASS_FONTS[w] + ")", { weight: w }).load().then(function(f){ document.fonts.add(f); });
+    })).then(function(){ done(true); }, function(){ done(false); });
+  }
   new IntersectionObserver(function(es){ seen = es[es.length - 1].isIntersecting; if (seen) ask(); else video.pause(); }).observe(stage);   // plays once it's really showing (place)
   var fresh = false, rvfc = !!video.requestVideoFrameCallback, vfc = 0;   // a new frame of the video to show
   function watch(){                                    // told of each new frame (loading a video drops the request, so ask again then)
@@ -6130,7 +6145,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
     var x = cv.getContext("2d", { willReadFrequently: true });
     x.scale(s, s); x.fillStyle = "#fff"; x.textBaseline = "alphabetic";
-    var fontOf = function(c){ return c.fontStyle + " " + c.fontWeight + " " + c.fontSize + " " + c.fontFamily; };
+    var fontOf = function(c){ return c.fontStyle + " " + c.fontWeight + " " + c.fontSize + " " + (glassFont && GLASS_FONTS[c.fontWeight] && /^"?Instrument Sans/.test(c.fontFamily) ? '"ZWD Glass Sans", ' : "") + c.fontFamily; };
     x.font = fontOf(cs);
     if ("letterSpacing" in x) x.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
     var upper = cs.textTransform === "uppercase", range = document.createRange(), walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), node, m;
@@ -6549,7 +6564,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     asked = false; draws++; madeOne = false;
     var on = place();
     if (!gl || !near) return;
-    if (!built && (!document.fonts || document.fonts.status === "loaded")) rebuild();
+    if (!built && fontsSettled && (!document.fonts || document.fonts.status === "loaded")) rebuild();
     if (queue.length && !pending) work();
     logos.forEach(function(lg, i){ prepareLogo(lg, !i || !!logos[i - 1].prog || logos[i - 1].failed, on); });   // each program once the one before is made
     if (!on) { if (!warmed) warm(); else { var w0 = toWarm(); if (w0 && mayMake(w0)) { warmLogo(w0); made(); } } recheck(); return; }   // not showing (under the end of the film, or gone by): nothing to draw
