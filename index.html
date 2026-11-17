@@ -4918,7 +4918,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
     layout();
     var below = !location.hash && (window.scrollY > 0);
-    if (!arriveAt() && below) { var sTop = -track.getBoundingClientRect().top; if (sTop > 0 && sTop < (pondBox ? pd.A : P)) toTop(st0); else if (pondBox && sTop < pd.B) toTop(pd.B); }   // opened further down: stay at the street (or the pond)
+    if (!arriveAt() && below) { var sTop = -track.getBoundingClientRect().top; if (sTop > 0 && sTop < (pondBox ? pd.A : P)) toTop(st0); else if (pondBox && sTop >= pd.A && sTop < pd.B) toTop(pd.B); }   // opened further down: stay at the street (or the pond). Not from the film or About us (sTop below 0): the street is often finished while the visitor scrolls down the film, and without the sTop >= pd.A this sent them to the pond (Jason, 2026-11-17)
     cur = curAt(-track.getBoundingClientRect().top);
     if (mode === "scroll") draw(performance.now());
     shown();                                              // drawn in the same frame the page appears
