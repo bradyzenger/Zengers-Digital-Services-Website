@@ -65,6 +65,7 @@ window.__zwdThreeLoad = function(){ if (!window.__zwdThree) { window.__zwdThree 
   // "Hero film, 3D version" script). Only for visitors who get the 3D film (others get the summit still).
   if (window.__zwd3dOK && !still) {
     document.documentElement.classList.add("film-pic");
+    try { window.__zwdFilmFile = fetch("media/models/film.zwdm").then(function(r){ return r.ok ? r.arrayBuffer() : null; }).catch(function(){ return null; }); } catch(e){}   // the film's scenery, made in Blender (see the "Hero film, 3D version" script)
     [["(min-aspect-ratio: 10/11)", "media/film-start-wide.webp 1x, media/film-start-wide-2x.webp 2x", "media/film-start-wide.webp"], ["(max-aspect-ratio: 10/11)", "media/film-start-tall.webp 1x", "media/film-start-tall.webp"]].forEach(function(q){
       var l = document.createElement("link"); l.rel = "preload"; l.as = "image"; l.media = q[0];
       if ("imageSrcset" in l) l.imageSrcset = q[1]; else l.href = q[2];
@@ -6606,7 +6607,30 @@ window.__zwdCalm = window.__zwdCalm || (function(){
    peak, out over ridge behind ridge in the haze, into the morning cloud. The mountain is generated here (no image
    files): rounded, forested ridges, a summit with four of them, the west one shaped like the chart, and far ranges
    fading into blue haze. Units are roughly metres; the summit is 260 high at (0, 0); the camera looks north (-z). */
-window.__zwdFilm3D = function(THREE, host, on){
+/* The scenery made in Blender (since 2026-11-16; resources/blender/scripts/build_film.py writes media/models/film.zwdm):
+   the mountain's heights and maps of its relief, its sunrise shadows, the sky each point sees and its colours; a forest
+   of trees; Blender's physical sky for ten heights of the sun; a sheet of high cloud. This reads the file and decodes
+   its pictures off the page's thread; the film below draws with it (FINE) or, without it, as it always has. */
+window.__zwdFilmData = function(buf){
+  try {
+    var dv = new DataView(buf); if (dv.getUint32(0, true) !== 0x4D44575A) return Promise.resolve(null);   // "ZWDM"
+    var n = dv.getUint32(4, true), head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, n))), base = 8 + n;
+    if (head.v !== 3 || head.kind !== "film" || !window.createImageBitmap || !(head.size > 0) || base + head.size > buf.byteLength) return Promise.resolve(null);   // (not this film's file, or cut short: the plain mountain)
+    var small = Math.min(screen.width, screen.height) < 700, pics = { a: head.near.a, b: head.near.b, c: head.near.c, far: head.far.a, canopy: head.canopy, sky: head.sky, cloud: head.cloud }, names = Object.keys(pics);
+    for (var i = 0; i < names.length; i++) if (base + pics[names[i]].off + pics[names[i]].len > buf.byteLength) return Promise.resolve(null);   // cut short
+    return Promise.all(names.map(function(k){
+      var q = pics[k], blob = new Blob([new Uint8Array(buf, base + q.off, q.len)], { type: "image/webp" });
+      return small && q.w > 1024 ? createImageBitmap(blob, { resizeWidth: 1024, resizeHeight: Math.round(1024 * q.h / q.w), resizeQuality: "high" }) : createImageBitmap(blob);
+    })).then(function(bm){
+      var img = {}; names.forEach(function(k, j){ img[k] = bm[j]; });
+      var c = document.createElement("canvas"); c.width = head.sky.w; c.height = head.sky.h; var x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(img.sky, 0, 0);   // the sky's colours, to read here too (the haze takes its colour from them)
+      var px = x.getImageData(0, 0, c.width, c.height).data, sky = new Float32Array(c.width * c.height * 3);
+      for (var j = 0, m = 0; j < px.length; j += 4) for (var e = 0; e < 3; e++) { var v = px[j + e] / 255; v = Math.min(.985, v <= .04045 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)); sky[m++] = v / (1 - v); }
+      return { head: head, buf: buf, base: base, img: img, sky: sky };
+    }, function(){ return null; });
+  } catch(e){ return Promise.resolve(null); }
+};
+window.__zwdFilm3D = function(THREE, host, on, D){
   var V3 = THREE.Vector3;
   var PEAK = 260, LIFT = 2.2, LINE_A = .12, LINE_B = .78, SUN_AZ = .3;
   var MIST = 0xF2E6D8;   // the cloud the rise ends in; the "Street" script starts from the same colour
@@ -6633,6 +6657,21 @@ window.__zwdFilm3D = function(THREE, host, on){
   // Sharpness: up to 4K (and a phone's full pixel ratio) first. If frames can't keep up, step down to 1440p, then 1080p,
   // and stay there. Each step: [most pixels drawn, highest pixel ratio].
   var SIZES = [[3840 * 2160, 3], [2560 * 1440, 2], [1920 * 1080, 1.5]], size = 0;
+  var FINE = !!D;                                            // drawn with the scenery made in Blender
+  if (FINE) SIZES = fine ? [[2240 * 1260, 2], [1920 * 1080, 1.5], [1280 * 720, 1]] : [[1920 * 1080, 2.5], [1280 * 720, 1.5]];   // its picture is finished off-screen (glow, grain), which costs more per pixel
+  if (window.__zwdFilmStill) SIZES = [[1e9, 4]];              // (set by resources/film-stills' scripts when they render the still pictures: as large as the window)
+  // shader text shared by Blender's land, far ranges and trees (see "the scenery made in Blender", below)
+  var G_LIGHT = "uniform vec3 uSky,uGround,uSunCol,uSunDir,uHead,uHeadCol;uniform float uSunEl;\n" +
+    "vec3 lit(vec3 alb,vec3 n,vec3 w,float ao,float hz,float leaf){float vis=smoothstep(hz-.45,hz+.75,uSunEl);vec3 v=normalize(w-cameraPosition);" +
+    "vec3 c=alb*(mix(uGround,uSky,n.y*.5+.5)*ao+uSunCol*vis*(max(dot(n,uSunDir),0.0)+leaf*(.3*pow(max(dot(v,uSunDir),0.0),5.0)+.05)));" +   // leaves glow a little with the sun behind them
+    "vec3 hl=uHead-w;float hd=length(hl);c+=alb*uHeadCol*max(dot(n,hl/hd)*.7+.3,0.0)*pow(max(hd,1.0),-1.6)*pow(clamp(1.0-pow(hd/110.0,4.0),0.0,1.0),2.0);return c;}\n";
+  var G_HAZE = "uniform vec3 uFogBlue,uFogWarm,uHazeSun;uniform float uHazeK;\n" +   // haze, thicker low down in the valleys' air: blue away from the sun, warm toward it
+    "vec3 hazed(vec3 col,vec3 w){vec3 v=w-cameraPosition;float d=length(v),dy=w.y-cameraPosition.y,a0=exp(-max(cameraPosition.y,0.0)/130.0),a1=exp(-max(w.y,0.0)/130.0);" +
+    "float low=abs(dy)>1.0?(a0-a1)*130.0/dy:a0;float f=1.0-exp(-d*uHazeK*(.62+1.5*low));return mix(col,mix(uFogBlue,uFogWarm,pow(max(dot(v/d,uHazeSun),0.0),7.0)),f);}\n";
+  var G_NOISE = "float h3(vec3 p){p=fract(p*.3183099+.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}\n" +   // a small 3D noise: leaves in clumps, grass in tufts
+    "float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}\n";
+  var G_END = "\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}";
+  var V_LAND = "varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.0);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}";
 
   var canvas = document.createElement("canvas"), renderer;
   canvas.className = "film-3d"; canvas.setAttribute("aria-hidden", "true");
@@ -6657,8 +6696,8 @@ window.__zwdFilm3D = function(THREE, host, on){
 
   /* ---- building, a few milliseconds at a time so the page (and the opening) never stalls ---- */
   function build(){
-    var N = GRID + 1, pos = new Float32Array(N * N * 3), tone = new Float32Array(N * N * 2), row = 0, cy = 0, q = 0, fr = 0, step = 0;
-    a.farPos = new Float32Array((FC + 1) * (FR + 1) * 3);
+    var N = GRID + 1, pos = FINE ? null : new Float32Array(N * N * 3), tone = FINE ? null : new Float32Array(N * N * 2), row = FINE ? N : 0, cy = 0, q = 0, fr = FINE ? FR + 1 : 0, step = 0;   // (with Blender's scenery the land comes from its file)
+    a.farPos = FINE ? null : new Float32Array((FC + 1) * (FR + 1) * 3);
     a.cloudPx = new Uint8ClampedArray(256 * 256 * 4);
     a.mistGeo = new THREE.PlaneGeometry(2600, 2600, 48, 48); a.mistGeo.rotateX(-Math.PI / 2); a.mistGeo.translate(-150, 0, 150);
     a.mistH = new Float32Array(a.mistGeo.attributes.position.count);
@@ -6683,7 +6722,7 @@ window.__zwdFilm3D = function(THREE, host, on){
           for (var c = 0; c <= FC; c++) { var x = -9000 + 18000 * c / FC, k = (fr * (FC + 1) + c) * 3, inside = x > -1350 && x < 1050 && z > -1300;
             fp[k] = x; fp[k + 1] = inside ? -400 : smax(height(x, z, true) - 6, fars(x, z), 60); fp[k + 2] = z; } }   // (its big triangles would poke up through narrow valleys)
         return fr > FR; },
-      function(){ landGeometry(N, pos, tone); return true; },
+      function(){ if (!FINE) landGeometry(N, pos, tone); return true; },
       function(){ setup(); return true; }
     ];
     (function next(){
@@ -6693,7 +6732,10 @@ window.__zwdFilm3D = function(THREE, host, on){
       var go = function(){ if (stopped) return; textures.forEach(function(x){ renderer.initTexture(x); }); api.ready = true;
         if (covered()) size = SIZES.length - 1;   // hidden under the opening: draw small until it's gone, so the opening stays smooth
         resize(); on.ready(); probe(); };
-      if (renderer.extensions.has("KHR_parallel_shader_compile")) renderer.compileAsync(scene, cam).then(go); else { renderer.compile(scene, cam); go(); }
+      if (a.post) renderer.setRenderTarget(a.post.main);     // its programs are the ones for drawing off-screen
+      var ready = renderer.extensions.has("KHR_parallel_shader_compile") ? renderer.compileAsync(scene, cam) : (renderer.compile(scene, cam), null);
+      if (a.post) renderer.setRenderTarget(null);
+      if (ready) ready.then(go); else go();
     })();
   }
   function fail(){ stop(); on.fail(); }
@@ -6726,19 +6768,22 @@ window.__zwdFilm3D = function(THREE, host, on){
 
   function setup(){
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = !FINE; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // (Blender's scenery brings its own shadows)
     renderer.autoClear = false;
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, .001);
     cam = new THREE.PerspectiveCamera(40, 1, 2, 15000);
     a.fogBlue = {value:new THREE.Color()}; a.hazeK = {value:.0003};
+    if (FINE) { a.over = new THREE.Scene(); a.sunDir = new V3(); fineCommon(); }
 
+    if (FINE) fineLand(); else {
     var land = new THREE.Mesh(a.landGeo, new THREE.MeshStandardMaterial({vertexColors:true, roughness:.92, metalness:0, flatShading:true}));
     land.castShadow = land.receiveShadow = true; haze(land.material); scene.add(land);
+    }
 
     // light: the sun (with long sunrise shadows), the sky's fill, and a warm light that travels with the line
     a.hemi = new THREE.HemisphereLight(0xffffff, 0x000000, 1); scene.add(a.hemi);
-    a.sun = new THREE.DirectionalLight(0xffffff, 0); a.sun.castShadow = true;
+    a.sun = new THREE.DirectionalLight(0xffffff, 0); a.sun.castShadow = !FINE;
     a.sun.shadow.mapSize.set(fine ? 2048 : 1024, fine ? 2048 : 1024);
     var sc = a.sun.shadow.camera; sc.left = -900; sc.right = 900; sc.top = 900; sc.bottom = -900; sc.near = 10; sc.far = 4200;
     a.sun.shadow.bias = -.0006; a.sun.shadow.normalBias = 1.2;
@@ -6746,7 +6791,7 @@ window.__zwdFilm3D = function(THREE, host, on){
     a.headLight = new THREE.PointLight(0xFFB547, 0, 110, 1.6); scene.add(a.headLight);
 
     // sky: gradient, the glow around the sun and the sun itself; stars before dawn
-    a.sunDir = new V3();
+    a.sunDir = a.sunDir || new V3();
     a.skyU = {uZenith:{value:new THREE.Color()}, uHorizon:{value:new THREE.Color()}, uGlow:{value:new THREE.Color()}, uSun:{value:new THREE.Color()}, uSunDir:{value:a.sunDir}, uSunCos:{value:Math.cos(.017)}};
     a.sky = new THREE.Mesh(new THREE.SphereGeometry(4000, 48, 24), new THREE.ShaderMaterial({uniforms:a.skyU, side:THREE.BackSide, depthWrite:false, fog:false,
       vertexShader:"varying vec3 vDir;void main(){vDir=position;vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.0);gl_Position=p.xyww;}",
@@ -6756,6 +6801,7 @@ window.__zwdFilm3D = function(THREE, host, on){
         "col=mix(col,uHorizon*.55,smoothstep(0.0,-.12,h));" +
         "col=mix(col,uSun,smoothstep(uSunCos-.00004,uSunCos+.00002,s)*smoothstep(-.01,.01,h));" +
         "gl_FragColor=vec4(col,1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}"}));
+    if (FINE) a.sky.material = fineSky();
     a.sky.renderOrder = -2; a.sky.frustumCulled = false; scene.add(a.sky);
     var sp = [], seed = 7;
     for (var i = 0; i < 700; i++) { var t = rnd() * Math.PI * 2, y = .06 + rnd() * .94, r = Math.sqrt(1 - y * y); sp.push(Math.cos(t) * r * 3500, y * 3500, Math.sin(t) * r * 3500); }
@@ -6766,6 +6812,7 @@ window.__zwdFilm3D = function(THREE, host, on){
 
     // the far ranges: ridge behind ridge, paler and bluer the further they are and warmer toward the sun, until they
     // match the sky at the horizon (their own shading and haze, no shadows)
+    if (FINE) fineFar(); else {
     var fidx = new Uint32Array(FC * FR * 6), k = 0;
     for (var fr = 0; fr < FR; fr++) for (var fc = 0; fc < FC; fc++) { var i0 = fr * (FC + 1) + fc;
       fidx[k++] = i0; fidx[k++] = i0 + FC + 1; fidx[k++] = i0 + 1; fidx[k++] = i0 + 1; fidx[k++] = i0 + FC + 1; fidx[k++] = i0 + FC + 2; }
@@ -6780,6 +6827,7 @@ window.__zwdFilm3D = function(THREE, host, on){
         "float f=1.0-exp(-d*uHazeK);f=mix(f,1.0,smoothstep(170.0,0.0,vW.y)*.3);" +
         "gl_FragColor=vec4(mix(col,mix(uFogBlue,uFogWarm,pow(s,4.0)),f),1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}"}));
     a.far.frustumCulled = false; scene.add(a.far); a.farPos = null;
+    }
 
     // mist lying in the valleys (it thins out where the ground comes up to it)
     var cloud = new THREE.DataTexture(new Uint8Array(a.cloudPx.buffer), 256, 256); textures.push(cloud);
@@ -6850,10 +6898,11 @@ window.__zwdFilm3D = function(THREE, host, on){
     for (i = 0; i < 16; i++) {
       var s = new THREE.Sprite(new THREE.SpriteMaterial({map:puff, color:MIST, transparent:true, opacity:0, depthWrite:false, toneMapped:false, fog:false}));
       s.position.set(-450 + rnd() * 750, 820 + rnd() * 380, -500 + rnd() * 1200); s.scale.setScalar(260 + rnd() * 260);
-      s.userData.op = .55 + rnd() * .35; s.frustumCulled = false; scene.add(s); a.puffs.push(s);
+      s.userData.op = .55 + rnd() * .35; s.frustumCulled = false; (a.over || scene).add(s); a.puffs.push(s);
     }
     a.veil = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({color:MIST, transparent:true, opacity:0, toneMapped:false, depthTest:false, depthWrite:false}));
     a.veil.renderOrder = 9; flareScene.add(a.veil);
+    if (FINE) { fineTrees(); fineLine(); finePost(); }
   }
 
   /* ---- one frame for scroll progress p ---- */
@@ -6920,6 +6969,7 @@ window.__zwdFilm3D = function(THREE, host, on){
     cam.position.copy(pos); cam.lookAt(tgt);
     a.sky.position.copy(pos); a.stars.position.copy(pos);
     renderer.toneMappingExposure = keys(p, [[0, 1.05], [1, 1.08]]);
+    if (FINE) fineUpdate(p, rise, el);
 
     // flare: only when the sun is above the horizon, on screen and not behind the mountain
     var sp = cam.position.clone().addScaledVector(a.sunDir, 3000).project(cam), vis = 0;
@@ -6928,7 +6978,7 @@ window.__zwdFilm3D = function(THREE, host, on){
       for (var k = 1; k <= 48; k++) { var d = k * k * 1.2, q = cam.position.clone().addScaledVector(a.sunDir, d); worst = Math.max(worst, (height(q.x, q.z) - q.y) / d); }
       vis = smooth(.012, -.006, worst) * smooth(-.01, .03, el);
     }
-    a.flareVis = vis;
+    a.flareVis = vis; a.sunAt = sp;
     var asp = W / H;
     flareCam.left = -asp; flareCam.right = asp; flareCam.updateProjectionMatrix(); a.veil.scale.set(asp, 1, 1);
     a.flare.forEach(function(s){ var u = s.userData, x = sp.x * asp, y = sp.y, t = u.along;
@@ -6938,11 +6988,25 @@ window.__zwdFilm3D = function(THREE, host, on){
     });
   }
 
-  function render(p, rise){
+  function render(p, rise){   // with Blender's scenery the picture glides to where the scroll is, like a camera with some weight (glide); a jump is shown at once
+    if (!api.ready || stopped) return;
+    rise = rise || 0; a.tp = p; a.tr = rise;
+    if (!FINE || !shown || rise > 0 || lastRise > 0 || Math.abs(p - lastP) > .2) { draw(p, rise); return; }   // (the rise into the cloud keeps its own time, to the frame)
+    if (!a.ease) { a.easeT = 0; a.ease = requestAnimationFrame(glide); }
+  }
+  function glide(now){
+    a.ease = 0; if (stopped) return;
+    var dt = a.easeT ? Math.min(.05, (now - a.easeT) / 1000) : 1 / 60, k = 1 - Math.exp(-dt / .085), p = lastP + (a.tp - lastP) * k, r = lastRise + (a.tr - lastRise) * k;
+    a.easeT = now;
+    if (Math.abs(a.tp - p) < .0004 && Math.abs(a.tr - r) < .0008) { p = a.tp; r = a.tr; } else a.ease = requestAnimationFrame(glide);
+    draw(p, r);
+  }
+  function draw(p, rise){
     if (!api.ready || stopped) return;
     lastP = p; lastRise = rise || 0;
     update(p, lastRise);
-    renderer.clear(); renderer.render(scene, cam);
+    if (a.post) drawFine(); else { renderer.clear(); renderer.render(scene, cam); }
+    if (a.over && lastRise > .6) { renderer.clearDepth(); renderer.render(a.over, cam); }   // (the rise's cloud, over the finished picture)
     if (a.flareVis > .004 || lastRise > .84) { renderer.clearDepth(); renderer.render(flareScene, flareCam); }
     if (!shown) {
       shown = true; canvas.classList.add("is-on");
@@ -6959,21 +7023,25 @@ window.__zwdFilm3D = function(THREE, host, on){
     if (gl.drawingBufferWidth < canvas.width - 1) {   // the browser made a smaller picture than asked for: match it
       renderer.setPixelRatio(pr * gl.drawingBufferWidth / canvas.width); renderer.setSize(w, h, false);
     }
+    if (a.post) sizePost();
   }
   // Frames drawn back to back should come at least ~48 times a second. If the middle of 24 gaps is slower than that,
   // this size is too much for the device: step down one size. Gaps over 100 ms are pauses in scrolling, not slow frames.
   function pace(){
+    if (window.__zwdFilmStill) return;                       // (the still pictures are being rendered: full size, however long a frame takes)
     var t = performance.now(), gap = t - lastDraw;
     lastDraw = t;
-    if (gap > 100 || size >= SIZES.length - 1) return;
+    var thin = !!a.trees && (a.thin || 0) < 2;               // (Blender's forest: still slow at the smallest size? fewer trees, twice at most)
+    if (gap > 100 || (size >= SIZES.length - 1 && !thin)) return;
     gaps.push(gap);
     if (gaps.length < 24) return;
     gaps.sort(function(x, y){ return x - y; });
-    var slow = gaps[12] > 21;
+    var slow = gaps[12] > 21 || (FINE && gaps[17] > 29);   // (Blender's scenery: also when nearly a third of the frames come late)
     gaps.length = 0;
     if (!slow) { steady = true; return; }
-    size++; lastDraw = 0; steady = size >= SIZES.length - 1;   // at the smallest size there's nothing left to decide
-    resize(); render(lastP, lastRise);
+    if (size < SIZES.length - 1) size++; else { a.thin = (a.thin || 0) + 1; a.trees.forEach(function(m){ m.geometry.instanceCount = Math.max(1, Math.floor(m.geometry.instanceCount * .55)); }); }
+    lastDraw = 0; steady = size >= SIZES.length - 1 && !(a.trees && a.thin < 2);   // at the smallest size (and the fewest trees) there's nothing left to decide
+    resize(); draw(lastP, lastRise);
   }
   function covered(){ return document.documentElement.classList.contains("intro-on"); }
   function probe(){   // once the picture shows: a short burst of frames to find a size this device keeps up with
@@ -6981,14 +7049,178 @@ window.__zwdFilm3D = function(THREE, host, on){
     if (covered()) { timer = setTimeout(probe, 300); return; }
     if (size && !steady) { size = 0; lastDraw = 0; resize(); }   // the opening is gone: back to the sharpest size, then check it
     var n = 0;
-    (function step(){ if (stopped || steady || n++ > 90) return; render(lastP, lastRise); requestAnimationFrame(step); })();
+    (function step(){ if (stopped || steady || n++ > 90) return; draw(lastP, lastRise); requestAnimationFrame(step); })();
   }
   function stop(){
     if (stopped) return; stopped = true; clearTimeout(timer);
     if (scene) scene.traverse(function(o){ if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
     textures.forEach(function(x){ x.dispose(); });
+    if (a.post) a.post.all.forEach(function(x){ x.dispose(); });
     renderer.dispose();
     if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+  }
+
+  /* ---- the scenery made in Blender (FINE; see __zwdFilmData above): the land and its light, the forest, the sky,
+     and the picture's finish. Everything here is skipped without the file. ----
+     Light: nothing casts shadows here. The file's horizon map says, for every place, how high the land stands between
+     it and the sun (the sun always rises in the same direction); a place is lit once the sun is higher than that, so
+     the sunrise creeps down the mountain as the visitor scrolls. The sky's light is dimmed where the map says a place
+     sees little sky; the gold light of the line's head falls on what's near it. */
+  function ftex(img, srgb, repeat){
+    var t = new THREE.Texture(img); t.flipY = false; t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping; t.needsUpdate = true; textures.push(t); return t;
+  }
+  function fineCommon(){
+    a.cU = { uSky:{value:new THREE.Color()}, uGround:{value:new THREE.Color()}, uSunCol:{value:new THREE.Color()}, uSunDir:{value:a.sunDir}, uSunEl:{value:-6}, uHead:{value:new V3()}, uHeadCol:{value:new THREE.Color()},
+      uFogBlue:a.fogBlue, uFogWarm:{value:scene.fog.color}, uHazeSun:{value:a.sunDir}, uHazeK:a.hazeK };
+    a.farU = { uSky:a.cU.uSky, uGround:a.cU.uGround, uSunCol:a.cU.uSunCol };   // (update fills these, as it does for the plain far ranges)
+  }
+  function uni(more){ var u = {}, k; for (k in a.cU) u[k] = a.cU[k]; for (k in more) u[k] = more[k]; return u; }
+  function grid(cols, rows, st, at){                         // a sheet of triangles: at(c, r) gives each corner's [x, y, z]
+    var C = cols / st, R = rows / st, pos = new Float32Array((C + 1) * (R + 1) * 3), uv = new Float32Array((C + 1) * (R + 1) * 2), idx = new Uint32Array(C * R * 6), k = 0, q = 0;
+    for (var r = 0; r <= R; r++) for (var c = 0; c <= C; c++, k++) { var P = at(c * st, r * st); pos[k * 3] = P[0]; pos[k * 3 + 1] = P[1]; pos[k * 3 + 2] = P[2]; uv[k * 2] = c * st / cols; uv[k * 2 + 1] = r * st / rows; }
+    for (r = 0; r < R; r++) for (c = 0; c < C; c++) { var i = r * (C + 1) + c; idx[q++] = i; idx[q++] = i + C + 1; idx[q++] = i + 1; idx[q++] = i + 1; idx[q++] = i + C + 1; idx[q++] = i + C + 2; }
+    var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.BufferAttribute(uv, 2)); g.setIndex(new THREE.BufferAttribute(idx, 1)); return g;
+  }
+  function fineLand(){                                       // the near land: Blender's heights, relief, shadows and colours; forest canopy drawn over its slopes
+    var n = D.head.near, G = n.grid, hs = new Uint16Array(D.buf, D.base + n.h, (G + 1) * (G + 1)), B = n.box;
+    var geo = grid(G, G, fine ? 1 : 2, function(c, r){ return [warp(c / G, B[0], B[1], B[2]), n.min + hs[r * (G + 1) + c] / 65535 * (n.max - n.min), warp(r / G, B[3], B[4], B[5])]; });
+    var land = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms: uni({ tA:{value:ftex(D.img.a)}, tB:{value:ftex(D.img.b, true)}, tC:{value:ftex(D.img.c)}, tCan:{value:ftex(D.img.canopy, false, true)}, uTile:{value:D.head.canopy.size}, uHz:{value:new THREE.Vector2(n.hz[0], n.hz[1])}, uTrees:{value:new THREE.Vector4(D.head.trees.box[0], D.head.trees.box[1], D.head.trees.box[4], D.head.trees.box[5])}, uUnder:{value:fine ? .5 : .4} }),
+      vertexShader: V_LAND, fragmentShader: "varying vec2 vUv;varying vec3 vW;uniform sampler2D tA,tB,tC,tCan;uniform float uTile,uUnder;uniform vec2 uHz;uniform vec4 uTrees;\n" + G_LIGHT + G_HAZE + G_NOISE +
+        "void main(){vec4 A=texture2D(tA,vUv);vec3 n=vec3(A.r*2.0-1.0,0.0,A.b*2.0-1.0);n.y=sqrt(max(1.0-dot(n.xz,n.xz),.03));" +
+        "vec3 C=texture2D(tC,vUv).rgb;float forest=1.0-C.g,d=length(vW-cameraPosition),nearK=1.0-smoothstep(700.0,2400.0,d);" +
+        "vec4 c1=texture2D(tCan,vW.xz/uTile),c2=texture2D(tCan,vW.zx/(uTile*3.3)+.37);" +   // crowns, and again larger and turned, so the tile doesn't show
+        "float under=forest*smoothstep(uTrees.x,uTrees.x+60.0,vW.x)*(1.0-smoothstep(uTrees.y-60.0,uTrees.y,vW.x))*smoothstep(uTrees.z,uTrees.z+60.0,vW.z)*(1.0-smoothstep(uTrees.w-60.0,uTrees.w,vW.z));" +   // where the trees stand, this is the forest's floor, in their shade
+        "float floorK=under*(1.0-smoothstep(70.0,300.0,d)),cf=forest*(1.0-floorK);" +   // (and close by, plain ground between the trunks: no crowns painted on it)
+        "vec2 bump=((c1.rb*2.0-1.0)+(c2.rb*2.0-1.0)*.6)*cf*nearK;n=normalize(n+vec3(bump.x,0.0,bump.y)*1.15);" +
+        "float crown=mix(1.0,(c1.g*1.2+.22)*(c2.g*.6+.62),cf*(.3+.7*nearK));" +
+        "vec3 alb=texture2D(tB,vUv).rgb*crown*(1.0-uUnder*under);if(floorK>.01)alb*=mix(1.0,.66+.5*n3(vW*.45),floorK);float gk=(1.0-forest)*(1.0-smoothstep(120.0,420.0,d));" +
+        "if(gk>.01){float g=n3(vW*.3)*.55+n3(vW*vec3(1.9,.6,1.9))*.45;alb*=mix(1.0,.62+.8*g,gk);}" +   // the bald's grass, in tufts and patches, where it's close
+
+        "gl_FragColor=vec4(hazed(lit(alb,n,vW,C.r*mix(1.0,c1.g*1.1+.3,forest*.5),mix(uHz.x,uHz.y,A.g),forest),vW),1.0);" + G_END }));
+    land.frustumCulled = false; scene.add(land); a.land = land;
+  }
+  function fineFar(){                                        // ridge behind ridge, from Blender's heights and relief
+    var F = D.head.far, C = F.cols, R = F.rows, hs = new Uint16Array(D.buf, D.base + F.h, (C + 1) * (R + 1)), B = F.box;
+    var geo = grid(C, R, fine ? 1 : 2, function(c, r){ return [B[0] + (B[1] - B[0]) * c / C, F.min + hs[r * (C + 1) + c] / 65535 * (F.max - F.min), B[2] + (B[3] - B[2]) * r / R]; });
+    a.far = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms: uni({ tA:{value:ftex(D.img.far)}, uAlb:{value:new THREE.Color(0x2C4230)} }),
+      vertexShader: V_LAND, fragmentShader: "varying vec2 vUv;varying vec3 vW;uniform sampler2D tA;uniform vec3 uAlb;\n" + G_LIGHT + G_HAZE +
+        "void main(){vec4 A=texture2D(tA,vUv);vec3 n=vec3(A.r*2.0-1.0,0.0,A.b*2.0-1.0);n.y=sqrt(max(1.0-dot(n.xz,n.xz),.03));" +
+        "gl_FragColor=vec4(hazed(lit(uAlb,n,vW,A.g,1.5,.6),vW),1.0);" + G_END }));
+    a.far.frustumCulled = false; scene.add(a.far);
+  }
+  function fineLine(){                                       // the line, hotter: it glows through the picture's finish and comes out the site's gold
+    a.core.material.color.setRGB(1.0, .5, .1).multiplyScalar(2.1); a.glow.material.uniforms.uColor.value.set(1.25, .6, .12);
+  }
+  function fineTrees(){                                      // the forest: each kind of tree drawn many times over (one call a kind), each with its own place, size, turn, colour and light
+    var T = D.head.trees, B = T.box, share = fine ? 1 : .4; a.trees = [];
+    var mat = new THREE.ShaderMaterial({ side: THREE.DoubleSide, uniforms: uni({ uB0:{value:new V3(B[0], B[2], B[4])}, uB1:{value:new V3(B[1], B[3], B[5])}, uTall:{value:T.tall}, uHz:{value:new THREE.Vector2(D.head.near.hz[0], D.head.near.hz[1])} }),
+      vertexShader: "attribute vec3 iPos,iCol;attribute vec4 iMore;attribute float aShade;uniform vec3 uB0,uB1;uniform float uTall;uniform vec2 uHz;varying vec3 vW,vN,vAlb,vS;" +
+        "void main(){float h=iMore.x*uTall,t=iMore.y*6.2832,c=cos(t),s=sin(t);vec3 p=position*h;p.xz*=mix(1.1,1.5,fract(iMore.y*7.31))*clamp(10.0/h,1.0,1.8);" +   // crowns wide enough to close into a canopy; the short ones by the line are bushes
+        "vec3 w=mix(uB0,uB1,iPos)+vec3(p.x*c-p.z*s,p.y-h*mix(.24,.08,smoothstep(6.0,15.0,h)),p.x*s+p.z*c);vW=w;vN=vec3(normal.x*c-normal.z*s,normal.y,normal.x*s+normal.z*c);" +
+        "vAlb=pow(iCol,vec3(2.2))*aShade;vS=vec3(mix(uHz.x,uHz.y,iMore.z),iMore.w,step(.34,aShade));gl_Position=projectionMatrix*viewMatrix*vec4(w,1.0);}",
+      fragmentShader: (fine ? "#define LEAF2\n" : "") + "varying vec3 vW,vN,vAlb,vS;\n" + G_LIGHT + G_HAZE + G_NOISE +
+        "void main(){vec3 n=normalize(vN),v=cameraPosition-vW;float d=length(v),near=1.0-smoothstep(260.0,720.0,d),lf=n3(vW*.8);\n" +
+        "#ifdef LEAF2\nlf=lf*.62+n3(vW*2.5)*.38;\n#endif\n" +
+        "lf=mix(.5,lf,near);float al=smoothstep(0.0,.14,abs(dot(n,v/d))-(.05+.5*lf)*vS.z*(.35+.65*near));if(al<.5)discard;" +   // leaves in clumps: a crown's outline is ragged, not a smooth ball's
+        "vec3 alb=vAlb*mix(1.0,.42+1.1*smoothstep(.22,.8,lf),vS.z);if(!gl_FrontFacing){n=-n;alb*=.5;}" +   // (through the gaps: the inside of the crown, darker)
+        "gl_FragColor=vec4(hazed(lit(alb,n,vW,vS.y*.92,vS.x,1.0),vW),al);" + G_END });
+    ["b0", "c0", "b1", "c1"].forEach(function(k){
+      var sh = T.shapes[k.charAt(0) + (fine ? k.charAt(1) : "1")], st = T.sets[k], at = D.base, g = new THREE.InstancedBufferGeometry();
+      if (!st.n) return;
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(D.buf, at + sh.pos, sh.n * 3), 3)); g.setAttribute("normal", new THREE.BufferAttribute(new Int8Array(D.buf, at + sh.nrm, sh.n * 3), 3, true));
+      g.setAttribute("aShade", new THREE.BufferAttribute(new Uint8Array(D.buf, at + sh.shade, sh.n), 1, true)); g.setIndex(new THREE.BufferAttribute(new Uint16Array(D.buf, at + sh.idx, sh.ni), 1));
+      g.setAttribute("iPos", new THREE.InstancedBufferAttribute(new Uint16Array(D.buf, at + st.pos, st.n * 3), 3, true)); g.setAttribute("iMore", new THREE.InstancedBufferAttribute(new Uint8Array(D.buf, at + st.more, st.n * 4), 4, true));
+      g.setAttribute("iCol", new THREE.InstancedBufferAttribute(new Uint8Array(D.buf, at + st.col, st.n * 3), 3, true));
+      g.instanceCount = Math.max(1, Math.floor(st.n * (k.charAt(1) === "0" ? 1 : share))); g.userData.n = st.n;   // (phones: every tree near the camera's path, four in ten of the rest)
+      var m = new THREE.Mesh(g, mat); m.frustumCulled = false; scene.add(m); a.trees.push(m);
+    });
+  }
+  function fineSky(){                                        // Blender's sky for the sun's height now (between two of its ten pictures), the sun's glow and disc, and high cloud
+    var S = D.head.sky, t = ftex(D.img.sky, true); t.generateMipmaps = false; t.minFilter = t.magFilter = THREE.LinearFilter;
+    a.skyF = { tSky:{value:t}, tCloud:{value:ftex(D.img.cloud)}, uKey:{value:0}, uKeys:{value:S.el.length}, uAz:{value:S.az}, uRows:{value:S.rows}, uSunDir:{value:a.sunDir}, uSun:a.skyU.uSun, uGlow:a.skyU.uGlow, uSunCos:a.skyU.uSunCos,
+      uMistC:{value:new THREE.Color(MIST)}, uMist:{value:0}, uGain:{value:1}, uCloudLit:{value:new THREE.Color()}, uCloudDark:{value:new THREE.Color()}, uCloudK:{value:.8}, uDrift:{value:0} };
+    return new THREE.ShaderMaterial({ uniforms: a.skyF, side: THREE.BackSide, depthWrite: false, fog: false,
+      vertexShader: "varying vec3 vDir;void main(){vDir=position;vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.0);gl_Position=p.xyww;}",
+      fragmentShader: "uniform sampler2D tSky,tCloud;uniform vec3 uSunDir,uSun,uGlow,uMistC,uCloudLit,uCloudDark;uniform float uKey,uKeys,uAz,uRows,uSunCos,uMist,uGain,uCloudK,uDrift;varying vec3 vDir;\n" +
+        "vec3 look(float k,float az,float v){vec3 c=texture2D(tSky,vec2(az,(k+v)/uKeys)).rgb;return c/max(1.0-c,vec3(.012));}\n" +
+        "void main(){vec3 d=normalize(vDir);float el=degrees(asin(clamp(d.y,-1.0,1.0)));float v=clamp(sqrt(clamp((el+6.0)/96.0,0.0,1.0)),.5/uRows,1.0-.5/uRows);" +
+        "float az=clamp(acos(clamp(dot(normalize(d.xz+vec2(1e-5)),normalize(uSunDir.xz)),-1.0,1.0))/3.14159265,.5/uAz,1.0-.5/uAz);" +
+        "float k0=floor(uKey);vec3 col=mix(look(k0,az,v),look(min(k0+1.0,uKeys-1.0),az,v),uKey-k0)*uGain;" +
+        "float s=max(dot(d,uSunDir),0.0);col+=uGlow*(pow(s,8.0)*.22*exp(-max(d.y,0.0)*6.0)+pow(s,90.0)*.7);" +
+        "if(d.y>.012){vec2 uv=d.xz/d.y*.1+vec2(.5+uDrift,.6);float c=texture2D(tCloud,uv).r*smoothstep(.012,.11,d.y)*(1.0-smoothstep(.4,.5,max(abs(uv.x-.5),abs(uv.y-.5))));" +   // a sheet of cloud 2.6 km up
+        "col=mix(col,mix(uCloudDark,uCloudLit,.2+.8*pow(s,2.0)),c*uCloudK);}" +
+        "col=mix(col,uSun,smoothstep(uSunCos-.00004,uSunCos+.00002,s)*smoothstep(-.01,.01,d.y));" +
+        "gl_FragColor=vec4(mix(col,uMistC,uMist),1.0);" + G_END });
+  }
+  function skyAt(out, kf, az, el){                           // the sky's colour toward az degrees from the sun, el degrees up (from the file's pictures)
+    var S = D.head.sky, W = S.w, R = S.rows, j = Math.min(R - 1, Math.floor(Math.sqrt(clamp01((el + 6) / 96)) * R)), i = Math.min(W - 1, Math.floor(az / 180 * W)), k0 = Math.floor(kf), k1 = Math.min(k0 + 1, S.el.length - 1), f = kf - k0;
+    var p0 = ((k0 * R + j) * W + i) * 3, p1 = ((k1 * R + j) * W + i) * 3, s = D.sky;
+    return out.setRGB(s[p0] + (s[p1] - s[p0]) * f, s[p0 + 1] + (s[p1 + 1] - s[p0 + 1]) * f, s[p0 + 2] + (s[p1 + 2] - s[p0 + 2]) * f);
+  }
+  function fineUpdate(p, rise, el){
+    var deg = el * 180 / Math.PI, K = D.head.sky.el, i = 0, U = a.cU, F = a.skyF, m = smooth(.68, 1, rise);
+    while (i < K.length - 2 && K[i + 1] <= deg) i++;
+    var kf = i + clamp01((deg - K[i]) / (K[i + 1] - K[i]));
+    F.uKey.value = kf; U.uSunEl.value = deg;
+    U.uSky.value.multiplyScalar(1.75); U.uGround.value.multiplyScalar(1.5);   // the sky's light on the forest, a little more than the plain film's (its shadows were near black)
+    U.uHead.value.copy(a.headLight.position); U.uHeadCol.value.copy(a.headLight.color).multiplyScalar(a.headLight.intensity / Math.PI * .5);
+    // the haze takes the sky's own colours at the horizon (toward the sun, and to one side), so far ridges fade into the sky they stand against
+    skyAt(scene.fog.color, kf, 30, 2).multiplyScalar(.5); skyAt(a.fogBlue.value, kf, 110, 3).multiplyScalar(.85);
+    a.fogBlue.value.lerp(a.mistC, m); scene.fog.color.lerp(a.mistC, m); F.uMist.value = m;
+    pal(F.uCloudDark.value, p, [[0, 0x141A2E], [.4, 0x3A3654], [.78, 0x6E6384], [1, 0x8E84A4]]);
+    pal(F.uCloudLit.value, p, [[0, 0x1E2038], [.22, 0x7A3A52], [.45, 0xFF6A4A], [.78, 0xFFA868], [1, 0xFFD2A0]]).multiplyScalar(1 + 1.2 * smooth(.2, .6, p));
+    F.uCloudK.value = .85 * (1 - m); F.uDrift.value = p * .03;
+    skyAt(tmpA, kf, 60, 4); a.mist.forEach(function(q){ q.material.color.copy(scene.fog.color).lerp(a.fogBlue.value, .5).lerp(tmpA, .35).multiplyScalar(1.25); });   // the valleys' mist: lighter than the haze, the sky's light caught in it
+    if (a.farMist) a.farMist.material.color.copy(a.mist[0].material.color);
+    if (a.post) {
+      var P = a.post, sp = a.sunAt, on = sp && sp.z < 1 && Math.abs(sp.x) < 1.5 && Math.abs(sp.y) < 1.5 ? 1 : 0;
+      P.rays.uniforms.uSun.value.set(sp ? sp.x * .5 + .5 : .5, sp ? sp.y * .5 + .5 : .5); P.fin.uniforms.uRays.value = .55 * on * smooth(-2.5, 1.5, deg) * (1 - m);
+      P.fin.uniforms.uExp.value = renderer.toneMappingExposure * 1.12; P.fin.uniforms.uSeed.value = (p * 977 + rise * 331) % 1;
+    }
+  }
+  /* The finish: the scene is drawn off-screen in full range (no tone mapping yet), then: what's bright spreads into a
+     soft glow (shrunk five times over and added back), the sky's light streams out from the sun between the ridges,
+     and the whole goes through the film's tone curve, with darker corners and a little grain. */
+  function finePost(){
+    if (!(renderer.extensions.has("EXT_color_buffer_float") || renderer.extensions.has("EXT_color_buffer_half_float"))) return;   // (no off-screen pictures in full range here: drawn straight to the screen, as before)
+    var rt = function(depth, ms){ return new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, depthBuffer: !!depth, samples: ms || 0, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, generateMipmaps: false }); };
+    var V = "varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}";
+    var pm = function(u, fs, add){ return new THREE.ShaderMaterial({ uniforms: u, vertexShader: V, fragmentShader: fs, depthTest: false, depthWrite: false, toneMapped: false, transparent: !!add, blending: add ? THREE.AdditiveBlending : THREE.NoBlending }); };
+    var P = { main: rt(true, fine ? 4 : 2), b: [rt(), rt(), rt(), rt(), rt()], ray: rt(), scene: new THREE.Scene(), cam: new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1) };
+    P.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), null); P.quad.frustumCulled = false; P.scene.add(P.quad);
+    P.down = pm({ tSrc:{value:null}, uTexel:{value:new THREE.Vector2()}, uCut:{value:0} }, "uniform sampler2D tSrc;uniform vec2 uTexel;uniform float uCut;varying vec2 vUv;" +
+      "void main(){vec3 c=(texture2D(tSrc,vUv+uTexel*vec2(-1.0,-1.0)).rgb+texture2D(tSrc,vUv+uTexel*vec2(1.0,-1.0)).rgb+texture2D(tSrc,vUv+uTexel*vec2(-1.0,1.0)).rgb+texture2D(tSrc,vUv+uTexel*vec2(1.0,1.0)).rgb)*.25;" +
+      "if(uCut>0.0){float l=max(c.r,max(c.g,c.b));c*=max(l-uCut,0.0)/max(l,1e-4);c=min(c,vec3(16.0));}gl_FragColor=vec4(c,1.0);}");
+    P.up = pm({ tSrc:{value:null} }, "uniform sampler2D tSrc;varying vec2 vUv;void main(){gl_FragColor=vec4(texture2D(tSrc,vUv).rgb,1.0);}", true);
+    P.rays = pm({ tSrc:{value:null}, uSun:{value:new THREE.Vector2(.5, .5)} }, "uniform sampler2D tSrc;uniform vec2 uSun;varying vec2 vUv;" +
+      "void main(){vec2 st=(uSun-vUv)/30.0*.92,uv=vUv;vec3 acc=vec3(0.0);float w=1.0;for(int i=0;i<30;i++){acc+=texture2D(tSrc,uv).rgb*w;w*=.95;uv+=st;}gl_FragColor=vec4(acc/30.0,1.0);}");
+    P.fin = pm({ tScene:{value:null}, tGlow:{value:null}, tRays:{value:null}, uGlow:{value:.16}, uRays:{value:0}, uExp:{value:1}, uSeed:{value:0}, uAsp:{value:1} },
+      "uniform sampler2D tScene,tGlow,tRays;uniform float uGlow,uRays,uExp,uSeed,uAsp;varying vec2 vUv;\n" +
+      "vec3 fit(vec3 v){vec3 a=v*(v+.0245786)-.000090537;vec3 b=v*(.983729*v+.432951)+.238081;return a/b;}\n" +   // the same tone curve the plain film uses (ACES)
+      "void main(){vec3 c=texture2D(tScene,vUv).rgb+texture2D(tGlow,vUv).rgb*uGlow+texture2D(tRays,vUv).rgb*uRays;" +
+      "vec2 q=vec2(min(abs(vUv.x-.5)*uAsp,.8)/1.6,vUv.y-.5);c*=1.0-.3*smoothstep(.3,.85,length(q));" +   // darker toward the corners (measured in screen heights from the middle, so the first shot's still picture, cropped at its sides, matches on any screen)
+      "c*=uExp/.6;c=mat3(.59719,.076,.0284,.35458,.90834,.13383,.04823,.01566,.83777)*c;c=fit(c);c=clamp(mat3(1.60475,-.10208,-.00327,-.53108,1.10813,-.07276,-.07367,-.00605,1.07602)*c,0.0,1.0);" +
+      "float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,1.07)+vec3(-.004,0.0,.01)*(1.0-l)*(1.0-l)+vec3(.01,.003,-.008)*l;" +   // a touch more colour; cool in the shadows, warm in the lights
+      "c=mix(c*12.92,1.055*pow(max(c,vec3(0.0)),vec3(1.0/2.4))-.055,step(.0031308,c));" +
+      "float g=fract(sin(dot(gl_FragCoord.xy+uSeed*371.0,vec2(12.9898,78.233)))*43758.5453);c+=(g-.5)*.022;" +   // grain
+      "gl_FragColor=vec4(c,1.0);}");
+    P.all = [P.main, P.ray].concat(P.b); a.post = P;
+  }
+  function sizePost(){
+    var P = a.post, v = renderer.getDrawingBufferSize(new THREE.Vector2()), w = v.x, h = v.y;
+    var ms = !fine || w * h > 2400000 ? 2 : 4;               // (edges smoothed four times over; twice on the largest pictures, where pixels are small and the cost is high)
+    if (P.main.samples !== ms) { P.main.samples = ms; P.main.dispose(); }
+    P.main.setSize(w, h); P.b.forEach(function(t, i){ t.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))); }); P.ray.setSize(Math.max(2, w >> 2), Math.max(2, h >> 2)); P.fin.uniforms.uAsp.value = w / h;
+  }
+  function drawFine(){
+    var P = a.post, go = function(mat, to){ P.quad.material = mat; renderer.setRenderTarget(to); renderer.render(P.scene, P.cam); }, src = P.main, i;
+    renderer.setRenderTarget(P.main); renderer.clear(); renderer.render(scene, cam);
+    for (i = 0; i < P.b.length; i++) { P.down.uniforms.tSrc.value = src.texture; P.down.uniforms.uTexel.value.set(1 / src.width, 1 / src.height); P.down.uniforms.uCut.value = i ? 0 : 1.05; go(P.down, P.b[i]); src = P.b[i]; }
+    if (P.fin.uniforms.uRays.value > .002) { P.rays.uniforms.tSrc.value = P.b[1].texture; go(P.rays, P.ray); }   // (before the glow is added back into that size)
+    for (i = P.b.length - 1; i > 0; i--) { P.up.uniforms.tSrc.value = P.b[i].texture; go(P.up, P.b[i - 1]); }
+    P.fin.uniforms.tScene.value = P.main.texture; P.fin.uniforms.tGlow.value = P.b[0].texture; P.fin.uniforms.tRays.value = P.ray.texture;
+    go(P.fin, null);
   }
 
   /* ---- the mountain: rounded, forested ridges, like the Smokies ---- */
@@ -7347,8 +7579,16 @@ var SITE = {
     var lib; try { lib = win.__zwdThreeLoad(); } catch(e){ useStill(); return; }
     lib.then(function(THREE){
       if (isStatic) return;
-      film3d = win.__zwdFilm3D(THREE, media, {ready: requestFrame, fail: function(){ film3d = null; useStill(); }});
-      if (!film3d) useStill();
+      var begun = false, start = function(data){   // with the scenery made in Blender if its file has come (5 seconds at most), else the plain mountain
+        if (begun || isStatic) return; begun = true; clearTimeout(late);
+        (function run(d){                                     // (Blender's scenery couldn't be drawn here after all? the plain mountain. That neither: the still picture)
+          var over = false, fail = function(){ if (over) return; over = true; film3d = null; if (d && !isStatic) run(null); else useStill(); };
+          media.setAttribute("data-scenery", d ? "blender" : "plain");
+          var f = win.__zwdFilm3D(THREE, media, {ready: requestFrame, fail: fail}, d || null);
+          if (!over) { film3d = f; if (!f) fail(); }
+        })(data || null);
+      }, late = setTimeout(function(){ start(null); }, 5000);
+      Promise.resolve(win.__zwdFilmFile || null).then(function(buf){ return buf && win.__zwdFilmData ? win.__zwdFilmData(buf) : null; }).then(start, function(){ start(null); });
     }, useStill);
   }
 
