@@ -3786,8 +3786,125 @@ window.__zwdRooms = function(THREE, o){
     return R;
   }
 
+  // ---------- the rooms made in Blender (since 2026-11-16, Jason; how they're made: resources/blender) ----------
+  // A room's file (media/models/room-N.zwdm; the "Street" script fetches it and hands it over with o.baked(i)) holds its
+  // shapes, one picture of its light as Blender's Cycles worked it out (the low sun and the sky through the window, the
+  // room's lamps, the screen's glow, with their bounces and soft shadows: a lightmap), and a small picture all round
+  // for its reflections. So a room from a file needs no lamps or shadows here: a surface is its colour times the baked
+  // light (matte), with soft reflections of the room on top (gloss), or reflections alone (metal); bulbs, neon and light
+  // strips shine by themselves (emit). Fine detail (wood grain, boards, cloth, plaster) is multiplied in from small
+  // repeating pictures drawn here once (detail), so it stays sharp close to. Without its file a room is the one built
+  // above, as it was.
+  var DETAIL = {};
+  function lines(x, W, H, n, a, wave){                       // wavy lines along the picture that meet themselves at its edges, so it repeats without a seam
+    for (var i = 0; i < n; i++) {
+      var y0 = rnd() * H, k = 1 + ((rnd() * 3) | 0), ph = rnd() * 6.3, amp = wave * (.3 + rnd()), dk = rnd() < .7;
+      x.strokeStyle = dk ? "rgba(40,24,10," + (a * (.4 + rnd())).toFixed(3) + ")" : "rgba(255,255,255," + (a * (.3 + rnd() * .6)).toFixed(3) + ")"; x.lineWidth = .6 + rnd() * 1.5;
+      for (var dy = -H; dy <= H; dy += H) { x.beginPath(); for (var s = 0; s <= W; s += 8) { var y = y0 + dy + Math.sin(s / W * 6.2832 * k + ph) * amp + Math.sin(s / W * 6.2832 * k * 3 + ph * 2) * amp * .3; if (s) x.lineTo(s, y); else x.moveTo(s, y); } x.stroke(); }
+    }
+  }
+  function detail(name){                                     // the picture for a kind of surface: near white, to multiply into its colour; [metres across, metres up] it covers
+    if (DETAIL[name]) return DETAIL[name];
+    var keep = seed, t; seed = 2026 + name.length * 977 + name.charCodeAt(0);
+    if (name === "wood") t = tex(512, 256, function(x, W, H){ x.fillStyle = "#F1EEE9"; x.fillRect(0, 0, W, H);
+      for (var b = 0; b < 5; b++) { x.fillStyle = "rgba(90,60,30," + (rnd() * .07).toFixed(3) + ")"; x.fillRect(0, rnd() * H, W, 20 + rnd() * 50); }
+      lines(x, W, H, 150, .13, 5); specks(x, W, H, 1800, "40,20,8", .06); }, [1 / 1.3, 1 / .42]);
+    else if (name === "planks") t = tex(1024, 512, function(x, W, H){ var n = 8, ph = H / n;   // floorboards along the picture, eight across it
+      for (var i = 0; i < n; i++) { var s = -rnd() * W;
+        while (s < W) { var L = 330 + rnd() * 420, v = 222 + ((rnd() * 30) | 0); x.fillStyle = "rgb(" + v + "," + (v - 3) + "," + (v - 8) + ")"; x.fillRect(s, i * ph, L, ph); x.fillStyle = "rgba(30,16,6,.5)"; x.fillRect(s + L - 1.5, i * ph, 1.5, ph); s += L; }
+        x.fillStyle = "rgba(30,16,6,.5)"; x.fillRect(0, i * ph, W, 1.5); }
+      lines(x, W, H, 190, .1, 3); specks(x, W, H, 2400, "40,20,8", .05); }, [1 / 2.6, 1 / 1.12]);
+    else if (name === "fabric") t = tex(256, 256, function(x, W, H){ x.fillStyle = "#F0F0F0"; x.fillRect(0, 0, W, H);
+      for (var i = 0; i < W; i += 4) { x.fillStyle = "rgba(0,0,0," + (.03 + rnd() * .05).toFixed(3) + ")"; x.fillRect(i, 0, 1.5, H); x.fillStyle = "rgba(0,0,0," + (.03 + rnd() * .05).toFixed(3) + ")"; x.fillRect(0, i, W, 1.5); }
+      specks(x, W, H, 2600, "0,0,0", .07); specks(x, W, H, 1200, "255,255,255", .1); }, [1 / .09, 1 / .09]);
+    else if (name === "leather") t = tex(256, 256, function(x, W, H){ x.fillStyle = "#EFEFEF"; x.fillRect(0, 0, W, H);
+      for (var i = 0; i < 500; i++) { x.fillStyle = "rgba(0,0,0," + (rnd() * .05).toFixed(3) + ")"; x.beginPath(); x.arc(rnd() * W, rnd() * H, 2 + rnd() * 5, 0, 7); x.fill(); } specks(x, W, H, 1500, "255,255,255", .08); }, [1 / .25, 1 / .25]);
+    else if (name === "stone") t = tex(512, 512, function(x, W, H){ x.fillStyle = "#F0EFEC"; x.fillRect(0, 0, W, H);
+      for (var i = 0; i < 60; i++) { x.fillStyle = "rgba(60,50,40," + (rnd() * .035).toFixed(3) + ")"; x.beginPath(); x.arc(rnd() * W, rnd() * H, 20 + rnd() * 70, 0, 7); x.fill(); }
+      specks(x, W, H, 5200, "40,34,28", .09); specks(x, W, H, 1600, "255,255,255", .12); }, [1 / 1.2, 1 / 1.2]);
+    else t = tex(256, 256, function(x, W, H){ x.fillStyle = "#F5F5F4"; x.fillRect(0, 0, W, H); specks(x, W, H, 2600, "0,0,0", .045); specks(x, W, H, 1200, "255,255,255", .1); }, [1 / .5, 1 / .5]);   // plaster: paint on a wall
+    seed = keep; return DETAIL[name] = t;
+  }
+  function noIBL(sh){                                        // a baked surface takes its diffuse light from the lightmap alone: the room's picture adds only its reflections
+    sh.fragmentShader = sh.fragmentShader.replace("#include <lights_fragment_maps>", THREE.ShaderChunk.lights_fragment_maps.replace("iblIrradiance += getIBLIrradiance( geometryNormal );", ""));
+  }
+  var LIN8 = new Float32Array(256); for (var l8 = 0; l8 < 256; l8++) { var lc = l8 / 255; LIN8[l8] = lc <= .04045 ? lc / 12.92 : Math.pow((lc + .055) / 1.055, 2.4); }
+  function reflections(img){                                 // the room's picture all round (its brights squeezed into the file as c / (1 + c)), ready for reflections at every roughness
+    var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, c = document.createElement("canvas"); c.width = w; c.height = h;
+    var x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0); var px = x.getImageData(0, 0, w, h).data, a = new Uint16Array(w * h * 4), hf = THREE.DataUtils.toHalfFloat;
+    for (var j = 0; j < h; j++) for (var i = 0; i < w; i++) { var s = ((h - 1 - j) * w + i) * 4, d = (j * w + i) * 4;
+      for (var k = 0; k < 3; k++) { var v = Math.min(.975, LIN8[px[s + k]]); a[d + k] = hf(v / (1 - v)); } a[d + 3] = hf(1); }
+    var t = new THREE.DataTexture(a, w, h, THREE.RGBAFormat, THREE.HalfFloatType); t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.LinearSRGBColorSpace; t.minFilter = t.magFilter = THREE.LinearFilter; t.needsUpdate = true;
+    var env = (pmrem || (pmrem = new THREE.PMREMGenerator(renderer))).fromEquirectangular(t).texture; t.dispose(); return env;
+  }
+  function* baked(i, D){
+    var H = D.head, R = Room(H.bg, H.page, H.glass), g = R.root, K = H.K * PI, mats = {};
+    var pic = D.light, big = pic.naturalWidth || pic.width;
+    if (!D.bitmap && o.fine === false && big > 1024) { var cs = document.createElement("canvas"); cs.width = cs.height = 1024; cs.getContext("2d").drawImage(pic, 0, 0, 1024, 1024); pic = cs; }   // a phone: a quarter of the picture is plenty (the "Street" script already asked for that where it could)
+    var lm = new THREE.Texture(pic); lm.colorSpace = THREE.SRGBColorSpace; lm.channel = 1; lm.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); lm.needsUpdate = true; textures.push(lm);
+    if (D.bitmap) {                                          // a picture decoded off the page's thread can't be turned over as it's sent to the graphics chip, so its place on each surface is turned over instead
+      lm.flipY = false; lm.repeat.set(1, -1); lm.offset.set(0, 1);
+      if (pic.close) lm.onUpdate = function(){ try { pic.close(); } catch(e){} lm.onUpdate = null; };   // once it's there, the picture's own memory is given back
+    }
+    yield;
+    R.scene.environment = reflections(D.env);
+    yield;
+    function mat(key){
+      if (mats[key]) return mats[key];
+      var d = H.mats[key], tx = d.tex ? detail(d.tex) : null, side = d.double ? THREE.DoubleSide : THREE.FrontSide, m;
+      if (d.kind === "matte") m = new THREE.MeshBasicMaterial({ vertexColors: true, lightMap: lm, lightMapIntensity: K, map: tx, side: side });
+      else if (d.kind === "gloss") { m = new THREE.MeshStandardMaterial({ vertexColors: true, lightMap: lm, lightMapIntensity: K, map: tx, roughness: d.rough, metalness: 0, envMapIntensity: d.env, side: side }); m.onBeforeCompile = noIBL; }
+      else if (d.kind === "metal") m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: d.rough, metalness: 1, envMapIntensity: d.env, side: side });
+      else { m = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: side }); m.color.setScalar(d.em); }
+      return mats[key] = m;
+    }
+    for (var pi = 0; pi < H.parts.length; pi++) {
+      var p = H.parts[pi], d = H.mats[p.mat], b = D.buf, at = D.base, q = new Uint16Array(b, at + p.pos, p.n * 3), nb = new Int8Array(b, at + p.nrm, p.n * 3), cb = new Uint8Array(b, at + p.col, p.n * 3);
+      var P = new Float32Array(p.n * 3), N = new Float32Array(p.n * 3), C = new Float32Array(p.n * 3), geo = new THREE.BufferGeometry();
+      for (var k = 0; k < p.n * 3; k++) { var a3 = k % 3; P[k] = p.min[a3] + q[k] / 65535 * (p.max[a3] - p.min[a3]); N[k] = nb[k] / 127; C[k] = LIN8[cb[k]]; }
+      geo.setAttribute("position", new THREE.BufferAttribute(P, 3)); geo.setAttribute("normal", new THREE.BufferAttribute(N, 3)); geo.setAttribute("color", new THREE.BufferAttribute(C, 3));
+      if (p.uv != null) { var ub = new Uint16Array(b, at + p.uv, p.n * 2), U1 = new Float32Array(p.n * 2); for (var u = 0; u < p.n * 2; u++) U1[u] = ub[u] / 65535; geo.setAttribute("uv1", new THREE.BufferAttribute(U1, 2)); }
+      if (d.tex) {                                             // the detail's place on each face, in metres: along the grain, and across it
+        var U0 = new Float32Array(p.n * 2), gr = d.grain;
+        for (var j = 0; j < p.n; j++) {
+          var X = P[j * 3], Y = P[j * 3 + 1], Z = P[j * 3 + 2], ax = Math.abs(N[j * 3]), ay = Math.abs(N[j * 3 + 1]), az = Math.abs(N[j * 3 + 2]), uu, vv;
+          if (ay >= ax && ay >= az) { uu = X; vv = Z; if (gr === "y") { uu = Z; vv = X; } }           // a face that lies flat
+          else if (ax >= az) { uu = Z; vv = Y; if (gr === "z") { uu = Y; vv = Z; } }                   // one that faces a side wall
+          else { uu = X; vv = Y; if (gr === "z") { uu = Y; vv = X; } }                                 // one that faces the window or the back wall
+          U0[j * 2] = uu; U0[j * 2 + 1] = vv;
+        }
+        geo.setAttribute("uv", new THREE.BufferAttribute(U0, 2));
+      }
+      geo.setIndex(new THREE.BufferAttribute(p.big ? new Uint32Array(b, at + p.idx, p.ni) : new Uint16Array(b, at + p.idx, p.ni), 1));
+      g.add(new THREE.Mesh(geo, mat(p.mat)));
+      if (pi % 4 === 3) yield;
+    }
+    var s = H.screen, eq = s.rad[0] > 0 && s.rad[0] === s.rad[1] && s.rad[1] === s.rad[2] && s.rad[2] === s.rad[3];
+    var scr = eq ? flat(s.w, s.h, s.rad[0], screenMat(R.page)) : new THREE.Mesh(new THREE.PlaneGeometry(s.w, s.h), screenMat(R.page));
+    scr.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V3(s.right[0], s.right[1], s.right[2]), new V3(s.up[0], s.up[1], s.up[2]), new V3(s.n[0], s.n[1], s.n[2])));
+    scr.position.set(s.c[0] + s.n[0] * .0005, s.c[1] + s.n[1] * .0005, s.c[2] + s.n[2] * .0005); g.add(scr);
+    R.screen = { mesh: scr, w: s.w, h: s.h, rad: s.rad }; R.size = { w: H.size[0], d: H.size[1], h: H.size[2], t: .2 }; R.baked = true;
+    var E = H.extras || {};                                  // what's drawn here rather than baked: soft halos round lamps, the cinema's stars and its projector's beam
+    (E.glows || []).forEach(function(q){ var sp = glowSprite(q[3]); sp.position.set(q[0], q[1], q[2]); sp.scale.set(q[4], q[5], 1); sp.material.opacity = q[6]; g.add(sp); });
+    if (E.stars) { var sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.Float32BufferAttribute(E.stars, 3)); g.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xFFF2DC, size: 2.2, sizeAttenuation: false, toneMapped: false }))); }
+    if (E.beam) {
+      var bp = [], buv = [], ap = E.beam.apex, cr = E.beam.corners;
+      for (var e = 0; e < 4; e++) { var c0 = cr[e], c1 = cr[(e + 1) % 4]; bp.push(ap[0], ap[1], ap[2], c0[0], c0[1], c0[2], c1[0], c1[1], c1[2]); buv.push(.5, 0, 0, 1, 1, 1); }
+      var bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.Float32BufferAttribute(bp, 3)); bg.setAttribute("uv", new THREE.Float32BufferAttribute(buv, 2));
+      var beam = new THREE.Mesh(bg, new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+        vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
+        fragmentShader: "varying vec2 vUv;void main(){float e=min(vUv.x,1.0-vUv.x)*2.0,a=.28*(1.0-vUv.y*.65)*smoothstep(0.0,.06,vUv.y)*(.5+.5*smoothstep(0.0,.5,e));gl_FragColor=vec4(vec3(.85,.88,1.0)*a,a);}" }));
+      beam.frustumCulled = false; beam.renderOrder = 5; g.add(beam);
+    }
+    return R;
+  }
+
   var BUILD = [office, studio, arcade, kitchen, living, cinema];
-  function* steps(i){ seed = 1101 + i * 7919; return yield* BUILD[i](); }   // a room a part at a time: each yield is a pause, so the "Street" script can let the browser draw a frame between parts
+  function* steps(i){                                        // a room a part at a time: each yield is a pause, so the "Street" script can let the browser draw a frame between parts
+    var D = null; try { D = o.baked ? o.baked(i) : null; } catch(e){ D = null; }
+    if (D) { try { return yield* baked(i, D); } catch(e){ if (window.console) console.warn("Room " + (i + 1) + " from its file failed; the plain one instead:", e); } }
+    seed = 1101 + i * 7919; return yield* BUILD[i]();
+  }
   function build(i){ var it = steps(i), r; do { r = it.next(); } while (!r.done); return r.value; }   // all at once
   return { WY: WY, count: BUILD.length, build: build, steps: steps, textures: textures };
 };
@@ -3888,7 +4005,40 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       try { fetch("media/models/nashville.zwdm", { priority: "low" }).then(function(r){ return r.ok ? r.arrayBuffer() : null; }).then(function(b){ clearTimeout(t); done(b); }, function(){ clearTimeout(t); done(null); }); }
       catch(e){ clearTimeout(t); done(null); }
     });
-    var go0 = function(now){ Promise.all([window.__zwdThreeLoad(), modelsP]).then(function(got){
+    // The six rooms' files (made in Blender, their light baked in: resources/blender), fetched once the city is ready,
+    // quietly; a room whose file hasn't come when it's wanted is built the plain way, as before. Opened at a house's
+    // address, the page waits for that room's file (6 seconds at most) before it shows.
+    var roomData = [], roomAsk = [], roomWhy = [], decoding = Promise.resolve(), fineScreen = Math.min(screen.width, screen.height) >= 700;
+    var fetchRoom = function(i){
+      return roomAsk[i] || (roomAsk[i] = new Promise(function(done){
+        var t = setTimeout(function(){ end(null, "late"); }, 25000), over = false, end = function(d, why){ if (over) return; over = true; clearTimeout(t); roomWhy[i] = d ? "ok" : String(why || "?").slice(0, 80); if (d) roomData[i] = d; done(d || null); };
+        try {
+          fetch("media/models/room-" + (i + 1) + ".zwdm", { priority: "low" }).then(function(r){ if (!r.ok) throw new Error("http " + r.status); return r.arrayBuffer(); }).then(function(buf){
+            if (!buf || buf.byteLength < 16) throw new Error("empty");
+            var dv = new DataView(buf); if (dv.getUint32(0, true) !== 0x4D44575A) throw new Error("not a model file");   // "ZWDM"
+            var n = dv.getUint32(4, true), head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, n))), base = 8 + n, im = head.images;
+            if (head.v !== 2 || base + Math.max(im.light.off + im.light.len, im.env.off + im.env.len) > buf.byteLength) throw new Error("cut short");
+            // Its two pictures, decoded off the page's thread, one room at a time (six big pictures at once is too much for
+            // a phone), the light's at half size on a phone. Where the browser can't do that, the plain way: an <img>.
+            var blobOf = function(q){ return new Blob([new Uint8Array(buf, base + q.off, q.len)], { type: "image/webp" }); };
+            var img = function(q){ var u = URL.createObjectURL(blobOf(q)), el = new Image(); el.src = u; return el.decode().then(function(){ URL.revokeObjectURL(u); return el; }); };
+            var light = function(){                            // (no flipping asked of the browser: older Safari gets that wrong; the "Rooms, 3D" script turns the picture's place over instead)
+              var plain = function(){ return img(im.light).then(function(el){ return { pic: el, bitmap: false }; }); };
+              if (!window.createImageBitmap) return plain();
+              try {
+                var small = !fineScreen && head.res > 1024, job2 = small ? createImageBitmap(blobOf(im.light), { resizeWidth: 1024, resizeHeight: 1024, resizeQuality: "high" }) : createImageBitmap(blobOf(im.light));
+                return job2.then(function(bm){ return { pic: bm, bitmap: true }; }, plain);
+              } catch(e){ return plain(); }
+            };
+            var job = decoding.then(function(){ return Promise.all([light(), img(im.env)]); });
+            decoding = job.then(function(){}, function(){});
+            return job.then(function(p){ end({ head: head, buf: buf, base: base, light: p[0].pic, bitmap: p[0].bitmap, env: p[1] }); });
+          }).catch(function(e){ end(null, e && e.message); });
+        } catch(e){ end(null, e && e.message); }
+      }));
+    };
+    var firstRoom = IDS.indexOf(location.hash.slice(1)), firstP = firstRoom < 0 ? null : Promise.race([fetchRoom(firstRoom), new Promise(function(done){ setTimeout(done, 6000); })]);
+    var go0 = function(now){ Promise.all([window.__zwdThreeLoad(), modelsP, firstP]).then(function(got){
       var THREE = got[0]; cityModels = got[1];
       if (dead) return shown();
       if (now) { try { var it = build(THREE), r; do { r = it.next(); } while (!r.done); } catch(e){ fail(e); } return; }
@@ -3961,7 +4111,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     // ---------- Nashville, the six houses, and their rooms (the "Nashville, 3D" and "Rooms, 3D" scripts) ----------
     var P0 = new V3(70, 240, 700), TD = new V3(40, 70, -1350), DOWN = new V3(50, GROUND, -600), APP = new V3(0, .32, 1).normalize();   // the flight (see flyCam)
     var city = yield* window.__zwdNashville.steps(THREE, { renderer: renderer, ground: GROUND, win: WIN, row: ROW, glass: GLASS, mist: MIST, p0: P0, top: FLY.top, fine: Math.min(screen.width, screen.height) >= 700, models: cityModels });
-    var houses = city.houses, maker = window.__zwdRooms(THREE, { renderer: renderer }), rooms = [], lit = {};
+    var houses = city.houses, maker = window.__zwdRooms(THREE, { renderer: renderer, fine: Math.min(screen.width, screen.height) >= 700, baked: function(i){ return roomData[i] || null; } }), rooms = [], lit = {};
     var wins = houses.map(function(h){ return new V3(h.win.x, h.win.y, h.win.z); });
     var building = null;                                // the room being built a part at a time (see ahead): { i, it }
     function placeRoom(i, R){
@@ -4803,7 +4953,9 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       var f = flyCam(0); setPose(f, f.fov, 20, 40000); city.update(0, cam, []); if (cur <= 0) { drawScene(city.scene); glKey = ""; }
       yield;
       phase = "rooms";
+      for (var fr = 0; fr < IDS.length; fr++) fetchRoom(fr);   // the rooms' files, all asked for now, quietly
       for (var i = 0; i < IDS.length; i++) {
+        yield fetchRoom(i);                               // its file, if it's coming (the job waits for it)
         if (!rooms[i]) {                                  // its parts (unless it was opened, and so built, already)
           building = { i: i, it: maker.steps(i) };
           while (building && building.i === i) { var r = building.it.next(); if (r.done) { building = null; placeRoom(i, r.value); } else yield; }
@@ -4822,7 +4974,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     }
     stepper(ahead(), { who: "street", polite: true, due: function(){ return phase === "city" && (cur > 0 || mode !== "scroll" || -track.getBoundingClientRect().top > moves.city.a - 1.5 * vpH); } });
     window.__zwdDevices = { pick: function(x, y){ return houseAt(x, y); }, state: function(){ return { mode: mode, room: inRoom, move: move ? { i: move.i, k: +move.k.toFixed(3) } : null, fly: glideAnim ? glideAnim.dir : 0, cur: +cur.toFixed(3), s: Math.round(-track.getBoundingClientRect().top),
-      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, building: building ? building.i : -1, pond: pondBox ? { a: Math.round(pd.A), b: Math.round(pd.B), pan: Math.round(pd.pan), W: pd.W, H: pd.H, Hf: pd.Hf, at: +pondAt(-track.getBoundingClientRect().top).toFixed(3) } : null }; } };
+      P: Math.round(P), st0: Math.round(st0), flyRange: fly.map(Math.round), rise: [moves.rise.a, moves.rise.b].map(Math.round), city: [moves.city.a, moves.city.b].map(Math.round), about: [Math.round(abA), Math.round(abZ)], page: page, stops: stops.length, panX: +panX.toFixed(2), screens: screens.map(function(sc){ return sc.W + "x" + sc.H; }), dpr: dpr, built: rooms.filter(Boolean).length, baked: IDS.map(function(_, k){ return rooms[k] ? (rooms[k].baked ? 1 : 0) : -1; }), roomFiles: IDS.map(function(_, k){ return roomWhy[k] || (roomAsk[k] ? "coming" : "not asked"); }), building: building ? building.i : -1, pond: pondBox ? { a: Math.round(pd.A), b: Math.round(pd.B), pan: Math.round(pd.pan), W: pd.W, H: pd.H, Hf: pd.Hf, at: +pondAt(-track.getBoundingClientRect().top).toFixed(3) } : null }; } };
   }
 })();
 </script>
