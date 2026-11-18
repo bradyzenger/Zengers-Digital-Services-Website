@@ -44,9 +44,7 @@ header.top{background:var(--coal);color:var(--chalk);border-bottom:1px solid var
 @media (max-width:440px){.brand{font-size:22px;gap:8px}.brand .mark{width:28px;height:28px}.top .btn{min-height:44px;padding:.5em .85em;font-size:16px}}
 .hero{background:var(--coal);color:var(--chalk)}
 .hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(24px,4vw,56px);align-items:center;padding-block:clamp(48px,7vw,96px)}
-.kicker{font:600 17px var(--cond);letter-spacing:.14em;text-transform:uppercase;color:#C9CDD3}
-.kicker b{color:var(--signal);font-weight:700}
-.hero h1{margin-top:12px;font:700 clamp(54px,7.6vw,108px)/.92 var(--cond);text-transform:uppercase;letter-spacing:.01em}
+.hero h1{margin-top:0;font:700 clamp(54px,7.6vw,108px)/.92 var(--cond);text-transform:uppercase;letter-spacing:.01em}
 .hero p{margin-top:20px;font-size:19px;color:#C9CDD3;max-width:28em}
 .hero-cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
 .hero-img{border:1px solid var(--wire);border-radius:6px;overflow:hidden;aspect-ratio:16/10;max-width:100%}
@@ -97,6 +95,7 @@ form.ticket{background:var(--paper);border:2px solid var(--coal);border-radius:4
 .demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:4px;padding:12px 14px;font-size:15px;margin:0 clamp(18px,3vw,30px) clamp(18px,3vw,30px)}
 footer{background:#0F1114;color:#9AA1AB;padding-block:40px;font-size:15px}
 .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+.contact{font-style:normal;line-height:1.55}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:#0E1822;color:#fff;border:1px solid #F2B544;border-radius:12px;padding:12px 16px;font:500 15px/1.4 system-ui,Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 </style>
 </head>
@@ -118,9 +117,8 @@ footer{background:#0F1114;color:#9AA1AB;padding-block:40px;font-size:15px}
 <section class="hero" style="padding:0">
   <div class="wrap hero-grid">
     <div>
-      <p class="kicker">Homes and light commercial · <b>Middle Tennessee</b></p>
       <h1>Wired right the first time.</h1>
-      <p>Panel upgrades, EV chargers, lighting, and repairs. Clear pricing before we start and a clean job site when we leave.</p>
+      <p>Panel upgrades, EV chargers, lighting, and repairs for homes and light commercial work across Middle Tennessee. Clear pricing before we start and a clean job site when we leave.</p>
       <div class="hero-cta"><a class="btn btn-signal" href="#book">Book a visit</a><a class="btn btn-ghost" href="tel:+16155550187">Call now</a></div>
     </div>
     <div class="hero-img"><img src="../media/examples/electrical.svg" alt="Illustration of a house outline with glowing wiring running to a panel, an outlet and a light bulb"></div>
@@ -148,9 +146,9 @@ footer{background:#0F1114;color:#9AA1AB;padding-block:40px;font-size:15px}
     <div class="head"><h2>Your visit, start to finish</h2><p>No surprises. Here’s what happens from the moment we pull up.</p></div>
     <ol class="run">
       <li><span class="when">On arrival</span><h3>Shoe covers on</h3><p>Drop cloths down wherever we’ll work.</p></li>
-      <li><span class="when">First</span><h3>Find the fault</h3><p>We test until we know the cause, not just the symptom.</p></li>
+      <li><h3>Find the fault</h3><p>We test until we know the cause, not just the symptom.</p></li>
       <li><span class="when">Before any work</span><h3>Written price</h3><p>You see it and say yes before a single wire moves.</p></li>
-      <li><span class="when">The job</span><h3>Fix it right</h3><p>Done to code, labelled at the panel.</p></li>
+      <li><h3>Fix it right</h3><p>Done to code, labelled at the panel.</p></li>
       <li><span class="when">Before we leave</span><h3>Test and tidy</h3><p>Everything checked with you, old parts hauled away.</p></li>
     </ol>
   </div>
@@ -181,7 +179,7 @@ footer{background:#0F1114;color:#9AA1AB;padding-block:40px;font-size:15px}
 <footer>
   <div class="wrap foot">
     <span class="brand" style="color:#F3F4F1;font-size:24px">Northgate Electric</span>
-    <span>(615) 555-0187 · hello@example.com · Mon–Fri, 7am–5pm</span>
+    <address class="contact">(615) 555-0187<br>hello@example.com<br>Mon–Fri, 7am–5pm</address>
     <span>Concept website by ZENGERS Digital Services</span>
   </div>
 </footer>

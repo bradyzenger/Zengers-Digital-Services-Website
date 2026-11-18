@@ -22,13 +22,13 @@
 <link rel="apple-touch-icon" href="media/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Libre+Franklin:wght@400;500;600;700&display=swap">
 <style>
 :root{
   color-scheme:light;
   --ink:#0E1822; --dusk:#1B2B3A; --lamp:#F2B544; --lamp-text:#8A5A00; --paper:#EEF1EE; --card:#F8F9F6; --text:#15202A; --muted:#4F5D68; --mist:#AEBBC5; --line:#CCD4D2;
   --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
-  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --body:"Libre Franklin",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --gutter:clamp(16px,4vw,48px); --header-h:64px;
 }
@@ -38,7 +38,7 @@ body{margin:0;background:var(--paper);color:var(--text);font:17px/1.6 var(--body
 img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance} p{margin:0}
 :focus-visible{outline:3px solid var(--lamp);outline-offset:3px;border-radius:4px}
 .wrap{max-width:1180px;margin-inline:auto;padding-inline:var(--gutter)}
-.label{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}
+.label{font-family:var(--body);font-size:14px;font-weight:600;letter-spacing:0;text-transform:none}
 .skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--lamp);color:var(--ink);padding:10px 14px;border-radius:6px;font-weight:600;text-decoration:none}
 .skip:focus{top:10px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.75em 1.35em;border-radius:999px;font:600 16px/1.2 var(--body);text-decoration:none;border:2px solid transparent;cursor:pointer}
@@ -191,7 +191,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
   <section class="cta" aria-labelledby="cta-title">
     <div class="wrap">
       <h2 id="cta-title">Want a website for your business?</h2>
-      <a class="btn btn-primary" href="index.html#contact">Ask us a question <span aria-hidden="true">→</span></a>
+      <a class="btn btn-primary" href="index.html#contact">Ask us a question</a>
     </div>
   </section>
 </main>
