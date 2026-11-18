@@ -5,13 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fernhill Landscapes · Concept website</title>
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#23391F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Concept website: a fictional landscaping company, built by ZENGERS Digital Services as an example. */
+/* Concept website: a fictional landscaping company, built by ZENGERS Digital Services as an example.
+   Its idea: a yard is worked through the seasons and walked along a path, so the services are a year's calendar and the
+   steps are stones on a path (the path in the hero picture). */
 :root{
-  --moss:#23391F; --fern:#3F6B3A; --leaf:#6E9B5E; --lime:#C3DB7A; --meadow:#EEF3E6; --bark:#5E4A3E; --ink:#1B2419; --muted:#4D5A49; --line:#CFDAC4;
+  --moss:#23391F; --fern:#3F6B3A; --leaf:#6E9B5E; --lime:#C3DB7A; --meadow:#EEF3E6; --bark:#5E4A3E; --ink:#1B2419; --muted:#4D5A49; --line:#CFDAC4; --stone:#D9D2C3;
+  --spring:#C3DB7A; --summer:#7FB069; --fall:#D08C3A; --winter:#9DB3B8;
   --serif:"Young Serif",Georgia,"Times New Roman",serif; --sans:"Figtree",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   --g:clamp(16px,4vw,44px);
 }
@@ -19,52 +23,69 @@
 body{margin:0;background:var(--meadow);color:var(--ink);font:17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance} p{margin:0}
 :focus-visible{outline:3px solid var(--lime);outline-offset:3px;border-radius:4px}
+::selection{background:var(--lime);color:var(--moss)}
+.skip{position:absolute;left:12px;top:-60px;z-index:30;background:var(--lime);color:var(--moss);padding:10px 14px;border-radius:8px;font-weight:600;text-decoration:none}
+.skip:focus{top:12px}
 .wrap{max-width:1160px;margin-inline:auto;padding-inline:var(--g)}
-.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:10px var(--g);display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
-.concept a{color:#F2B544;text-underline-offset:3px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.7em 1.3em;border-radius:10px;font:600 16px/1.2 var(--sans);text-decoration:none;border:2px solid transparent;cursor:pointer}
+.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:8px var(--g);display:flex;justify-content:space-between;align-items:center;gap:4px 16px;flex-wrap:wrap}
+.concept a{color:#F2B544;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:48px;padding:.7em 1.3em;border-radius:10px;font:600 16px/1.2 var(--sans);text-decoration:none;border:2px solid transparent;cursor:pointer;white-space:nowrap}
 .btn-lime{background:var(--lime);color:var(--moss)} .btn-lime:hover{background:#D3E88E}
 .btn-line{border-color:rgba(255,255,255,.6);color:#fff} .btn-line:hover{border-color:#fff}
 .btn-moss{background:var(--moss);color:#fff} .btn-moss:hover{background:var(--fern)}
 header.top{background:var(--moss);color:#fff}
-.top-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;flex-wrap:wrap;padding-block:10px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-size:24px}
-.brand svg{width:34px;height:34px}
-.top nav{display:flex;gap:26px;font-weight:500} .top nav a{text-decoration:none;opacity:.9} .top nav a:hover{opacity:1;color:var(--lime)}
+.top-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:72px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-size:24px;white-space:nowrap}
+.brand svg{width:34px;height:34px;flex:none}
+.top nav{display:flex;gap:26px;font-weight:500} .top nav a{text-decoration:none;opacity:.9;padding-block:6px} .top nav a:hover{opacity:1;color:var(--lime)}
 @media (max-width:760px){.top nav{display:none}}
+@media (max-width:440px){.brand{font-size:19px;gap:8px}.brand svg{width:28px;height:28px}.top .btn{min-height:44px;padding:.5em .9em;font-size:15px}}
 .hero{position:relative;background:var(--moss);color:#fff;overflow:hidden}
 .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(24,40,21,.9) 0%,rgba(24,40,21,.62) 45%,rgba(24,40,21,0) 75%)}
-@media (max-width:760px){.hero::after{background:linear-gradient(180deg,rgba(24,40,21,.2) 0%,rgba(24,40,21,.88) 55%)}}
+@media (max-width:760px){.hero-img{object-position:68% 50%}.hero::after{background:linear-gradient(180deg,rgba(24,40,21,.05) 0%,rgba(24,40,21,.35) 30%,rgba(24,40,21,.9) 62%)}.hero .wrap{padding-top:clamp(200px,52vw,260px)!important}}
 .hero .wrap{position:relative;z-index:1;padding-block:clamp(90px,14vw,170px) clamp(64px,9vw,120px)}
 .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6vw,76px);line-height:1.02;max-width:12em}
 .hero p{margin-top:18px;font-size:clamp(18px,1.8vw,21px);max-width:30em;color:#E6EEDC}
 .hero-cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
-.eyebrow{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--fern)}
 section{padding-block:clamp(64px,9vw,110px)}
 .head{display:grid;gap:12px;max-width:40em;margin-bottom:clamp(32px,5vw,52px)}
 .head h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,50px);line-height:1.08}
 .head p{color:var(--muted)}
-.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.svc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;display:grid;gap:10px;align-content:start}
-.svc .ic{width:44px;height:44px;border-radius:12px;background:var(--meadow);display:grid;place-items:center;color:var(--fern)}
-.svc h3{font-size:20px;font-weight:700}
-.svc p{color:var(--muted);font-size:16px}
-@media (max-width:900px){.services{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:600px){.services{grid-template-columns:1fr}}
+/* The yard through the year: the services, by the season they're done in */
+.year{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.season{padding:26px 24px 30px;display:grid;gap:14px;align-content:start;border-left:1px solid var(--line);position:relative}
+.season:first-child{border-left:0}
+.season::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--c)}
+.season h3{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.season h3 small{font:600 13px/1 var(--sans);color:var(--muted);letter-spacing:.02em}
+.season ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.season li{display:grid;gap:2px}
+.season li b{font-weight:700;font-size:16.5px}
+.season li span{color:var(--muted);font-size:15.5px;line-height:1.5}
+.year-note{margin-top:22px;color:var(--muted);max-width:44em}
+@media (max-width:980px){.year{grid-template-columns:repeat(2,minmax(0,1fr))}.season:nth-child(3){border-left:0}.season:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:560px){.year{grid-template-columns:1fr}.season{border-left:0}.season+.season{border-top:1px solid var(--line)}}
+/* How it works: three stepping stones along a path */
 .band{background:var(--moss);color:#fff}
-.band .eyebrow{color:var(--lime)} .band .head p{color:#CBD9BF}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;counter-reset:s;list-style:none;margin:0;padding:0}
-.steps li{border-top:2px solid var(--lime);padding-top:18px;display:grid;gap:8px}
-.steps li::before{counter-increment:s;content:counter(s);font-family:var(--serif);font-size:40px;line-height:1;color:var(--lime)}
-.steps h3{font-size:20px} .steps p{color:#CBD9BF}
-@media (max-width:760px){.steps{grid-template-columns:1fr}}
+.band .head p{color:#CBD9BF}
+.path{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,4vw,48px);position:relative}
+.path::before{content:"";position:absolute;left:48px;right:calc((100% - 2 * clamp(20px,4vw,48px)) / 3 - 48px + 0px);top:38px;border-top:3px dotted rgba(195,219,122,.45)}
+.path li{position:relative;display:grid;gap:10px;justify-items:start}
+.stone{width:96px;height:76px;border-radius:52% 48% 46% 54% / 58% 52% 48% 42%;background:var(--stone);color:var(--moss);display:grid;place-items:center;font:400 34px/1 var(--serif);box-shadow:inset 0 -6px 0 rgba(94,74,62,.18),0 6px 0 rgba(0,0,0,.18)}
+.path li:nth-child(2) .stone{border-radius:46% 54% 52% 48% / 48% 56% 44% 52%;transform:rotate(-4deg)}
+.path li:nth-child(3) .stone{border-radius:55% 45% 50% 50% / 52% 46% 54% 48%;transform:rotate(3deg)}
+.path h3{font-size:20px;margin-top:8px} .path p{color:#CBD9BF}
+@media (max-width:760px){.path{grid-template-columns:1fr}.path::before{left:47px;right:auto;top:20px;bottom:20px;border-top:0;border-left:3px dotted rgba(195,219,122,.45)}.path li{grid-template-columns:96px 1fr;column-gap:18px;align-items:start}.path li .stone{grid-row:span 2}.path h3{margin-top:12px}}
+/* Service area and the estimate */
 .area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
-.towns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;padding:0;list-style:none}
-.towns li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:500}
+.towns{columns:2;column-gap:24px;margin:22px 0 0;padding:0;list-style:none;font-weight:500}
+.towns li{padding:9px 0;border-bottom:1px solid var(--line);break-inside:avoid;display:flex;align-items:center;gap:10px}
+.towns li::before{content:"";width:8px;height:8px;border-radius:50% 0;background:var(--leaf);transform:rotate(45deg);flex:none}
 .quote-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:clamp(22px,3vw,32px);display:grid;gap:16px}
 .quote-card h3{font-family:var(--serif);font-weight:400;font-size:28px}
 .f{display:grid;gap:6px} .f label{font-weight:600;font-size:15px}
-.f input,.f select,.f textarea{font:inherit;font-size:16px;padding:11px 12px;border:1.5px solid #B9C7AE;border-radius:10px;background:#FBFCF8;min-height:48px;width:100%}
+.f input,.f select,.f textarea{font:inherit;font-size:16px;padding:11px 12px;border:1.5px solid #B9C7AE;border-radius:10px;background:#FBFCF8;min-height:48px;width:100%;color:var(--ink)}
 .f textarea{min-height:96px}
 .demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:10px;padding:12px 14px;font-size:15px}
 @media (max-width:860px){.area{grid-template-columns:1fr}}
@@ -75,16 +96,18 @@ footer .brand{color:#fff}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to main content</a>
 <div class="concept" role="note"><span><strong>Concept website</strong> by ZENGERS Digital Services. Fernhill Landscapes is a fictional business, not a client. Buttons and forms don’t send anything.</span><a href="../index.html#examples">← All examples</a></div>
 
 <header class="top">
   <div class="wrap top-inner">
     <a class="brand" href="#"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 36C9 30 6 18 12 6c8 6 14 15 8 30z" fill="#C3DB7A"/><path d="M20 36c6-10 12-14 18-14-2 9-9 14-18 14z" fill="#6E9B5E"/><path d="M20 36V14" stroke="#23391F" stroke-width="2"/></svg>Fernhill Landscapes</a>
-    <nav aria-label="Main"><a href="#services">Services</a><a href="#process">How it works</a><a href="#area">Service area</a></nav>
+    <nav aria-label="Main"><a href="#year">Services</a><a href="#process">How it works</a><a href="#area">Service area</a></nav>
     <a class="btn btn-lime" href="#estimate">Free estimate</a>
   </div>
 </header>
 
+<main id="main">
 <section class="hero" style="padding:0">
   <img class="hero-img" src="../media/examples/landscaping.svg" alt="Illustration of a landscaped front yard with a stone path, planting beds and an oak tree">
   <div class="wrap">
@@ -97,27 +120,38 @@ footer .brand{color:#fff}
   </div>
 </section>
 
-<section id="services">
+<section id="year">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">Services</span><h2>From first sketch to weekly mowing.</h2><p>One crew for the whole yard, so nothing falls between contractors.</p></div>
-    <div class="services">
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg></span><h3>Landscape design</h3><p>A drawn plan for beds, paths, and plantings that suit your house and your soil.</p></article>
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></span><h3>Patios and walkways</h3><p>Natural stone, pavers, and gravel, set on a proper base so they stay level.</p></article>
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V10"/><path d="M12 10C12 6 9 3 5 3c0 4 3 7 7 7zM12 13c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg></span><h3>Planting</h3><p>Trees, shrubs, and perennials chosen to thrive here, not just look good at the nursery.</p></article>
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20M4 20c1-4 1-8 0-12M8 20c1-5 1-9 0-14M12 20c1-4 1-9 0-13M16 20c1-5 1-9 0-14M20 20c1-4 1-8 0-12"/></svg></span><h3>Lawn care</h3><p>Weekly mowing, edging, and seasonal feeding on a set schedule.</p></article>
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 20 4M14 4h6v6"/><path d="M4 14c3 0 6 3 6 6"/></svg></span><h3>Seasonal cleanup</h3><p>Leaves out, beds edged and mulched, perennials cut back.</p></article>
-      <article class="svc"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></span><h3>Outdoor lighting</h3><p>Low-voltage path and garden lights on a timer.</p></article>
+    <div class="head"><h2>The yard through the year.</h2><p>One crew for the whole yard, so nothing falls between contractors. Here’s what we do, and when it’s best done.</p></div>
+    <div class="year">
+      <div class="season" style="--c:var(--spring)"><h3>Spring <small>Mar–May</small></h3><ul>
+        <li><b>Planting</b><span>Trees, shrubs, and perennials chosen to thrive here, not just look good at the nursery.</span></li>
+        <li><b>Beds and mulch</b><span>Edged, weeded, and mulched before the weeds get going.</span></li>
+        <li><b>Lawn care starts</b><span>Weekly mowing and edging on a set day.</span></li></ul></div>
+      <div class="season" style="--c:var(--summer)"><h3>Summer <small>Jun–Aug</small></h3><ul>
+        <li><b>Mowing and edging</b><span>Every week, cut high in the heat so the grass holds up.</span></li>
+        <li><b>Watering checks</b><span>We spot dry patches and adjust before they brown.</span></li>
+        <li><b>Outdoor lighting</b><span>Low-voltage path and garden lights on a timer, for long evenings outside.</span></li></ul></div>
+      <div class="season" style="--c:var(--fall)"><h3>Fall <small>Sep–Nov</small></h3><ul>
+        <li><b>Seasonal cleanup</b><span>Leaves out, beds edged and mulched, perennials cut back.</span></li>
+        <li><b>Aeration and seeding</b><span>The best time to thicken a tired lawn.</span></li>
+        <li><b>Trees and bulbs</b><span>Cooler soil, easier roots: the planting season people forget.</span></li></ul></div>
+      <div class="season" style="--c:var(--winter)"><h3>Winter <small>Dec–Feb</small></h3><ul>
+        <li><b>Landscape design</b><span>A drawn plan for beds, paths, and plantings that suit your house and your soil.</span></li>
+        <li><b>Patios and walkways</b><span>Natural stone, pavers, and gravel, set on a proper base so they stay level.</span></li>
+        <li><b>Pruning</b><span>Shaping while the branches are bare.</span></li></ul></div>
     </div>
+    <p class="year-note">Want just one of these? That’s fine too. Most yards start with a single job.</p>
   </div>
 </section>
 
 <section class="band" id="process">
   <div class="wrap">
-    <div class="head"><span class="eyebrow">How it works</span><h2>Three steps to a finished yard.</h2><p>You’ll know the plan and the price before any work starts.</p></div>
-    <ol class="steps">
-      <li><h3>Walk the yard</h3><p>We visit, measure, and listen to how you want to use the space.</p></li>
-      <li><h3>Plan and price</h3><p>You get a drawing and a written estimate, line by line.</p></li>
-      <li><h3>Build and care</h3><p>Our crew installs it, then keeps it looking right if you want ongoing care.</p></li>
+    <div class="head"><h2>Three steps to a finished yard.</h2><p>You’ll know the plan and the price before any work starts.</p></div>
+    <ol class="path">
+      <li><span class="stone" aria-hidden="true">1</span><h3>Walk the yard</h3><p>We visit, measure, and listen to how you want to use the space.</p></li>
+      <li><span class="stone" aria-hidden="true">2</span><h3>Plan and price</h3><p>You get a drawing and a written estimate, line by line.</p></li>
+      <li><span class="stone" aria-hidden="true">3</span><h3>Build and care</h3><p>Our crew installs it, then keeps it looking right if you want ongoing care.</p></li>
     </ol>
   </div>
 </section>
@@ -125,8 +159,7 @@ footer .brand{color:#fff}
 <section id="area">
   <div class="wrap area">
     <div>
-      <span class="eyebrow">Service area</span>
-      <div class="head" style="margin:12px 0 0"><h2>Close to home.</h2><p>We work within about 30 miles of our yard. Not sure if you’re in range? Ask.</p></div>
+      <div class="head" style="margin:0"><h2>Close to home.</h2><p>We work within about 30 miles of our yard. Not sure if you’re in range? Ask in the form.</p></div>
       <ul class="towns"><li>Brentwood</li><li>Franklin</li><li>Nolensville</li><li>Spring Hill</li><li>Thompson’s Station</li><li>Arrington</li></ul>
     </div>
     <form class="quote-card" id="estimate" novalidate>
@@ -140,6 +173,7 @@ footer .brand{color:#fff}
     </form>
   </div>
 </section>
+</main>
 
 <footer>
   <div class="wrap foot">

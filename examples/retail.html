@@ -5,74 +5,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Marigold &amp; Mill · Concept website</title>
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3E2240">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
 <style>
-/* Concept website: a fictional home goods and gift shop, built by ZENGERS Digital Services as an example. */
+/* Concept website: a fictional home goods and gift shop, built by ZENGERS Digital Services as an example.
+   Its idea: the shop's own furniture. Arched windows for the categories, the wooden shelf from the hero picture for
+   what's new (each piece with a hang tag), and a class ticket with a tear-off stub for the candle night. */
 :root{
-  --plum:#3E2240; --plum-2:#5A3559; --blush:#EBD3CB; --rose:#F6E9E4; --ochre:#C8902E; --sage:#7C8C6B; --ivory:#FBF6F2; --ink:#2A1A2B; --muted:#6A5667; --line:#E5D2CC;
+  --plum:#3E2240; --plum-2:#5A3559; --blush:#EBD3CB; --rose:#F6E9E4; --ochre:#C8902E; --ochre-text:#8A5C12; --sage:#7C8C6B; --ivory:#FBF6F2; --ink:#2A1A2B; --muted:#6A5667; --line:#E5D2CC; --shelf:#8B5A3C;
   --serif:"Cormorant Garamond",Garamond,Georgia,serif; --sans:"Jost",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  --g:clamp(16px,4vw,44px);
+  --g:clamp(16px,4vw,44px); --maxw:1160px;
 }
 *{box-sizing:border-box} html{scroll-behavior:smooth} @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--ivory);color:var(--ink);font:17px/1.65 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:balance;font-weight:500} p{margin:0}
 :focus-visible{outline:3px solid var(--ochre);outline-offset:3px;border-radius:3px}
-.wrap{max-width:1160px;margin-inline:auto;padding-inline:var(--g)}
-.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:10px var(--g);display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
-.concept a{color:#F2B544;text-underline-offset:3px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.75em 1.5em;border-radius:999px;font:500 15px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1.5px solid transparent;cursor:pointer}
+::selection{background:var(--blush);color:var(--plum)}
+.skip{position:absolute;left:12px;top:-60px;z-index:30;background:var(--plum);color:var(--ivory);padding:10px 16px;border-radius:999px;text-decoration:none}
+.skip:focus{top:12px}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--g)}
+.concept{background:#0E1822;color:#EEF1EE;font:500 13.5px/1.4 system-ui,-apple-system,Arial,sans-serif;padding:8px var(--g);display:flex;justify-content:space-between;align-items:center;gap:4px 16px;flex-wrap:wrap}
+.concept a{color:#F2B544;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.75em 1.5em;border-radius:999px;font:500 15px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1.5px solid transparent;cursor:pointer;white-space:nowrap}
 .btn-plum{background:var(--plum);color:var(--ivory)} .btn-plum:hover{background:var(--plum-2)}
 .btn-line{border-color:var(--plum);color:var(--plum)} .btn-line:hover{background:var(--plum);color:var(--ivory)}
 header.top{border-bottom:1px solid var(--line);background:var(--ivory)}
 .top-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:78px}
 .top nav{display:flex;gap:24px;font-size:14px;letter-spacing:.12em;text-transform:uppercase}
-.top nav a{text-decoration:none} .top nav a:hover{color:var(--ochre)}
-.brand{font:600 30px/1 var(--serif);text-decoration:none;text-align:center;color:var(--plum)}
+.top nav a{text-decoration:none;padding-block:8px} .top nav a:hover{color:var(--ochre-text)}
+.brand{font:600 30px/1 var(--serif);text-decoration:none;text-align:center;color:var(--plum);white-space:nowrap}
 .brand em{font-style:italic;color:var(--ochre)}
 .top .right{justify-self:end}
-@media (max-width:760px){.top-inner{grid-template-columns:1fr auto}.top nav{display:none}.brand{text-align:left}}
-.hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);min-height:min(78vh,720px)}
-.hero-copy{display:flex;flex-direction:column;justify-content:center;gap:20px;padding:clamp(40px,6vw,80px) var(--g);background:var(--rose)}
-.hero small{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:760px){.top-inner{grid-template-columns:1fr auto}.top nav{display:none}.brand{text-align:left;font-size:27px}}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:min(78vh,720px)}
+.hero-copy{display:flex;flex-direction:column;justify-content:center;gap:20px;padding:clamp(40px,6vw,80px) clamp(24px,4vw,56px) clamp(40px,6vw,80px) max(var(--g),calc((100vw - var(--maxw)) / 2 + var(--g)));background:var(--rose)}
+.hero small{font-size:13.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .hero h1{font:500 clamp(46px,6vw,84px)/1 var(--serif);color:var(--plum)}
 .hero h1 em{color:var(--ochre)}
 .hero p{max-width:26em;color:var(--muted)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px}
 .hero-img{position:relative;min-height:340px}
 .hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-@media (max-width:860px){.hero{grid-template-columns:1fr}.hero-img{order:-1;min-height:300px}}
+@media (max-width:860px){.hero{grid-template-columns:1fr}.hero-img{order:-1;min-height:300px}.hero-copy{padding-inline:var(--g)}}
 section{padding-block:clamp(64px,9vw,110px)}
 .head{text-align:center;display:grid;gap:10px;justify-items:center;margin-bottom:clamp(30px,5vw,52px)}
-.head small{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre)}
 .head h2{font:500 clamp(36px,4.4vw,56px)/1.05 var(--serif);color:var(--plum)}
 .head p{color:var(--muted);max-width:34em}
+/* Shop by category: four arched windows */
 .cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-.cat{display:grid;gap:12px;text-decoration:none}
+.cat{display:grid;gap:12px}
 .cat .art{aspect-ratio:4/5;border-radius:200px 200px 12px 12px;display:grid;place-items:end center;padding-bottom:18%;overflow:hidden}
 .cat h3{font:500 26px/1.1 var(--serif);text-align:center}
 .cat p{text-align:center;color:var(--muted);font-size:15px}
-.cat:hover h3{color:var(--ochre)}
 @media (max-width:900px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* New on the shelf this week: pieces on a wooden shelf, each with a hang tag */
+.new{background:var(--rose);border-block:1px solid var(--line)}
+.shelf-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,3vw,36px);align-items:end;padding-inline:clamp(8px,2vw,24px);position:relative}
+.shelf-row::after{content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;background:var(--shelf);border-radius:2px;box-shadow:0 10px 18px rgba(62,34,64,.18)}
+.piece{display:grid;justify-items:center;position:relative}
+.piece svg{display:block;width:min(100%,var(--w,150px));height:auto}
+.tag{position:absolute;left:50%;bottom:-66px;background:var(--ivory);border:1px solid var(--line);border-radius:3px 10px 10px 3px;padding:6px 12px 6px 18px;font:500 14.5px/1.25 var(--sans);color:var(--plum);transform:translateX(-50%) rotate(var(--r,2deg));box-shadow:0 3px 8px rgba(62,34,64,.12);white-space:nowrap}   /* a label on the shelf's edge, under its piece */
+.tag::before{content:"";position:absolute;left:6px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--ivory);border:1px solid var(--muted)}
+.tag em{display:block;font-style:normal;color:var(--muted);font-size:12.5px}
+.piece:nth-child(2) .tag{--r:-2deg} .piece:nth-child(3) .tag{--r:1deg} .piece:nth-child(4) .tag{--r:-1.5deg}
+.new-note{text-align:center;color:var(--muted);margin-top:96px}
+@media (max-width:760px){.shelf-row{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:96px}.shelf-row::after{display:none}.piece{border-bottom:12px solid var(--shelf)}.tag{font-size:13px;white-space:normal;width:max-content;max-width:150px;text-align:center}.new-note{margin-top:110px}}
 .visit{background:var(--plum);color:var(--ivory)}
 .visit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,4vw,48px)}
 .visit h2{font:500 clamp(36px,4.4vw,56px)/1.05 var(--serif)}
 .visit h3{font:500 24px var(--serif);color:var(--blush);margin-bottom:8px}
 .visit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;font-variant-numeric:tabular-nums}
 .visit dt{color:var(--blush)} .visit dd{margin:0}
+.visit a{display:inline-block;padding-block:2px}
 @media (max-width:860px){.visit-grid{grid-template-columns:1fr}}
-.event{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:center}
-.event .date{font:600 15px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ochre)}
-.event h2{font:500 clamp(34px,4vw,50px)/1.05 var(--serif);color:var(--plum);margin-top:8px}
-.event p{color:var(--muted);margin-top:12px}
-form.signup{background:var(--rose);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,3vw,32px);display:grid;gap:14px}
-.f{display:grid;gap:6px} .f label{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.f input,.f select{font:inherit;font-size:16px;padding:11px 14px;border:1.5px solid #D9BFB7;border-radius:999px;background:#fff;min-height:48px;width:100%}
-.demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:12px;padding:12px 14px;font-size:15px}
-@media (max-width:860px){.event{grid-template-columns:1fr}}
-.gift{border-top:1px solid var(--line);text-align:center}
-.gift .wrap{display:grid;gap:18px;justify-items:center}
+/* Candle-pouring night: a class ticket with a tear-off stub */
+.ticket{display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,3.2fr);background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(62,34,64,.08)}
+.stub{background:var(--plum);color:var(--ivory);padding:clamp(22px,3vw,34px);display:grid;align-content:space-between;gap:20px;position:relative;border-right:2px dashed rgba(251,246,242,.55)}
+.stub .day{font:500 15px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--blush)}
+.stub .time{font:500 clamp(38px,4vw,52px)/1 var(--serif)}
+.stub .seats{font-size:15px;color:var(--blush)}
+.ticket-main{padding:clamp(22px,3vw,36px);display:grid;gap:18px}
+.ticket-main h2{font:500 clamp(34px,4vw,50px)/1.05 var(--serif);color:var(--plum)}
+.ticket-main > p{color:var(--muted)}
+.signup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:14px;align-items:end}
+.f{display:grid;gap:6px} .f label{font-size:15px;color:var(--muted)}
+.f input,.f select{font:inherit;font-size:16px;padding:11px 14px;border:1.5px solid #D9BFB7;border-radius:10px;background:var(--ivory);min-height:48px;width:100%;color:var(--ink)}
+.demo-note{background:#FFF3D6;border:1px solid #C98A1B;color:#5C3D00;border-radius:12px;padding:12px 14px;font-size:15px;grid-column:1 / -1}
+@media (max-width:980px){.signup{grid-template-columns:repeat(2,minmax(0,1fr))}.signup .btn{grid-column:1 / -1}}
+@media (max-width:640px){.ticket{grid-template-columns:1fr}.stub{border-right:0;border-bottom:2px dashed rgba(251,246,242,.55);grid-template-columns:1fr auto;align-items:end}.signup{grid-template-columns:1fr}}
+.gift{text-align:center;padding-top:0}
+.gift .wrap{display:grid;gap:18px;justify-items:center;border-top:1px solid var(--line);padding-top:clamp(56px,8vw,96px)}
 footer{background:var(--ink);color:#CDBFCB;padding-block:40px;font-size:15px}
 .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
 footer .brand{color:var(--ivory);font-size:24px}
@@ -80,6 +104,7 @@ footer .brand{color:var(--ivory);font-size:24px}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to main content</a>
 <div class="concept" role="note"><span><strong>Concept website</strong> by ZENGERS Digital Services. Marigold &amp; Mill is a fictional shop, not a client. Buttons and forms don’t send or sell anything.</span><a href="../index.html#examples">← All examples</a></div>
 
 <header class="top">
@@ -90,25 +115,39 @@ footer .brand{color:var(--ivory);font-size:24px}
   </div>
 </header>
 
+<main id="main">
 <section class="hero" style="padding:0">
   <div class="hero-copy">
-    <small>Home goods · Gifts · Small-batch makers</small>
+    <small>Home goods and gifts · Middle Tennessee</small>
     <h1>Handmade things for <em>everyday</em> rooms.</h1>
-    <p>Ceramics, candles, linen, and gifts from makers across the South. Come in and look around.</p>
-    <div class="hero-cta"><a class="btn btn-plum" href="#shop">Browse the shop</a><a class="btn btn-line" href="#visit">Hours and directions</a></div>
+    <p>Ceramics, candles, linen, and gifts from small-batch makers across the South. Come in and look around.</p>
+    <div class="hero-cta"><a class="btn btn-plum" href="#new">What’s new</a><a class="btn btn-line" href="#visit">Hours and directions</a></div>
   </div>
   <div class="hero-img"><img src="../media/examples/retail.svg" alt="Illustration of a shop wall with an arched window and shelves of vases, mugs, candles, linen and a wrapped gift"></div>
 </section>
 
 <section id="shop">
   <div class="wrap">
-    <div class="head"><small>In the shop</small><h2>Shop by category</h2><p>New pieces arrive most weeks. What’s on the shelf is what’s in stock.</p></div>
+    <div class="head"><h2>Shop by category</h2><p>What’s on the shelf is what’s in stock, so come in and see it. New pieces arrive most weeks.</p></div>
     <div class="cats">
-      <a class="cat" href="#visit"><span class="art" style="background:#EBD3CB"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><path d="M20 120c-18-30-14-70 10-86h30c24 16 28 56 10 86z" fill="#3E2240"/></svg></span><h3>Ceramics</h3><p>Mugs, vases, and serving bowls</p></a>
-      <a class="cat" href="#visit"><span class="art" style="background:#F2E1C4"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><rect x="22" y="40" width="46" height="80" rx="8" fill="#C8902E"/><path d="M45 38c-7-10 0-22 0-22s7 12 0 22z" fill="#FFB84D"/></svg></span><h3>Candles</h3><p>Soy candles poured in small batches</p></a>
-      <a class="cat" href="#visit"><span class="art" style="background:#DDE3D3"><svg width="110" height="90" viewBox="0 0 110 90" aria-hidden="true"><rect y="10" width="110" height="24" rx="6" fill="#FBF6F2"/><rect x="6" y="36" width="100" height="24" rx="6" fill="#7C8C6B"/><rect y="62" width="110" height="24" rx="6" fill="#EBD3CB"/></svg></span><h3>Linen</h3><p>Tea towels, napkins, and throws</p></a>
-      <a class="cat" href="#visit"><span class="art" style="background:#E8D5E3"><svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true"><rect x="10" y="36" width="80" height="64" rx="4" fill="#C9A77D"/><path d="M50 36v64M10 66h80" stroke="#3E2240" stroke-width="5"/><path d="M50 36c-26-26-34-6-20 0 10 4 20 0 20 0s10 4 20 0c14-6 6-26-20 0z" fill="none" stroke="#3E2240" stroke-width="5"/></svg></span><h3>Gifts</h3><p>Wrapped for free at the counter</p></a>
+      <div class="cat"><span class="art" style="background:#EBD3CB"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><path d="M20 120c-18-30-14-70 10-86h30c24 16 28 56 10 86z" fill="#3E2240"/></svg></span><h3>Ceramics</h3><p>Mugs, vases, and serving bowls</p></div>
+      <div class="cat"><span class="art" style="background:#F2E1C4"><svg width="90" height="120" viewBox="0 0 90 120" aria-hidden="true"><rect x="22" y="40" width="46" height="80" rx="8" fill="#C8902E"/><path d="M45 38c-7-10 0-22 0-22s7 12 0 22z" fill="#FFB84D"/></svg></span><h3>Candles</h3><p>Soy candles poured in small batches</p></div>
+      <div class="cat"><span class="art" style="background:#DDE3D3"><svg width="110" height="90" viewBox="0 0 110 90" aria-hidden="true"><rect y="10" width="110" height="24" rx="6" fill="#FBF6F2"/><rect x="6" y="36" width="100" height="24" rx="6" fill="#7C8C6B"/><rect y="62" width="110" height="24" rx="6" fill="#EBD3CB"/></svg></span><h3>Linen</h3><p>Tea towels, napkins, and throws</p></div>
+      <div class="cat"><span class="art" style="background:#E8D5E3"><svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true"><rect x="10" y="36" width="80" height="64" rx="4" fill="#C9A77D"/><path d="M50 36v64M10 66h80" stroke="#3E2240" stroke-width="5"/><path d="M50 36c-26-26-34-6-20 0 10 4 20 0 20 0s10 4 20 0c14-6 6-26-20 0z" fill="none" stroke="#3E2240" stroke-width="5"/></svg></span><h3>Gifts</h3><p>Wrapped for free at the counter</p></div>
     </div>
+  </div>
+</section>
+
+<section class="new" id="new">
+  <div class="wrap">
+    <div class="head"><h2>New on the shelf this week</h2><p>A few of the pieces that came in since last Tuesday.</p></div>
+    <div class="shelf-row">
+      <div class="piece"><svg style="--w:120px" width="120" height="130" viewBox="0 0 120 130" aria-hidden="true"><path d="M30 130c-12-34-8-70 14-92h32c22 22 26 58 14 92z" fill="#7C8C6B"/><path d="M44 38c0-10 32-10 32 0" fill="none" stroke="#5E6B50" stroke-width="5"/><g fill="#FBF6F2" opacity=".55"><circle cx="50" cy="70" r="3"/><circle cx="68" cy="88" r="2.5"/><circle cx="58" cy="104" r="3"/><circle cx="74" cy="64" r="2"/></g></svg><p class="tag">Bud vase <em>sage glaze</em></p></div>
+      <div class="piece"><svg style="--w:150px" width="130" height="100" viewBox="0 0 130 100" aria-hidden="true"><path d="M20 20h70v62a18 18 0 0 1-18 18H38a18 18 0 0 1-18-18z" fill="#FBF6F2" stroke="#D9BFB7" stroke-width="3"/><path d="M90 36h8a16 16 0 0 1 0 32h-8" fill="none" stroke="#D9BFB7" stroke-width="8"/><g fill="#6A5667" opacity=".5"><circle cx="40" cy="44" r="2.5"/><circle cx="62" cy="58" r="2.5"/><circle cx="48" cy="74" r="2"/><circle cx="72" cy="38" r="2"/></g></svg><p class="tag">Speckled mug <em>hand-thrown</em></p></div>
+      <div class="piece"><svg style="--w:105px" width="100" height="140" viewBox="0 0 100 140" aria-hidden="true"><rect x="20" y="46" width="60" height="94" rx="8" fill="#3E2240"/><rect x="20" y="78" width="60" height="30" fill="#EBD3CB"/><path d="M50 42c-8-12 0-26 0-26s8 14 0 26z" fill="#FFB84D"/></svg><p class="tag">Fig and cedar candle <em>poured here</em></p></div>
+      <div class="piece"><svg style="--w:170px" width="140" height="90" viewBox="0 0 140 90" aria-hidden="true"><rect x="10" y="30" width="120" height="60" rx="6" fill="#E9DCC8"/><path d="M10 46h120M10 74h120" stroke="#C9B79C" stroke-width="3"/><rect x="18" y="10" width="104" height="26" rx="6" fill="#C8902E" opacity=".85"/></svg><p class="tag">Linen tea towels <em>oat and ochre</em></p></div>
+    </div>
+    <p class="new-note">Want one held for you? Call the shop and we’ll put it behind the counter for a week.</p>
   </div>
 </section>
 
@@ -128,28 +167,31 @@ footer .brand{color:var(--ivory);font-size:24px}
 </section>
 
 <section id="events">
-  <div class="wrap event">
-    <div>
-      <p class="date">Thursday evenings</p>
-      <h2>Candle-pouring night</h2>
-      <p>Pour your own soy candle, pick a scent, and take it home the same night. Supplies included. Eight seats per class.</p>
+  <div class="wrap">
+    <div class="ticket">
+      <div class="stub"><span class="day">Thursdays</span><span class="time">6–8 pm</span><span class="seats">Eight seats a class</span></div>
+      <div class="ticket-main">
+        <h2>Candle-pouring night</h2>
+        <p>Pour your own soy candle, pick a scent, and take it home the same night. Supplies included.</p>
+        <form class="signup" novalidate>
+          <div class="f"><label for="r-name">Name</label><input id="r-name" autocomplete="off"></div>
+          <div class="f"><label for="r-email">Email</label><input id="r-email" type="email" autocomplete="off"></div>
+          <div class="f"><label for="r-date">Class</label><select id="r-date"><option>Next Thursday</option><option>The Thursday after</option></select></div>
+          <button class="btn btn-plum" type="submit">Save my seat</button>
+          <p class="demo-note" hidden>Sample form: nothing was sent. On a real site, this sign-up would go straight to the shop.</p>
+        </form>
+      </div>
     </div>
-    <form class="signup" novalidate>
-      <div class="f"><label for="r-name">Name</label><input id="r-name" autocomplete="off"></div>
-      <div class="f"><label for="r-email">Email</label><input id="r-email" type="email" autocomplete="off"></div>
-      <div class="f"><label for="r-date">Class</label><select id="r-date"><option>Next Thursday</option><option>The Thursday after</option></select></div>
-      <button class="btn btn-plum" type="submit">Save my seat</button>
-      <p class="demo-note" hidden>Sample form: nothing was sent. On a real site, this sign-up would go straight to the shop.</p>
-    </form>
   </div>
 </section>
 
 <section class="gift">
   <div class="wrap">
-    <div class="head" style="margin:0"><small>Gift cards</small><h2>Not sure what to pick?</h2><p>Gift cards in any amount, good in the shop and at events.</p></div>
+    <div class="head" style="margin:0"><h2>Not sure what to pick?</h2><p>Gift cards in any amount, good in the shop and at events.</p></div>
     <button class="btn btn-plum" type="button" data-demo>Buy a gift card</button>
   </div>
 </section>
+</main>
 
 <footer>
   <div class="wrap foot">
