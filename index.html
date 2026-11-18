@@ -4643,6 +4643,10 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     function onScroll(){
       var y = window.scrollY, dy = y - lastY;
       if (sizing) { lastY = y; kick(); return; }          // the window is changing size: the browser moving the page, not the visitor
+      if (mode === "room" || mode === "move") {           // inside a house (or flying between them) the page stays at the street: a finger on an iPhone or iPad (Safari scrolls the page despite the lock) or a trackpad's momentum used to carry it off, and Back to the street then landed wherever it had drifted, often the film (Jason, 2026-11-18)
+        if (Math.abs(-track.getBoundingClientRect().top - st0) > 1) toTop(st0);
+        lastY = window.scrollY; kick(); return;
+      }
       if (flight) { clearTimeout(flightT); flightT = setTimeout(landed, 200); }   // a scroll the visitor didn't make, passing through: leave it be
       else if (!auto && !glideAnim && !mouseHeld && mode === "scroll") {   // dragging the scroll bar just scrubs
         if (Math.abs(dy) > .5) dirY = dy > 0 ? 1 : -1;
@@ -4762,6 +4766,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       if (mode === "move") { if (move.kind === "in") { var i = move.i, S = move.S; startMove("out", S, i, move.k, 0, MOVE.out, [i], function(){ toStreet(true); next2(); }); } else queued = -1; return; }   // turn round mid-way in
       if (mode !== "room") return;
       var j = inRoom;
+      toTop(st0);                                          // out to the street, from the street, wherever the page had got to
       if (!animate) { toStreet(true); return; }
       pageFor(j, true);
       startMove("out", street(panX), j, 1, 0, MOVE.out, [j], function(){ toStreet(true); next2(); });
