@@ -488,19 +488,29 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
    the block's .ab-side (the Z in the first block). The heading size fills the half: "PLACEHOLDER" is 4.77 times its
    size wide. Narrower screens keep the centred words. */
 @media (min-width:900px){
-  .ab-text{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
-  .ab-block{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(32px,4vw,64px);align-items:center;align-content:center;text-align:left}
-  .ab-copy{grid-column:1;grid-row:1}
-  .ab-side{grid-column:2;grid-row:1;justify-self:center}
-  .ab-logo{order:0;width:min(100%,480px);margin:0}
-  .ab-logo.ab-lockup{width:min(100%,560px)}
-  .ab-photo{order:0;width:min(100%,380px,calc(50vh - 44px));width:min(100%,380px,calc(50lvh - 44px));margin:0}
-  .ab-logo.ab-puzzle,.ab-logo.ab-target{width:min(100%,360px,calc(50vh - 60px));width:min(100%,360px,calc(50lvh - 60px))}   /* fits the clear band with room to spare, even on a short laptop screen */
-  .ab-block h3{font-size:clamp(48px,4.6vw,68px)}   /* (two lines at most in the half: “ZENGERS Digital / Services”, “What makes us / different”) */
-  .ab-block p{max-width:none;margin:.55em 0 0;font-size:clamp(17px,1.3vw,20px)}
-  .ab-block .ab-lead{max-width:none;font-size:clamp(21px,1.75vw,26px)}   /* a paragraph of about 110 words fits a laptop's screen, about 50 letters a line */
-  /* (.ab-fit and --fit on the headings sized the old condensed headings to the half; Nunito's set at one size, wrapping) */
+  /* From 900 px wide, the product show (Jason, 2026-11-18, after dialedcoffee.com): each block is a giant glass heading
+     across the whole column (--fit on each heading: its longest line's width in ems, Nunito 900, measured; "ZENGERS
+     Digital / Services" and "What makes / us different" on two lines), the lead and paragraphs in half the column under
+     it, and the object on the other side; the sides alternate block to block, so the objects cross the screen as one
+     flies out and the next flies in (the "About" script's SHOW). The object's box here sets its size and its side; with
+     the glass it's pinned to the screen while the words scroll past, so each block is taller than the screen to give it
+     time. Without WebGL 2 the box is simply where the picture sits. */
+  .ab-text{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter);container-type:inline-size}
+  .ab-block{position:relative;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(20px,2.4vw,40px);align-items:start;align-content:start;text-align:left;min-height:150vh;min-height:150lvh;padding:calc(var(--header-h) + 6vh) 0 16vh;padding:calc(var(--header-h) + 6lvh) 0 16lvh}
+  .ab-copy{display:contents}
+  .ab-block h3{grid-column:1 / -1;font-size:min(208px,calc(97cqw / var(--fit,6)));line-height:.95;letter-spacing:-.02em;text-wrap:wrap;margin:0 0 .14em}
+  .ab-block p{grid-column:1 / span 6;max-width:none;margin:.6em 0 0;font-size:clamp(17px,1.3vw,20px)}
+  .ab-block .ab-lead{font-size:clamp(22px,1.9vw,29px);margin-top:.2em}
+  .ab-side{position:absolute;top:calc(var(--header-h) + 30vh);top:calc(var(--header-h) + 30lvh);left:57%;right:0;margin:0 auto}
+  .ab-block:nth-of-type(even) h3{text-align:right}
+  .ab-block:nth-of-type(even) p{grid-column:7 / -1}
+  .ab-block:nth-of-type(even) .ab-side{left:0;right:57%}
+  .ab-logo{order:0;width:min(50%,600px)}
+  .ab-logo.ab-lockup{width:min(43%,600px)}   /* (inside its half; on show it's drawn larger: SHOW.size in the "About" script) */
+  .ab-photo{order:0;width:min(44%,480px,calc(58vh - 40px));width:min(44%,480px,calc(58lvh - 40px))}
+  .ab-logo.ab-puzzle,.ab-logo.ab-target{width:min(42%,470px,calc(58vh - 50px));width:min(42%,470px,calc(58lvh - 50px))}
 }
+
 
 /* ---------- the film (pinned scroll section) ---------- */
 html.film-wait .film .beat:not(.hero-block){visibility:hidden}   /* until the film script has placed them (see the <head>) */
@@ -1123,17 +1133,17 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
   </div>
   <div class="ab-text">
     <h2 class="sr-only" id="about-title">About us</h2>
-    <div class="ab-block"><div class="ab-copy"><h3>ZENGERS</h3><p class="ab-lead">At ZENGERS, we are in the business of serving our clients well and earning their trust.</p><p>This family legacy has been consistent <strong>since 1951</strong> whether supplying power tools, installing robotic tool crib stations or NOW: powering your business online with websites we build and manage for you.</p><p>As we enter our 4th generation, you can depend on us to take your business needs and your success seriously so you can win.</p><p>We supply a wide range of industrial products, metalworking tooling, electrical supplies, contractor tools, safety/PPE and integrated services along with knowledge and inspiration to meaningfully improve the lives of those who make, build, and create great things for our country.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:4.571">ZENGERS</h3><p class="ab-lead">At ZENGERS, we are in the business of serving our clients well and earning their trust.</p><p>This family legacy has been consistent <strong>since 1951</strong> whether supplying power tools, installing robotic tool crib stations or NOW: powering your business online with websites we build and manage for you.</p><p>As we enter our 4th generation, you can depend on us to take your business needs and your success seriously so you can win.</p><p>We supply a wide range of industrial products, metalworking tooling, electrical supplies, contractor tools, safety/PPE and integrated services along with knowledge and inspiration to meaningfully improve the lives of those who make, build, and create great things for our country.</p></div>
       <div class="ab-side ab-logo" aria-hidden="true"><svg viewBox="0 0 1000 587.2" focusable="false"><polygon fill="#101113" points="313.5,0.0 1000.0,0.0 609.2,390.8 471.5,390.8 764.6,97.7 215.8,97.7"/><polygon fill="#11448E" points="686.5,587.2 0.0,587.2 390.8,196.4 528.5,196.4 235.4,489.5 784.2,489.5"/></svg></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.876">ZENGERS Digital Services</h3><p class="ab-lead">ZENGERS Digital Services provides custom web design, functionality, and peace of mind to your online business.</p><p>We collaborate on the design with you, make mockups, handle integrations, and build your website. We will make your website look great no matter what plan you pick, so you can forget about AI slop or generic templates.</p><p>After the design is finished, we build the features into your website and walk through the domain and domain ownership with you. You don’t have to stress or even know what anything means. We handle everything about your website.</p><p>After the website is finished and goes live, all you have to do is <strong>text or email us and we will update your site</strong>, based on your plan.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:8.013">ZENGERS Digital Services</h3><p class="ab-lead">ZENGERS Digital Services provides custom web design, functionality, and peace of mind to your online business.</p><p>We collaborate on the design with you, make mockups, handle integrations, and build your website. We will make your website look great no matter what plan you pick, so you can forget about AI slop or generic templates.</p><p>After the design is finished, we build the features into your website and walk through the domain and domain ownership with you. You don’t have to stress or even know what anything means. We handle everything about your website.</p><p>After the website is finished and goes live, all you have to do is <strong>text or email us and we will update your site</strong>, based on your plan.</p></div>
       <div class="ab-side ab-logo ab-lockup" aria-hidden="true"><svg viewBox="0 0 10000 1666" focusable="false"><g fill="#0A2A5C"><path d="M1186,1064l376,6 1061,-1070 -1891,1 -350,380 1480,-32z"/><path d="M1318,630l-353,-21 -965,1030 2071,27 345,-339 -1737,1z"/></g><g fill="#0A2A5C"><path d="M3340,216l16,-3 698,-1 108,8 9,4 4,19 -1,52 -4,10 -15,17 -113,101 -376,318 -12,15 1,5 16,4 62,-5 73,-2 377,11 6,4 3,16 0,96 -4,16 -314,3 -186,-4 -360,5 -10,-1 -4,-8 3,-61 4,-12 7,-10 141,-120 56,-42 101,-85 130,-115 95,-81 5,-7 -5,-4 -28,-1 -163,1 -309,-10 -9,-6 -3,-11 -2,-106z"/><path d="M4376,219l5,-2 185,-5 428,0 113,9 4,2 3,9 -11,34 -33,78 -3,6 -11,5 -248,5 -157,8 -89,-3 -3,3 -2,11 2,101 4,10 71,-2 152,1 73,4 214,3 10,5 -52,114 -9,11 -320,9 -57,4 -83,-2 -4,12 0,95 5,12 189,-2 242,5 130,9 5,4 2,12 0,90 -3,21 -9,4 -18,1 -338,3 -208,-8 -141,-2 -27,-4 -9,-10 -5,-28 -10,-321 10,-304z"/><path d="M5300,224l15,-5 136,2 21,11 70,62 291,274 101,86 5,-6 1,-17 -3,-202 10,-168 -1,-39 11,-5 56,-2 91,4 6,7 2,29 11,304 -4,95 -3,243 -3,4 -9,2 -119,0 -22,-2 -17,-8 -28,-20 -74,-65 -288,-261 -77,-72 -4,10 0,130 -8,286 -17,4 -112,1 -39,-3 -4,-7 -6,-360 2,-180z"/><path d="M6436,258l44,-20 39,-13 51,-11 74,-7 197,0 229,15 9,10 -2,17 -39,92 -11,10 -389,14 -50,10 -46,21 -29,22 -17,23 -16,33 -13,50 0,74 13,50 20,40 35,34 41,21 28,9 40,6 243,-1 30,-7 14,-11 3,-45 0,-40 -4,-11 -230,-7 -10,-2 -3,-4 2,-12 51,-109 16,-5 158,-1 202,4 5,12 -3,68 0,180 -5,29 -9,22 -15,22 -17,17 -23,16 -39,18 -71,17 -132,6 -179,-1 -68,-7 -58,-13 -55,-24 -28,-16 -51,-41 -34,-40 -25,-44 -20,-49 -11,-58 -6,-68 4,-57 12,-51 17,-44 21,-39 31,-41 34,-33z"/><path d="M7296,219l294,-7 337,0 97,8 6,7 -2,11 -44,105 -12,11 -399,13 -85,-3 -14,5 -2,26 2,85 4,10 207,-2 237,10 56,-2 6,3 1,4 -4,16 -40,85 -14,21 -326,11 -124,-1 -6,3 -2,10 0,79 1,23 7,7 96,-3 107,1 281,9 73,6 6,3 2,16 -2,112 -11,3 -276,0 -451,-12 -9,-8 -4,-21 -10,-321 6,-164 7,-106 -1,-45z"/><path d="M8221,221l162,-3 74,-5 349,0 68,12 50,20 22,13 28,25 23,28 18,34 10,33 8,39 0,86 -7,34 -12,31 -14,25 -20,24 -21,20 -19,12 -33,15 -51,13 -6,6 -1,6 19,27 73,89 67,71 5,9 -1,7 -11,9 -32,4 -142,-2 -9,-7 -181,-201 -17,-4 -113,4 -96,-4 -15,2 -3,6 -4,187 -4,14 -7,3 -34,1 -101,-1 -22,-2 -4,-10 -3,-45 -8,-265 0,-112 10,-237zM8396,368l-2,4 0,23 4,136 4,10 223,2 153,-5 27,-11 17,-13 11,-18 8,-27 0,-30 -6,-22 -7,-14 -23,-20 -32,-12 -46,-2 -259,0 -62,-4z"/><path d="M9279,257l39,-19 39,-13 61,-11 29,-2 445,0 83,4 3,5 -3,11 -55,109 -11,11 -253,8 -220,10 -26,9 -19,14 -7,13 -2,23 2,18 8,14 15,13 17,7 46,6 129,2 187,7 67,12 56,25 28,20 15,17 24,37 14,30 10,69 -6,50 -11,34 -12,24 -16,20 -40,35 -34,17 -67,16 -74,2 -388,-7 -119,1 -22,-4 -5,-7 11,-38 38,-82 6,-6 293,-8 198,-1 28,-8 14,-11 9,-16 3,-23 -5,-21 -9,-12 -34,-14 -51,-4 -288,-4 -74,-12 -40,-12 -27,-13 -23,-16 -29,-27 -17,-23 -17,-33 -12,-68 6,-52 8,-27 13,-28 21,-29 22,-23z"/></g><g fill="#B06E00"><path d="M3710,1217l41,-5 48,0 59,10 33,12 18,11 26,29 7,11 7,22 1,57 -18,39 -30,29 -34,16 -21,6 -46,7 -100,-2 -6,-11 -4,-90 1,-73 7,-52 3,-9zM3766,1257l-6,10 -2,46 2,85 2,9 5,4 28,1 45,-8 23,-15 11,-15 8,-21 0,-40 -16,-28 -26,-22 -45,-9z"/><path d="M4160,1217l24,-2 16,3 6,11 5,39 -2,174 -4,14 -10,4 -28,0 -14,-1 -7,-6 -4,-95 1,-79 7,-50z"/><path d="M4448,1240l22,-11 20,-6 71,-11 32,5 46,18 29,26 5,8 1,10 -7,5 -27,-3 -29,3 -33,-24 -40,-2 -26,5 -26,22 -15,25 -3,37 14,32 23,21 39,11 28,-2 17,-5 19,-12 14,-17 0,-12 -67,-2 -16,-6 -3,-14 1,-16 12,-4 131,1 5,7 1,47 -18,35 -17,16 -17,11 -39,16 -34,7 -29,0 -37,-7 -37,-17 -32,-32 -10,-13 -13,-28 -3,-17 1,-29 7,-28 18,-27z"/><path d="M4898,1217l18,-2 16,2 4,6 10,45 -6,180 -3,8 -10,4 -23,0 -14,-1 -8,-6 -3,-101 1,-73 8,-50z"/><path d="M5147,1219l39,-6 129,-1 28,6 4,6 4,22 -2,6 -62,2 -8,3 -2,5 -4,181 -3,12 -17,4 -28,-1 -11,-5 -1,-4 -3,-85 3,-101 -5,-6 -11,-3 -56,-2 -3,-6 3,-19z"/><path d="M5632,1224l10,-7 28,-4 29,5 21,28 18,33 62,152 2,11 -2,12 -17,6 -34,-3 -6,-3 -5,-10 -9,-23 -14,-5 -96,0 -13,10 -15,29 -12,4 -36,0 -8,-3 -3,-8 2,-12 55,-135 24,-50zM5664,1280l-3,5 -28,73 2,11 6,2 52,0 7,-2 2,-5 -11,-39 -22,-46z"/><path d="M6013,1217l23,-2 16,3 6,11 7,33 -2,113 6,39 6,3 79,2 3,6 -2,29 -10,5 -19,2 -96,0 -28,-6 -3,-12 -1,-79 4,-135z"/><path d="M6666,1233l34,-14 50,-7 33,5 41,17 20,23 2,17 -11,3 -51,-1 -22,-21 -17,-6 -16,4 -11,6 -7,10 -1,11 4,10 8,8 91,30 16,10 15,14 8,17 1,28 -10,28 -30,24 -45,12 -46,0 -39,-12 -11,-7 -11,-10 -17,-23 -2,-12 2,-5 62,-1 17,19 10,6 18,2 12,-2 14,-8 6,-10 1,-12 -6,-11 -27,-13 -68,-20 -13,-7 -22,-22 -7,-34 3,-18 14,-21z"/><path d="M7061,1219l55,-7 68,1 28,5 4,6 4,16 -2,12 -90,2 -9,4 -2,10 1,34 5,7 78,1 9,4 3,10 -5,28 -12,4 -73,1 -5,7 -1,22 1,17 5,11 89,1 11,4 -6,37 -27,5 -134,-3 -4,-10 -4,-90 3,-96 4,-33z"/><path d="M7441,1218l46,-6 46,0 40,5 44,18 13,10 11,17 6,28 -7,28 -25,29 -25,11 -4,6 4,11 40,61 3,12 -5,10 -33,3 -22,-6 -25,-40 -29,-40 -8,-7 -12,-2 -8,4 -1,5 -5,34 -1,45 -17,6 -35,-2 -5,-5 0,-4 -3,-97 1,-79 7,-44zM7493,1257l-4,11 2,45 3,8 62,0 14,-8 8,-15 0,-22 -22,-21 -28,-3 -29,3z"/><path d="M7843,1218l22,-3 17,2 6,6 22,35 49,129 8,11 7,-11 32,-85 29,-63 17,-21 22,-4 20,5 2,26 -5,17 -51,123 -34,71 -22,5 -34,0 -16,-2 -11,-6 -63,-151 -23,-74z"/><path d="M8310,1217l23,-2 16,3 6,11 7,39 -4,180 -3,8 -10,4 -24,1 -19,-2 -5,-5 -5,-96 3,-84 4,-45z"/><path d="M8603,1239l34,-16 62,-11 40,5 35,12 26,15 22,24 3,21 -64,1 -29,-27 -11,-4 -28,-1 -27,5 -29,23 -16,27 0,33 8,23 10,17 20,15 11,4 29,5 28,-6 34,-22 10,-3 52,-1 6,3 0,6 -15,27 -17,17 -19,12 -29,11 -33,7 -41,-1 -27,-6 -30,-12 -16,-11 -21,-21 -24,-40 -5,-34 5,-35 7,-18 22,-30z"/><path d="M9043,1219l55,-7 68,1 28,5 6,11 1,17 -2,6 -90,2 -9,3 -3,11 1,35 5,6 80,2 7,2 2,11 -2,28 -13,4 -73,1 -6,6 -1,23 2,23 5,5 95,2 5,5 0,5 -5,30 -27,5 -134,-2 -6,-11 -4,-90 3,-85 6,-44z"/><path d="M9425,1232l17,-9 67,-11 33,5 41,17 18,22 4,12 -1,6 -10,3 -51,-1 -28,-24 -11,-3 -16,3 -11,5 -8,10 -2,12 3,9 11,10 90,31 17,10 14,14 7,16 2,29 -12,29 -28,22 -45,12 -46,0 -51,-19 -24,-28 -7,-22 61,-3 7,4 10,14 10,7 23,3 12,-2 13,-7 6,-10 0,-12 -8,-12 -22,-12 -68,-20 -14,-7 -22,-22 -8,-28 3,-24 6,-10z"/></g></svg></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.091">Brady Zenger</h3><p class="ab-lead">Brady Zenger is the main creator for ZENGERS Digital Services.</p><p><strong>He is 13</strong>, and lives in Brentwood, Tennessee. He started the idea, researched it, and learned how to build, design, and manage websites while running a business.</p><p>Jason Zenger, his dad and owner of ZENGERS, mentors him on how to run a business and how to have clients. Brady handles everything about your website (basically the whole business), and most communication with customers.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:6.292">Brady Zenger</h3><p class="ab-lead">Brady Zenger is the main creator for ZENGERS Digital Services.</p><p><strong>He is 13</strong>, and lives in Brentwood, Tennessee. He started the idea, researched it, and learned how to build, design, and manage websites while running a business.</p><p>Jason Zenger, his dad and owner of ZENGERS, mentors him on how to run a business and how to have clients. Brady handles everything about your website (basically the whole business), and most communication with customers.</p></div>
       <div class="ab-side ab-photo"><img src="media/about-brady.webp" width="1024" height="1024" alt="Brady Zenger and his dad, Jason, on a boat, with a city skyline behind them" loading="lazy" decoding="async"></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.173">Jason Zenger</h3><p class="ab-lead">Jason Zenger is Brady Zenger’s dad, who gave Brady the resources and mentorship to start the business.</p><p>He is the <strong>owner of ZENGERS</strong> and has been improving it for about 15 years. Jason and his family now live in Brentwood, Tennessee and moved from Chicago where ZENGERS operates.</p><p>He manages financials and some logistics and customer interactions for ZENGERS Digital Services.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:6.094">Jason Zenger</h3><p class="ab-lead">Jason Zenger is Brady Zenger’s dad, who gave Brady the resources and mentorship to start the business.</p><p>He is the <strong>owner of ZENGERS</strong> and has been improving it for about 15 years. Jason and his family now live in Brentwood, Tennessee and moved from Chicago where ZENGERS operates.</p><p>He manages financials and some logistics and customer interactions for ZENGERS Digital Services.</p></div>
       <div class="ab-side ab-photo"><img src="media/about-jason.webp" width="1024" height="1024" alt="Jason Zenger, smiling, outdoors with trees behind him" loading="lazy" decoding="async"></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3 class="ab-fit" style="--fit:5.876">What makes us different</h3><p class="ab-lead">You don’t need expensive workflows and strategies.</p><p>ZENGERS Digital Services is the best for you if you don’t know how to build a website or where to start, don’t have time to manage one, or don’t know how managing a website works.</p><p>You need a functional website that changes as your business does, thoughtfully designed, from <strong>real people in your area</strong>: a reliable team that will build it, manage it and make your business look great online, for a fair monthly price.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:5.952">What makes us different</h3><p class="ab-lead">You don’t need expensive workflows and strategies.</p><p>ZENGERS Digital Services is the best for you if you don’t know how to build a website or where to start, don’t have time to manage one, or don’t know how managing a website works.</p><p>You need a functional website that changes as your business does, thoughtfully designed, from <strong>real people in your area</strong>: a reliable team that will build it, manage it and make your business look great online, for a fair monthly price.</p></div>
       <div class="ab-side ab-logo ab-puzzle" aria-hidden="true"><svg viewBox="0 0 10000 10000" focusable="false" stroke="#F2E6D8" stroke-width="45" stroke-linejoin="round"><g fill="#0A2A5C"><path d="M4965,4965l-18,15 -21,11 -23,7 -23,3 -2,1 -31,2 -32,1 -31,2 -32,2 -32,3 -32,2 -33,3 -32,3 -33,3 -32,3 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -33,4 -32,4 -33,5 -33,4 -33,4 -33,4 -32,4 -33,4 -32,4 -32,4 -32,4 -32,4 -32,4 -31,3 -31,4 -31,3 -31,3 -31,4 -30,2 -30,3 -29,3 -30,2 -29,2 -28,2 -28,2 -35,1 -34,2 -34,0 -32,1 -32,-1 -31,-1 -31,-1 -29,-2 -29,-2 -28,-4 -32,-4 -31,-6 -30,-7 -28,-8 -26,-9 -29,-12 -27,-14 -25,-15 -22,-18 -22,-22 -19,-25 -15,-27 -11,-26 -8,-29 -5,-31 -2,-28 1,-30 2,-32 5,-28 5,-29 8,-31 9,-32 11,-33 10,-28 11,-29 12,-29 13,-31 15,-31 16,-33 16,-33 14,-32 12,-31 11,-31 10,-30 7,-29 7,-29 5,-28 4,-34 3,-33 0,-32 -2,-31 -3,-30 -6,-29 -7,-28 -9,-27 -13,-31 -15,-29 -18,-28 -19,-27 -22,-25 -23,-23 -25,-22 -26,-21 -23,-16 -24,-15 -25,-14 -26,-13 -27,-12 -27,-10 -28,-10 -29,-9 -29,-8 -30,-6 -30,-6 -30,-5 -30,-3 -31,-3 -31,-1 -31,-1 -31,1 -31,1 -31,3 -30,3 -30,5 -30,6 -30,6 -29,8 -29,9 -28,10 -27,10 -27,12 -26,13 -25,14 -24,15 -23,16 -26,21 -25,22 -23,23 -22,25 -19,27 -18,28 -15,29 -13,31 -9,27 -7,28 -6,29 -3,30 -2,31 0,32 3,33 4,34 5,28 7,29 7,29 10,30 11,31 12,31 14,32 16,33 16,33 15,31 13,31 12,29 11,29 10,28 9,26 10,33 7,31 6,29 5,29 3,32 1,30 -2,29 -4,31 -8,29 -10,26 -15,28 -18,25 -22,23 -22,17 -24,16 -27,14 -28,12 -31,11 -28,8 -30,7 -31,6 -32,4 -28,4 -29,2 -29,2 -31,1 -31,1 -32,1 -32,-1 -34,0 -34,-2 -35,-1 -28,-2 -28,-2 -29,-2 -30,-2 -29,-3 -30,-3 -30,-2 -31,-4 -31,-3 -31,-3 -31,-4 -31,-3 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -33,-4 -32,-4 -33,-4 -33,-4 -33,-4 -33,-5 -32,-4 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -32,-3 -33,-3 -32,-3 -33,-3 -32,-2 -32,-3 -32,-2 -31,-2 -32,-1 -31,-2 -2,-1 -23,-3 -23,-7 -21,-11 -18,-15 -15,-18 -11,-21 -7,-22 -2,-24 0,-4480 1,-26 2,-26 5,-26 6,-26 7,-25 9,-24 11,-24 13,-23 13,-22 16,-22 16,-20 18,-19 19,-18 20,-16 22,-16 22,-13 23,-13 24,-11 24,-9 25,-7 26,-6 26,-5 26,-2 26,-1 4480,0 23,2 23,7 20,11 18,15 15,19 11,20 7,23 2,23 -1,2 -2,31 -1,32 -2,31 -2,32 -3,32 -2,32 -3,33 -3,32 -3,33 -3,32 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -4,33 -4,32 -5,33 -4,33 -4,33 -4,33 -4,32 -4,33 -4,32 -4,32 -4,32 -4,32 -4,32 -3,31 -4,31 -3,31 -3,31 -4,31 -2,30 -3,30 -3,29 -2,30 -2,29 -2,28 -2,28 -1,35 -2,34 0,34 -1,32 1,32 1,31 1,31 2,29 2,29 4,28 4,32 6,31 7,30 8,28 9,26 12,29 14,27 15,25 18,22 22,22 25,19 27,15 26,11 29,8 31,5 28,2 30,-1 32,-2 28,-5 29,-5 31,-8 32,-9 33,-11 28,-10 29,-11 29,-12 31,-13 31,-15 33,-16 33,-16 32,-14 31,-12 31,-11 30,-10 29,-7 29,-7 28,-5 34,-4 33,-3 32,0 31,2 30,3 29,6 28,7 27,9 31,13 29,15 28,18 27,19 25,22 23,23 22,25 21,26 16,23 15,24 14,25 13,26 12,27 10,27 10,28 9,29 8,29 6,30 6,30 5,30 3,30 3,31 1,31 1,31 -1,31 -1,31 -3,31 -3,30 -5,30 -6,30 -6,30 -8,29 -9,29 -10,28 -10,27 -12,27 -13,26 -14,25 -15,24 -16,23 -21,26 -22,25 -23,23 -25,22 -27,19 -28,18 -29,15 -31,13 -27,9 -28,7 -29,6 -30,3 -31,2 -32,0 -33,-3 -34,-4 -28,-5 -29,-7 -29,-7 -30,-10 -31,-11 -31,-12 -32,-14 -33,-16 -33,-16 -31,-15 -31,-13 -29,-12 -29,-11 -28,-10 -26,-9 -33,-10 -31,-7 -29,-6 -29,-5 -32,-3 -30,-1 -29,2 -31,4 -29,8 -26,10 -28,15 -25,18 -23,22 -17,22 -16,24 -14,27 -12,28 -11,31 -8,28 -7,30 -6,31 -4,32 -4,28 -2,29 -2,29 -1,31 -1,31 -1,32 1,32 0,34 2,34 1,35 2,28 2,28 2,29 2,30 3,29 3,30 2,30 4,31 3,31 3,31 4,31 3,31 4,32 4,32 4,32 4,32 4,32 4,33 4,32 4,33 4,33 4,33 5,33 4,32 4,33 4,33 3,33 4,33 4,33 3,33 4,33 3,32 3,33 3,32 3,33 2,32 3,32 2,32 2,31 1,32 2,31 1,2 -2,23 -7,23 -11,21z"/></g><g fill="#B06E00"><path d="M5035,4965l-15,-18 -11,-21 -7,-23 -3,-23 -1,-2 -2,-31 -1,-32 -2,-31 -2,-32 -3,-32 -2,-32 -3,-33 -3,-32 -3,-33 -3,-32 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -4,-32 -5,-33 -4,-33 -4,-33 -4,-33 -4,-32 -4,-33 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -3,-31 -4,-31 -3,-31 -3,-31 -4,-31 -2,-30 -3,-30 -3,-29 -2,-30 -2,-29 -2,-28 -2,-28 -1,-35 -2,-34 0,-34 -1,-32 1,-32 1,-31 1,-31 2,-29 2,-29 4,-28 4,-32 6,-31 7,-30 8,-28 9,-26 12,-29 14,-27 15,-25 18,-22 22,-22 25,-19 27,-15 26,-11 29,-8 31,-5 28,-2 30,1 32,2 28,5 29,5 31,8 32,9 33,11 28,10 29,11 29,12 31,13 31,15 33,16 33,16 32,14 31,12 31,11 30,10 29,7 29,7 28,5 34,4 33,3 32,0 31,-2 30,-3 29,-6 28,-7 27,-9 31,-13 29,-15 28,-18 27,-19 25,-22 23,-23 22,-25 21,-26 16,-23 15,-24 14,-25 13,-26 12,-27 10,-27 10,-28 9,-29 8,-29 6,-30 6,-30 5,-30 3,-30 3,-31 1,-31 1,-31 -1,-31 -1,-31 -3,-31 -3,-30 -5,-30 -6,-30 -6,-30 -8,-29 -9,-29 -10,-28 -10,-27 -12,-27 -13,-26 -14,-25 -15,-24 -16,-23 -21,-26 -22,-25 -23,-23 -25,-22 -27,-19 -28,-18 -29,-15 -31,-13 -27,-9 -28,-7 -29,-6 -30,-3 -31,-2 -32,0 -33,3 -34,4 -28,5 -29,7 -29,7 -30,10 -31,11 -31,12 -32,14 -33,16 -33,16 -31,15 -31,13 -29,12 -29,11 -28,10 -26,9 -33,10 -31,7 -29,6 -29,5 -32,3 -30,1 -29,-2 -31,-4 -29,-8 -26,-10 -28,-15 -25,-18 -23,-22 -17,-22 -16,-24 -14,-27 -12,-28 -11,-31 -8,-28 -7,-30 -6,-31 -4,-32 -4,-28 -2,-29 -2,-29 -1,-31 -1,-31 -1,-32 1,-32 0,-34 2,-34 1,-35 2,-28 2,-28 2,-29 2,-30 3,-29 3,-30 2,-30 4,-31 3,-31 3,-31 4,-31 3,-31 4,-32 4,-32 4,-32 4,-32 4,-32 4,-33 4,-32 4,-33 4,-33 4,-33 5,-33 4,-32 4,-33 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 3,-32 3,-33 3,-32 3,-33 2,-32 3,-32 2,-32 2,-31 1,-32 2,-31 1,-2 3,-23 7,-23 11,-21 15,-18 18,-15 21,-11 22,-7 24,-2 4480,0 26,1 26,2 26,5 26,6 25,7 24,9 24,11 23,13 22,13 22,16 20,16 19,18 18,19 16,20 16,22 13,22 13,23 11,24 9,24 7,25 6,26 5,26 2,26 1,26 0,4480 -2,23 -7,23 -11,20 -15,18 -19,15 -20,11 -23,7 -23,2 -2,-1 -31,-2 -32,-1 -31,-2 -32,-2 -32,-3 -32,-2 -33,-3 -32,-3 -33,-3 -32,-3 -33,-4 -33,-3 -33,-4 -33,-4 -33,-3 -33,-4 -33,-4 -32,-4 -33,-5 -33,-4 -33,-4 -33,-4 -32,-4 -33,-4 -32,-4 -32,-4 -32,-4 -32,-4 -32,-4 -31,-3 -31,-4 -31,-3 -31,-3 -31,-4 -30,-2 -30,-3 -29,-3 -30,-2 -29,-2 -28,-2 -28,-2 -35,-1 -34,-2 -34,0 -32,-1 -32,1 -31,1 -31,1 -29,2 -29,2 -28,4 -32,4 -31,6 -30,7 -28,8 -26,9 -29,12 -27,14 -25,15 -22,18 -22,22 -19,25 -15,27 -11,26 -8,29 -5,31 -2,28 1,30 2,32 5,28 5,29 8,31 9,32 11,33 10,28 11,29 12,29 13,31 15,31 16,33 16,33 14,32 12,31 11,31 10,30 7,29 7,29 5,28 4,34 3,33 0,32 -2,31 -3,30 -6,29 -7,28 -9,27 -13,31 -15,29 -18,28 -19,27 -22,25 -23,23 -25,22 -26,21 -23,16 -24,15 -25,14 -26,13 -27,12 -27,10 -28,10 -29,9 -29,8 -30,6 -30,6 -30,5 -30,3 -31,3 -31,1 -31,1 -31,-1 -31,-1 -31,-3 -30,-3 -30,-5 -30,-6 -30,-6 -29,-8 -29,-9 -28,-10 -27,-10 -27,-12 -26,-13 -25,-14 -24,-15 -23,-16 -26,-21 -25,-22 -23,-23 -22,-25 -19,-27 -18,-28 -15,-29 -13,-31 -9,-27 -7,-28 -6,-29 -3,-30 -2,-31 0,-32 3,-33 4,-34 5,-28 7,-29 7,-29 10,-30 11,-31 12,-31 14,-32 16,-33 16,-33 15,-31 13,-31 12,-29 11,-29 10,-28 9,-26 10,-33 7,-31 6,-29 5,-29 3,-32 1,-30 -2,-29 -4,-31 -8,-29 -10,-26 -15,-28 -18,-25 -22,-23 -22,-17 -24,-16 -27,-14 -28,-12 -31,-11 -28,-8 -30,-7 -31,-6 -32,-4 -28,-4 -29,-2 -29,-2 -31,-1 -31,-1 -32,-1 -32,1 -34,0 -34,2 -35,1 -28,2 -28,2 -29,2 -30,2 -29,3 -30,3 -30,2 -31,4 -31,3 -31,3 -31,4 -31,3 -32,4 -32,4 -32,4 -32,4 -32,4 -33,4 -32,4 -33,4 -33,4 -33,4 -33,5 -32,4 -33,4 -33,4 -33,3 -33,4 -33,4 -33,3 -33,4 -32,3 -33,3 -32,3 -33,3 -32,2 -32,3 -32,2 -31,2 -32,1 -31,2 -2,1 -23,-2 -23,-7 -21,-11z"/></g><g fill="#0A2A5C"><path d="M5035,5035l18,-15 21,-11 23,-7 23,-3 2,-1 31,-2 32,-1 31,-2 32,-2 32,-3 32,-2 33,-3 32,-3 33,-3 32,-3 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 33,-4 32,-4 33,-5 33,-4 33,-4 33,-4 32,-4 33,-4 32,-4 32,-4 32,-4 32,-4 32,-4 31,-3 31,-4 31,-3 31,-3 31,-4 30,-2 30,-3 29,-3 30,-2 29,-2 28,-2 28,-2 35,-1 34,-2 34,0 32,-1 32,1 31,1 31,1 29,2 29,2 28,4 32,4 31,6 30,7 28,8 26,9 29,12 27,14 25,15 22,18 22,22 19,25 15,27 11,26 8,29 5,31 2,28 -1,30 -2,32 -5,28 -5,29 -8,31 -9,32 -11,33 -10,28 -11,29 -12,29 -13,31 -15,31 -16,33 -16,33 -14,32 -12,31 -11,31 -10,30 -7,29 -7,29 -5,28 -4,34 -3,33 0,32 2,31 3,30 6,29 7,28 9,27 13,31 15,29 18,28 19,27 22,25 23,23 25,22 26,21 23,16 24,15 25,14 26,13 27,12 27,10 28,10 29,9 29,8 30,6 30,6 30,5 30,3 31,3 31,1 31,1 31,-1 31,-1 31,-3 30,-3 30,-5 30,-6 30,-6 29,-8 29,-9 28,-10 27,-10 27,-12 26,-13 25,-14 24,-15 23,-16 26,-21 25,-22 23,-23 22,-25 19,-27 18,-28 15,-29 13,-31 9,-27 7,-28 6,-29 3,-30 2,-31 0,-32 -3,-33 -4,-34 -5,-28 -7,-29 -7,-29 -10,-30 -11,-31 -12,-31 -14,-32 -16,-33 -16,-33 -15,-31 -13,-31 -12,-29 -11,-29 -10,-28 -9,-26 -10,-33 -7,-31 -6,-29 -5,-29 -3,-32 -1,-30 2,-29 4,-31 8,-29 10,-26 15,-28 18,-25 22,-23 22,-17 24,-16 27,-14 28,-12 31,-11 28,-8 30,-7 31,-6 32,-4 28,-4 29,-2 29,-2 31,-1 31,-1 32,-1 32,1 34,0 34,2 35,1 28,2 28,2 29,2 30,2 29,3 30,3 30,2 31,4 31,3 31,3 31,4 31,3 32,4 32,4 32,4 32,4 32,4 33,4 32,4 33,4 33,4 33,4 33,5 32,4 33,4 33,4 33,3 33,4 33,4 33,3 33,4 32,3 33,3 32,3 33,3 32,2 32,3 32,2 31,2 32,1 31,2 2,1 23,3 23,7 21,11 18,15 15,18 11,21 7,22 2,24 0,4480 -1,26 -2,26 -5,26 -6,26 -7,25 -9,24 -11,24 -13,23 -13,22 -16,22 -16,20 -18,19 -19,18 -20,16 -22,16 -22,13 -23,13 -24,11 -24,9 -25,7 -26,6 -26,5 -26,2 -26,1 -4480,0 -23,-2 -23,-7 -20,-11 -18,-15 -15,-19 -11,-20 -7,-23 -2,-23 1,-2 2,-31 1,-32 2,-31 2,-32 3,-32 2,-32 3,-33 3,-32 3,-33 3,-32 4,-33 3,-33 4,-33 4,-33 3,-33 4,-33 4,-33 4,-32 5,-33 4,-33 4,-33 4,-33 4,-32 4,-33 4,-32 4,-32 4,-32 4,-32 4,-32 3,-31 4,-31 3,-31 3,-31 4,-31 2,-30 3,-30 3,-29 2,-30 2,-29 2,-28 2,-28 1,-35 2,-34 0,-34 1,-32 -1,-32 -1,-31 -1,-31 -2,-29 -2,-29 -4,-28 -4,-32 -6,-31 -7,-30 -8,-28 -9,-26 -12,-29 -14,-27 -15,-25 -18,-22 -22,-22 -25,-19 -27,-15 -26,-11 -29,-8 -31,-5 -28,-2 -30,1 -32,2 -28,5 -29,5 -31,8 -32,9 -33,11 -28,10 -29,11 -29,12 -31,13 -31,15 -33,16 -33,16 -32,14 -31,12 -31,11 -30,10 -29,7 -29,7 -28,5 -34,4 -33,3 -32,0 -31,-2 -30,-3 -29,-6 -28,-7 -27,-9 -31,-13 -29,-15 -28,-18 -27,-19 -25,-22 -23,-23 -22,-25 -21,-26 -16,-23 -15,-24 -14,-25 -13,-26 -12,-27 -10,-27 -10,-28 -9,-29 -8,-29 -6,-30 -6,-30 -5,-30 -3,-30 -3,-31 -1,-31 -1,-31 1,-31 1,-31 3,-31 3,-30 5,-30 6,-30 6,-30 8,-29 9,-29 10,-28 10,-27 12,-27 13,-26 14,-25 15,-24 16,-23 21,-26 22,-25 23,-23 25,-22 27,-19 28,-18 29,-15 31,-13 27,-9 28,-7 29,-6 30,-3 31,-2 32,0 33,3 34,4 28,5 29,7 29,7 30,10 31,11 31,12 32,14 33,16 33,16 31,15 31,13 29,12 29,11 28,10 26,9 33,10 31,7 29,6 29,5 32,3 30,1 29,-2 31,-4 29,-8 26,-10 28,-15 25,-18 23,-22 17,-22 16,-24 14,-27 12,-28 11,-31 8,-28 7,-30 6,-31 4,-32 4,-28 2,-29 2,-29 1,-31 1,-31 1,-32 -1,-32 0,-34 -2,-34 -1,-35 -2,-28 -2,-28 -2,-29 -2,-30 -3,-29 -3,-30 -2,-30 -4,-31 -3,-31 -3,-31 -4,-31 -3,-31 -4,-32 -4,-32 -4,-32 -4,-32 -4,-32 -4,-33 -4,-32 -4,-33 -4,-33 -4,-33 -5,-33 -4,-32 -4,-33 -4,-33 -3,-33 -4,-33 -4,-33 -3,-33 -4,-33 -3,-32 -3,-33 -3,-32 -3,-33 -2,-32 -3,-32 -2,-32 -2,-31 -1,-32 -2,-31 -1,-2 2,-23 7,-23 11,-21z"/></g><g fill="#0A2A5C"><path d="M4965,5035l15,18 11,21 7,23 3,23 1,2 2,31 1,32 2,31 2,32 3,32 2,32 3,33 3,32 3,33 3,32 4,33 3,33 4,33 4,33 3,33 4,33 4,33 4,32 5,33 4,33 4,33 4,33 4,32 4,33 4,32 4,32 4,32 4,32 4,32 3,31 4,31 3,31 3,31 4,31 2,30 3,30 3,29 2,30 2,29 2,28 2,28 1,35 2,34 0,34 1,32 -1,32 -1,31 -1,31 -2,29 -2,29 -4,28 -4,32 -6,31 -7,30 -8,28 -9,26 -12,29 -14,27 -15,25 -18,22 -22,22 -25,19 -27,15 -26,11 -29,8 -31,5 -28,2 -30,-1 -32,-2 -28,-5 -29,-5 -31,-8 -32,-9 -33,-11 -28,-10 -29,-11 -29,-12 -31,-13 -31,-15 -33,-16 -33,-16 -32,-14 -31,-12 -31,-11 -30,-10 -29,-7 -29,-7 -28,-5 -34,-4 -33,-3 -32,0 -31,2 -30,3 -29,6 -28,7 -27,9 -31,13 -29,15 -28,18 -27,19 -25,22 -23,23 -22,25 -21,26 -16,23 -15,24 -14,25 -13,26 -12,27 -10,27 -10,28 -9,29 -8,29 -6,30 -6,30 -5,30 -3,30 -3,31 -1,31 -1,31 1,31 1,31 3,31 3,30 5,30 6,30 6,30 8,29 9,29 10,28 10,27 12,27 13,26 14,25 15,24 16,23 21,26 22,25 23,23 25,22 27,19 28,18 29,15 31,13 27,9 28,7 29,6 30,3 31,2 32,0 33,-3 34,-4 28,-5 29,-7 29,-7 30,-10 31,-11 31,-12 32,-14 33,-16 33,-16 31,-15 31,-13 29,-12 29,-11 28,-10 26,-9 33,-10 31,-7 29,-6 29,-5 32,-3 30,-1 29,2 31,4 29,8 26,10 28,15 25,18 23,22 17,22 16,24 14,27 12,28 11,31 8,28 7,30 6,31 4,32 4,28 2,29 2,29 1,31 1,31 1,32 -1,32 0,34 -2,34 -1,35 -2,28 -2,28 -2,29 -2,30 -3,29 -3,30 -2,30 -4,31 -3,31 -3,31 -4,31 -3,31 -4,32 -4,32 -4,32 -4,32 -4,32 -4,33 -4,32 -4,33 -4,33 -4,33 -5,33 -4,32 -4,33 -4,33 -3,33 -4,33 -4,33 -3,33 -4,33 -3,32 -3,33 -3,32 -3,33 -2,32 -3,32 -2,32 -2,31 -1,32 -2,31 -1,2 -3,23 -7,23 -11,21 -15,18 -18,15 -21,11 -22,7 -24,2 -4480,0 -26,-1 -26,-2 -26,-5 -26,-6 -25,-7 -24,-9 -24,-11 -23,-13 -22,-13 -22,-16 -20,-16 -19,-18 -18,-19 -16,-20 -16,-22 -13,-22 -13,-23 -11,-24 -9,-24 -7,-25 -6,-26 -5,-26 -2,-26 -1,-26 0,-4480 2,-23 7,-23 11,-20 15,-18 19,-15 20,-11 23,-7 23,-2 2,1 31,2 32,1 31,2 32,2 32,3 32,2 33,3 32,3 33,3 32,3 33,4 33,3 33,4 33,4 33,3 33,4 33,4 32,4 33,5 33,4 33,4 33,4 32,4 33,4 32,4 32,4 32,4 32,4 32,4 31,3 31,4 31,3 31,3 31,4 30,2 30,3 29,3 30,2 29,2 28,2 28,2 35,1 34,2 34,0 32,1 32,-1 31,-1 31,-1 29,-2 29,-2 28,-4 32,-4 31,-6 30,-7 28,-8 26,-9 29,-12 27,-14 25,-15 22,-18 22,-22 19,-25 15,-27 11,-26 8,-29 5,-31 2,-28 -1,-30 -2,-32 -5,-28 -5,-29 -8,-31 -9,-32 -11,-33 -10,-28 -11,-29 -12,-29 -13,-31 -15,-31 -16,-33 -16,-33 -14,-32 -12,-31 -11,-31 -10,-30 -7,-29 -7,-29 -5,-28 -4,-34 -3,-33 0,-32 2,-31 3,-30 6,-29 7,-28 9,-27 13,-31 15,-29 18,-28 19,-27 22,-25 23,-23 25,-22 26,-21 23,-16 24,-15 25,-14 26,-13 27,-12 27,-10 28,-10 29,-9 29,-8 30,-6 30,-6 30,-5 30,-3 31,-3 31,-1 31,-1 31,1 31,1 31,3 30,3 30,5 30,6 30,6 29,8 29,9 28,10 27,10 27,12 26,13 25,14 24,15 23,16 26,21 25,22 23,23 22,25 19,27 18,28 15,29 13,31 9,27 7,28 6,29 3,30 2,31 0,32 -3,33 -4,34 -5,28 -7,29 -7,29 -10,30 -11,31 -12,31 -14,32 -16,33 -16,33 -15,31 -13,31 -12,29 -11,29 -10,28 -9,26 -10,33 -7,31 -6,29 -5,29 -3,32 -1,30 2,29 4,31 8,29 10,26 15,28 18,25 22,23 22,17 24,16 27,14 28,12 31,11 28,8 30,7 31,6 32,4 28,4 29,2 29,2 31,1 31,1 32,1 32,-1 34,0 34,-2 35,-1 28,-2 28,-2 29,-2 30,-2 29,-3 30,-3 30,-2 31,-4 31,-3 31,-3 31,-4 31,-3 32,-4 32,-4 32,-4 32,-4 32,-4 33,-4 32,-4 33,-4 33,-4 33,-4 33,-5 32,-4 33,-4 33,-4 33,-3 33,-4 33,-4 33,-3 33,-4 32,-3 33,-3 32,-3 33,-3 32,-2 32,-3 32,-2 31,-2 32,-1 31,-2 2,-1 23,2 23,7 21,11z"/></g></svg></div></div>
-    <div class="ab-block"><div class="ab-copy"><h3>Our mission</h3><p class="ab-lead">Our mission is to give clients stunning websites and peace of mind.</p><p>We design and build websites to the best of our ability and aim to give clients <strong>no work or stress</strong> related to their website.</p><p>We aim to give our clients a great experience and a great piece of art to look at.</p></div>
+    <div class="ab-block"><div class="ab-copy"><h3 style="--fit:5.572">Our mission</h3><p class="ab-lead">Our mission is to give clients stunning websites and peace of mind.</p><p>We design and build websites to the best of our ability and aim to give clients <strong>no work or stress</strong> related to their website.</p><p>We aim to give our clients a great experience and a great piece of art to look at.</p></div>
       <div class="ab-side ab-logo ab-target" aria-hidden="true"><svg viewBox="0 0 1000 1000" focusable="false"><circle cx="500" cy="500" r="445" fill="none" stroke="#0A2A5C" stroke-width="90"/><circle cx="500" cy="500" r="310" fill="none" stroke="#B06E00" stroke-width="90"/><circle cx="500" cy="500" r="175" fill="none" stroke="#0A2A5C" stroke-width="90"/><circle cx="500" cy="500" r="85" fill="#B06E00"/><g stroke-linecap="round" stroke-linejoin="round"><line x1="551" y1="469" x2="841" y2="291" stroke="#1F2430" stroke-width="36"/><line x1="551" y1="469" x2="841" y2="291" stroke="#F2E6D8" stroke-width="20"/><polygon points="500,500 602,475 569,420" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/><polygon points="756,343 841,291 880,316 803,363" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/><polygon points="756,343 841,291 836,245 760,292" fill="#F2E6D8" stroke="#1F2430" stroke-width="8"/></g></svg></div></div>
   </div>
 </section>
@@ -5139,6 +5149,22 @@ window.__zwdCalm = window.__zwdCalm || (function(){
   // About" in the "about us" styles): each weight is loaded before any letters are drawn, or the canvas would draw in a
   // stand-in (or, in Safari, fake the bold), and the glass would show fat letters with their holes filled (2026-11-17).
   var GLASS_FONTS = ["700", "800", "900"];   // About us's own face (the "about us" styles' @font-face, "ZWD About": static Nunito)
+  // The products on show (Jason, 2026-11-18: "the realistic e-commerce product animation style", after dialedcoffee.com):
+  // from 900 px wide each glass object is shown like a product. As its block arrives it flies in from its own side,
+  // turning; while the block's words scroll past it holds in the clear band and slowly turns (pinned to the screen, not
+  // the page); then it rises away, turning, as the next one flies in from the other side. All of it follows the scroll,
+  // smoothed (SHOW.ease) so it glides. On a phone it rides with its block (above the heading) and only turns in and out.
+  // With reduced motion it simply sits where the page puts it.
+  var SHOW = {
+    ease: .14,                         // seconds: how quickly the pose catches up with the scroll
+    enter: [.9, .06],                  // flying in while its block's top goes from .9 to .06 of the screen's height
+    exit: [.94, .1],                   // flying out while its block's bottom goes from .94 to .1
+    from: { x: .2, y: .72, scale: .34, yaw: -70, pitch: 16, roll: -20 },   // where it flies in from: screen widths and heights (toward its own side), size, degrees
+    to: { x: -.16, y: -.84, scale: -.42, yaw: 58, pitch: -20, roll: 16 },   // where it flies out to (toward the middle)
+    hold: { yaw: 26, rise: .1, roll: -7 },   // while it holds: how far it turns (degrees), drifts up (screen heights), and its resting tilt toward its words (degrees), as a product is shot
+    phone: { x: .3, yaw: -55, roll: -12, scale: .16, out: 40 },  // on a phone: from the side, turning in; turning away as it scrolls off
+    size: { lockup: 1.3 }              // drawn this much larger than its box while on show (wide screens): the wide, flat lockup, so it holds its own beside the others
+  };
   var sec = document.getElementById("about"); if (!sec) return;
   var stage = sec.querySelector(".ab-stage"), video = sec.querySelector(".ab-video"), canvas = sec.querySelector(".ab-glass"), veil = sec.querySelector(".ab-veil"), text = sec.querySelector(".ab-text"), skip = sec.querySelector(".ab-skip"), gctl = sec.querySelector(".ab-glassctl"), gin = gctl && gctl.querySelector(".ab-gc-in");
   var header = document.querySelector(".site-header");
@@ -6288,9 +6314,11 @@ window.__zwdCalm = window.__zwdCalm || (function(){
   // fill with glass from the edge inward (fill) as it swells to full thickness (swell), it turns a little to show its
   // depth (turn) as a glint crosses it (glint), and the lines fade (line); then it sways slowly. With reduced motion it is
   // simply there. The SVG under it shows where there's no WebGL 2.
+  var blocks = [].slice.call(sec.querySelectorAll(".ab-block"));
   var logos = [].map.call(sec.querySelectorAll(".ab-logo, .ab-photo"), function(el){
     var kind = el.classList.contains("ab-lockup") ? "lockup" : el.classList.contains("ab-photo") ? "photo" : el.classList.contains("ab-puzzle") ? "puzzle" : el.classList.contains("ab-target") ? "target" : "logo";
-    return { el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", target: kind === "target", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
+    var block = el.closest(".ab-block");
+    return { block: block, index: blocks.indexOf(block), el: el, kind: kind, lock: kind === "lockup", photo: kind === "photo", puzzle: kind === "puzzle", target: kind === "target", tex: null, segs: null, shape: null, busy: false, prog: null, making: null, failed: false, warm: false, seenAt: 0, t0: 0, at: null, shown: false, draws: 0 };
   });
   var Z_TW = 640, Z_TH = Math.round(640 * (2 * Z_HALF + 2 * Z_PAD) / (1 + 2 * Z_PAD)), pcx = gl && gl.getExtension("KHR_parallel_shader_compile");
   if (gl && !pcx) blocking = true;                     // no way to ask whether a program is ready without waiting for it
@@ -6463,17 +6491,68 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     if ((s -= qa) < 2 * B) return [-.5, -B + s];
     s -= 2 * B; a = Math.PI - s / r; return [-A + r * Math.cos(a), B + r * Math.sin(a)];
   }
+  function posed(lg, cr, W, H, top, warmOnly){        // where the object is now, how big, and how it's turned (SHOW)
+    var r = lg.el.getBoundingClientRect(), p = { bx: r.left - cr.left, by: r.top - cr.top, bw: r.width, bh: r.height, yaw: 0, pitch: 0, roll: 0, show: 1, side: 1, moving: false };
+    var wide = W >= 900;
+    p.side = wide ? (p.bx + p.bw / 2 > W / 2 ? 1 : -1) : (lg.index % 2 ? -1 : 1);   // which side it lives on (on a phone: alternating, for the way it comes in)
+    if (!p.bw || warmOnly || still) return p;
+    var cl = function(v){ return Math.max(0, Math.min(1, v)); }, te, th, tx;
+    if (wide) {
+      var b = lg.block.getBoundingClientRect(), bt = b.top - cr.top, bb = b.bottom - cr.top, h0 = SHOW.enter[1] * H, h1 = SHOW.exit[0] * H;
+      te = cl((SHOW.enter[0] * H - bt) / ((SHOW.enter[0] - SHOW.enter[1]) * H));
+      tx = cl((h1 - bb) / ((SHOW.exit[0] - SHOW.exit[1]) * H));
+      th = cl((h0 - bt) / Math.max(1, (bb - bt) - (h1 - h0)));   // through the hold: from its top at enter[1] to its bottom at exit[0]
+    } else {
+      te = cl((H - p.by) / (H * .55)); tx = cl((H * .45 - (p.by + p.bh)) / (H * .5)); th = 0;
+    }
+    var now = performance.now(), sm = lg.sm;
+    if (!sm || now - sm.t > 400) sm = lg.sm = { e: te, h: th, x: tx, t: now };   // (first sight, or back after a while: no catching up from far away)
+    var k = 1 - Math.exp(-Math.min(.1, (now - sm.t) / 1000) / SHOW.ease); sm.t = now;
+    sm.e += (te - sm.e) * k; sm.h += (th - sm.h) * k; sm.x += (tx - sm.x) * k;
+    p.moving = Math.abs(te - sm.e) + Math.abs(th - sm.h) + Math.abs(tx - sm.x) > .0015;
+    var E = 1 - Math.pow(1 - sm.e, 3), X = sm.x * sm.x, F = SHOW.from, T = SHOW.to, side = p.side, in1 = 1 - E;   // in: easing out; out: easing in
+    var cx = p.bx + p.bw / 2, cy = p.by + p.bh / 2, sc = 1;
+    if (wide) {
+      cy = (top + H * .86) / 2 + H * F.y * in1 + H * T.y * X + H * SHOW.hold.rise * (.5 - sm.h);   // pinned in the clear band, drifting up a little as the words pass
+      cx += side * W * (F.x * in1 + T.x * X);
+      sc = (1 + F.scale * in1 + T.scale * X) * (SHOW.size[lg.kind] || 1);
+      p.yaw = side * (F.yaw * in1 + T.yaw * X + SHOW.hold.yaw * (sm.h - .5));
+      p.pitch = F.pitch * in1 + T.pitch * X;
+      p.roll = side * (F.roll * in1 + T.roll * X + SHOW.hold.roll);
+    } else {
+      var P = SHOW.phone;
+      cx += side * W * P.x * in1; sc = 1 - P.scale * in1;
+      p.yaw = side * (P.yaw * in1 - P.out * X); p.roll = side * P.roll * in1;
+    }
+    p.show = E * (1 - X);
+    p.bw *= sc; p.bh *= sc; p.bx = cx - p.bw / 2; p.by = cy - p.bh / 2;
+    return p;
+  }
+  function turnRows(yaw, pitch, roll){                 // the object's turn, rows (its own space -> the view): rolled, after turned (yaw), after tipped (pitch)
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), cz = Math.cos(roll), sz = Math.sin(roll);
+    var M = [[cy, sy * sp, sy * cp], [0, cp, -sp], [-sy, cy * sp, cy * cp]];
+    return [0, 1, 2].map(function(i){ return [0, 1, 2].map(function(j){ return (i === 0 ? cz * M[0][j] - sz * M[1][j] : i === 1 ? sz * M[0][j] + cz * M[1][j] : M[2][j]); }); });
+  }
+  function boundsOf(R, bx, by, bw, bh, extra, padPx){  // the screen area the turned object can cover: its box's corners, as the eye sees them
+    var cx = bx + bw / 2, cy = by + bh / 2, hx = .5 + extra, hy = bh / bw / 2 + extra, hz = .12, x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (var i = 0; i < 8; i++) {
+      var q = [i & 1 ? hx : -hx, i & 2 ? hy : -hy, i & 4 ? hz : -hz], v = R.map(function(row){ return row[0] * q[0] + row[1] * q[1] + row[2] * q[2]; });
+      var k = 3.4 / Math.max(.2, 3.4 - v[2]), x = cx + v[0] * k * bw, y = cy - v[1] * k * bw;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    return [x0 - padPx, y0 - padPx, x1 + padPx, y1 + padPx];
+  }
   function drawLogo(lg, cr, W, H, s, map, top, warmOnly){   // returns true while it's moving (draw again next frame)
-    var r = lg.el.getBoundingClientRect(), bx = r.left - cr.left, by = r.top - cr.top, bw = r.width, bh = r.height, pad = bw * (lg.puzzle ? .42 : .16);   // (the puzzle's last piece comes in from beyond its box)
+    var po = posed(lg, cr, W, H, top, warmOnly), bx = po.bx, by = po.by, bw = po.bw, bh = po.bh, pad = bw * .16, shK = warmOnly || (still && !lg.lock) ? 1 : 0;   // (the shadow is flat on the screen and doesn't turn with it, so it showed as a ghost while the object turned: a product floating on show has none; with reduced motion, nothing turns, so it stays)
     if (!bw) return false;
     if (!warmOnly) {
-      if (by + bh + pad < 0 || by - pad > H) return false;                           // not on screen
-      if (!lg.t0) {                                                                   // showing for the first time: the lines draw it, a moment after it's mostly in sight (the words first)
+      if (by + bh + pad * 3 < 0 || by - pad * 3 > H || bx + bw + pad * 3 < 0 || bx - pad * 3 > W) return po.moving;   // not on screen (still settling: look again)
+      if (!lg.t0) {                                                                   // showing for the first time: the lines draw it as it arrives
         var inSight = (Math.min(by + bh, H * .86) - Math.max(by, top)) / bh, now = performance.now();   // in the clear band: not under the header, not in the fade at the bottom
         if (!still) {
-          if (inSight < .6 || (+veil.style.opacity || 0) > .2) { lg.seenAt = 0; return false; }
+          if (inSight < .4 || (+veil.style.opacity || 0) > .2) { lg.seenAt = 0; return po.moving; }
           if (!lg.seenAt) lg.seenAt = now;
-          if (now - lg.seenAt < 350) return true;                                     // (true: draw again next frame)
+          if (now - lg.seenAt < 120) return true;                                     // (true: draw again next frame)
         }
         lg.t0 = now;
       }
@@ -6482,20 +6561,19 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     var step = function(a, b){ var x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
     var swellAt = function(a){ var w = t - a; return still ? 1 : w <= 0 ? 0 : 1 - Math.exp(-5.5 * w) * Math.cos(8 * w); };   // a little past full, and back: poured, not built
     var turn = step(T.turn[0], T.turn[1]), sway = still ? 0 : step(T.turn[1] - .1, T.turn[1] + 1.4), deg = Math.PI / 180;
-    var mid = (by + bh / 2 - H / 2) / H;                                            // -.5 above the middle of the screen, .5 below
-    var yaw = (C.turn[0] * turn + C.sway[0] * sway * Math.sin(t * 2 * Math.PI / 9)) * deg;
-    var pitch = (C.turn[1] * turn + C.sway[1] * sway * Math.sin(t * 2 * Math.PI / 7 + 1.3) - (still ? 0 : C.tilt * 2 * mid * turn)) * deg;
+    var yaw = (po.side * C.turn[0] * turn + C.sway[0] * sway * Math.sin(t * 2 * Math.PI / 9) + po.yaw) * deg;   // settled turned toward its words (on whichever side), swaying, and posed by the scroll
+    var pitch = (C.turn[1] * turn + C.sway[1] * sway * Math.sin(t * 2 * Math.PI / 7 + 1.3) + po.pitch) * deg;
     var g = (t - T.glint[0]) / (T.glint[1] - T.glint[0]), glint = g > 0 && g < 1 ? -.8 + 1.6 * g * g * (3 - 2 * g) : 9;
     var line = still || warmOnly ? 0 : Math.min(1, t / .05) * (1 - step(T.line[0], T.line[1]));
     if (lg.target && !still && !warmOnly && t > T.fly[1]) { var wob = Math.exp(-5 * (t - T.fly[1])) * Math.sin(17 * (t - T.fly[1])); yaw += TARGET.wobble[0] * wob * deg; pitch += TARGET.wobble[1] * wob * deg; }   // the target rocks as the arrow hits
-    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var R = turnRows(yaw, pitch, po.roll * deg), area = boundsOf(R, bx, by, bw, bh, lg.puzzle ? .42 : 0, pad);
     var L = lg.prog, U = L.u;
     gl.useProgram(L.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, lg.tex);
     gl.uniform1i(U.uSky, 0); gl.uniform1i(U.uShape, 1); gl.uniform4fv(U.uMap, map); gl.uniform2f(U.uView, W, H); gl.uniform1f(U.uDpr, s); gl.uniform1f(U.uTop, top);
     gl.uniform2f(U.uLight, Math.cos(LENS.light * deg), Math.sin(LENS.light * deg));
-    gl.uniform4f(U.uRect, bx - pad, by - pad, bw + 2 * pad, bh + 2 * pad); gl.uniform4f(U.uBox, bx, by, bw, bh);
-    gl.uniformMatrix3fv(U.uRot, false, [cy, 0, -sy, sy * sp, cp, cy * sp, sy * cp, -sp, cy * cp]);   // turned (yaw), after tipped (pitch)
+    gl.uniform4f(U.uRect, area[0], area[1], area[2] - area[0], area[3] - area[1]); gl.uniform4f(U.uBox, bx, by, bw, bh);   // the area drawn: wherever the turned object can reach
+    gl.uniformMatrix3fv(U.uRot, false, [R[0][0], R[1][0], R[2][0], R[0][1], R[1][1], R[2][1], R[0][2], R[1][2], R[2][2]]);   // (columns)
     gl.uniform1f(U.uCam, 3.4); gl.uniform1f(U.uBack, .9);                         // the eye 3.4 logo widths away; the clouds as if .9 behind
     gl.uniform1f(U.uIor, LOGO.ior); gl.uniform1f(U.uDisp, LOGO.dispersion); gl.uniform1f(U.uLine, line); gl.uniform1f(U.uGlint, glint);
     if (lg.photo) {                                                                 // the photo
@@ -6505,7 +6583,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.uniform1i(U.uPhoto, 1); gl.uniform1f(U.uHalf, hh); gl.uniform1f(U.uCorner, rc);
       gl.uniform1f(U.uH, ph); gl.uniform1f(U.uR, Math.min(PHOTO.bevel, ph * .95)); gl.uniform1f(U.uFill, pfill);
       gl.uniform1f(U.uW, (Math.min(.5, hh) + 1.5 * PHOTO.bevel) / 2);              // how far the glass pours in (twice this, at full): a little past the middle, so its rounded inner edge closes over and leaves the face flat (exactly to the middle left a small dimple there)
-      gl.uniform1f(U.uShow, warmOnly ? 0 : step(T.show[0], T.show[1])); gl.uniform1f(U.uFrost, PHOTO.frost); gl.uniform1f(U.uShadow, LENS.shadow[0] * pfill);
+      gl.uniform1f(U.uShow, warmOnly ? 0 : step(T.show[0], T.show[1])); gl.uniform1f(U.uFrost, PHOTO.frost); gl.uniform1f(U.uShadow, LENS.shadow[0] * shK * pfill);
       gl.uniform1f(U.uDrawn, Ld); gl.uniform1f(U.uPerim, per); gl.uniform2f(U.uHead0, h0[0], h0[1]); gl.uniform2f(U.uHead1, h1[0], h1[1]);
     } else if (lg.target) {                                                         // the target: the bullseye and the rings drawn and filled, then the arrow flies in
       var G = TARGET, A = G.arrow, ring = [], fills = [], wks = [], sweeps = [], hit = t - T.fly[1];
@@ -6516,7 +6594,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         wks.push((g[1] + 1.5 * G.bevel) / 2);                                     // how far its glass pours (twice this, at full): past its middle, so it closes flat
         sweeps.push(warmOnly ? 0 : step(o, o + T.draw));
       });
-      var u0 = vNorm(A.dir), fly = (t - T.fly[0]) / (T.fly[1] - T.fly[0]), on = !warmOnly && (still || fly > 0), D = still || fly >= 1 ? 0 : A.from * (1 - Math.max(0, fly));
+      var u0 = vNorm([A.dir[0] * po.side, A.dir[1], A.dir[2]]), fly = (t - T.fly[0]) / (T.fly[1] - T.fly[0]), on = !warmOnly && (still || fly > 0), D = still || fly >= 1 ? 0 : A.from * (1 - Math.max(0, fly));
       var tip = vAdd([0, 0, A.tipZ], vScale(u0, D));
       var ax = vNorm(vCross(u0, [0, 0, 1])), ph = still || hit <= 0 ? 0 : A.quiver * deg * Math.exp(-4.5 * hit) * Math.sin(42 * hit);   // its quiver after the hit: a little turn about its tip
       var u = vAdd(vScale(u0, Math.cos(ph)), vScale(vCross(ax, u0), Math.sin(ph))), e2 = vNorm(vCross(u, [0, 0, 1])), e3 = vCross(u, e2);
@@ -6525,9 +6603,9 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       var lo = [-.5, -.5, -hz], hi = [.5, .5, hz];
       if (on) [tip, tail].forEach(function(p){ for (var i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i] - .1); hi[i] = Math.max(hi[i], p[i] + .1); } });
       var trail = still || !on ? 0 : hit <= 0 ? 1 : Math.pow(Math.max(0, 1 - hit / T.trail), 2), rp = still || hit <= 0 || hit >= T.ripple ? 0 : Math.pow(1 - hit / T.ripple, 2), fl = still || hit <= 0 || hit >= T.flash ? 0 : Math.pow(1 - hit / T.flash, 2);
-      var M = [[cy, sy * sp, sy * cp], [0, cp, -sp], [-sy, cy * sp, cy * cp]];     // uRot's rows: the target's own space -> the view
+      var M = R;                                                                    // uRot's rows: the target's own space -> the view
       var scr = function(p){ var v = M.map(function(row){ return row[0] * p[0] + row[1] * p[1] + row[2] * p[2]; }), k = 3.4 / Math.max(.2, 3.4 - v[2]); return [v[0] * k, v[1] * k]; };   // a point -> the screen (units from the box's middle, y up), as the eye sees it
-      var ta = scr(tail), tb = scr(from), pts = on ? [scr(tip), ta] : [], x0 = bx - pad, y0 = by - pad, x1 = bx + bw + pad, y1 = by + bh + pad;
+      var ta = scr(tail), tb = scr(from), pts = on ? [scr(tip), ta] : [], x0 = area[0], y0 = area[1], x1 = area[2], y1 = area[3];
       if (trail > 0) { var dl = Math.sqrt((tb[0] - ta[0]) * (tb[0] - ta[0]) + (tb[1] - ta[1]) * (tb[1] - ta[1])), cut = Math.min(1, 1.2 / Math.max(dl, 1e-6)); pts.push([ta[0] + (tb[0] - ta[0]) * cut, ta[1] + (tb[1] - ta[1]) * cut]); }
       pts.forEach(function(q){ var px = bx + bw / 2 + q[0] * bw, py = by + bh / 2 - q[1] * bw, m = .14 * bw; x0 = Math.min(x0, px - m); y0 = Math.min(y0, py - m); x1 = Math.max(x1, px + m); y1 = Math.max(y1, py + m); });
       x0 = Math.max(x0, -10); y0 = Math.max(y0, -10); x1 = Math.min(x1, W + 10); y1 = Math.min(y1, H + 10);
@@ -6536,7 +6614,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.uniform3fv(U.uLo, lo); gl.uniform3fv(U.uHi, hi); gl.uniform1f(U.uArrowOn, on ? 1 : 0); gl.uniform3fv(U.uArrowO, tip); gl.uniform1f(U.uArrowL, A.length);
       gl.uniformMatrix3fv(U.uArrowM, false, [u[0], f2[0], f3[0], u[1], f2[1], f3[1], u[2], f2[2], f3[2]]);   // its axes as rows: a point -> the arrow's own space
       gl.uniform2f(U.uTrailA, ta[0], ta[1]); gl.uniform2f(U.uTrailB, tb[0], tb[1]); gl.uniform1f(U.uTrail, trail);
-      gl.uniform2f(U.uRipple, .09 + .5 * Math.pow(Math.max(0, hit) / T.ripple, .8), rp); gl.uniform1f(U.uFlash, fl); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0]);
+      gl.uniform2f(U.uRipple, .09 + .5 * Math.pow(Math.max(0, hit) / T.ripple, .8), rp); gl.uniform1f(U.uFlash, fl); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0] * shK);
     } else if (lg.puzzle) {                                                         // the puzzle: three pieces drawn and filled, then the last one goes into place
       var z = lg.shape, P = PUZZLE, dr = warmOnly ? 0 : step(0, T.draw), zf = Math.max(0, Math.min(1, (t - T.fill[0]) / (T.fill[1] - T.fill[0]))), zfill = warmOnly ? 0 : 1 - Math.pow(1 - zf, 3);
       var zh = P.depth / 2 * (.35 + .65 * swellAt(T.swell)), mv = moveOf(t), mh = warmOnly || mv.show <= 0 ? 0 : P.depth / 2 * (.35 + .65 * swellAt(T.appear[0])), R = turnOf(mv.spin, mv.tx, mv.ty);
@@ -6557,7 +6635,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.uniform4f(U.uDrawn, dr, 0, dr, dr); gl.uniform4f(U.uPer, z.loops[0].total, z.loops[1].total, z.loops[2].total, z.loops[3].total); gl.uniform2fv(U["uHead[0]"], heads);
       gl.uniform3fv(U.uLo, lo); gl.uniform3fv(U.uHi, hi); gl.uniform2f(U.uMoveC, z.mid[0], z.mid[1]); gl.uniform3f(U.uMoveAt, mv.x, mv.y, mv.z);
       gl.uniformMatrix3fv(U.uMoveR, false, [R[0][0], R[0][1], R[0][2], R[1][0], R[1][1], R[1][2], R[2][0], R[2][1], R[2][2]]);   // its turn undone: R's rows as the columns
-      gl.uniform1f(U.uMoveH, mh); gl.uniform1f(U.uShow, warmOnly ? 0 : mv.show); gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0]);
+      gl.uniform1f(U.uMoveH, mh); gl.uniform1f(U.uShow, warmOnly ? 0 : mv.show); gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0] * shK);
       gl.uniform1f(U.uHeadK, 1 - step(T.draw * .75, T.draw * 1.05));              // the heads fade as each piece's two lines meet
       gl.activeTexture(gl.TEXTURE0);
     } else if (!lg.lock) {                                                          // the Z
@@ -6565,7 +6643,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       var half = LOGO.depth / 2 * (.35 + .65 * swellAt(T.swell));
       gl.uniform4f(U.uShapeMap, 1 / (1 + 2 * Z_PAD), 1 / (2 * Z_HALF + 2 * Z_PAD), .5, .5); gl.uniform1f(U.uHalf, Z_HALF);
       gl.uniform1f(U.uH, half); gl.uniform1f(U.uR, Math.min(LOGO.bevel, half * .95)); gl.uniform1f(U.uW, Z_STROKE); gl.uniform1f(U.uFill, fill); gl.uniform1f(U.uFrost, LOGO.frost);
-      gl.uniform2f(U.uDrawn, drawn * Z_ROUND[0], drawn * Z_ROUND[1]); gl.uniform2fv(U["uPoly[0]"], Z_POLY); gl.uniform1f(U.uShadow, LENS.shadow[0] * fill);
+      gl.uniform2f(U.uDrawn, drawn * Z_ROUND[0], drawn * Z_ROUND[1]); gl.uniform2fv(U["uPoly[0]"], Z_POLY); gl.uniform1f(U.uShadow, LENS.shadow[0] * shK * fill);
       gl.uniform3fv(U.uTint0, LOGO.tint[0]); gl.uniform3fv(U.uTint1, LOGO.tint[1]);
     } else {                                                                        // the lockup: per part (the Z, ZENGERS, DIGITAL SERVICES), sized by its strokes
       var k = lg.shape, hs = k.strokes, n = k.glyphs.length, boxes = new Float32Array(MAX_GLYPHS * 4), runs = new Float32Array(MAX_GLYPHS * 4);
@@ -6585,7 +6663,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.uniform3fv(U.uH, uh); gl.uniform3fv(U.uR, ur); gl.uniform3fv(U.uW, hs); gl.uniform3fv(U.uFrost, C.frost);
       gl.uniform1f(U.uT, warmOnly ? -1 : t); gl.uniform1f(U.uAny, !warmOnly && t > begin ? 1 : 0);
       gl.uniform3fv(U.uFill0, f0); gl.uniform3fv(U.uFillD, [T.fill[0][1], T.fill[1][1], T.fill[2][1]]); gl.uniform3fv(U.uFillK, fk);
-      gl.uniform3fv(U.uTail, tail); gl.uniform3fv(U.uShOff, shOff); gl.uniform3fv(U.uShSoft, shSoft); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0]);
+      gl.uniform3fv(U.uTail, tail); gl.uniform3fv(U.uShOff, shOff); gl.uniform3fv(U.uShSoft, shSoft); gl.uniform1f(U.uShadow, warmOnly ? 0 : LENS.shadow[0] * shK);
       var glow = Math.max(.65, Math.min(1.1, bw / 520));                            // the lines' glow, in step with the logo's size
       gl.uniform1f(U.uGlow, glow); gl.uniform1f(U.uReach, 34 * glow / bw);       // how far a line's glow reaches: about 34 px
       gl.uniform4fv(U["uGlyph[0]"], boxes); gl.uniform4fv(U["uRun[0]"], runs); gl.uniform1i(U.uGlyphs, n);
@@ -6621,6 +6699,19 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     slow.warm = performance.now() - t0;
   }
+  var scene = null;                                    // the clouds and the words drawn off-screen first, so the objects bend the words behind them as well as the clouds (2026-11-18); false: can't here
+  function sceneFor(cw, ch){
+    if (scene === false) return null;
+    if (scene && scene.w === cw && scene.h === ch) return scene;
+    try {
+      if (!scene) scene = { tex: texture(gl.LINEAR), fb: gl.createFramebuffer() };
+      gl.bindTexture(gl.TEXTURE_2D, scene.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, cw, ch, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, scene.fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, scene.tex, 0);
+      var ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE; gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      if (!ok) { scene = false; return null; }
+      scene.w = cw; scene.h = ch; return scene;
+    } catch(e){ scene = false; return null; }
+  }
   var chain = 0, emBlank = null;                       // chain: when the next words may start condensing (REVEAL)
   function blankEm(){ if (!emBlank) { emBlank = texture(gl.NEAREST); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array(1)); } return emBlank; }
   function ask(){ if (!asked) { asked = true; requestAnimationFrame(draw); } }
@@ -6638,6 +6729,8 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     if (first && !mayMake(first)) first = null;          // (where that stalls the page, in a calm moment, or as it's about to show)
     if (first) { warmLogo(first); made(); }
     var t1 = performance.now(), s = fitCanvas(W, H), cw = canvas.width, ch = canvas.height, t2 = performance.now();
+    var sb = sceneFor(cw, ch);
+    if (sb) gl.bindFramebuffer(gl.FRAMEBUFFER, sb.fb);
     gl.viewport(0, 0, cw, ch);
     var sc = Math.max(W / skyW, H / skyH), mx = 1 / (skyW * sc), my = 1 / (skyH * sc), map = [mx, my, .5 - W / 2 * mx, .5 - H / 2 * my];   // the video fills the stage
     gl.disable(gl.BLEND);
@@ -6675,9 +6768,17 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
     });
-    var moving = revealing;
+    var moving = revealing, lmap = map;
     gl.activeTexture(gl.TEXTURE0);
-    logos.forEach(function(lg){ if (lg !== first && lg.warm && !lg.failed && logoReady(lg) && drawLogo(lg, cr, W, H, s, map, top)) moving = true; });
+    if (sb) {                                            // onto the screen, and the objects see it (the off-screen picture: y up)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.disable(gl.BLEND);
+      lmap = [1 / W, -1 / H, 0, 1];
+      gl.useProgram(bgProg.p); gl.bindBuffer(gl.ARRAY_BUFFER, full); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.bindTexture(gl.TEXTURE_2D, sb.tex); gl.uniform1i(bgProg.u.uSky, 0); gl.uniform2f(bgProg.u.uView, W, H); gl.uniform4fv(bgProg.u.uMap, lmap);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    }
+    logos.forEach(function(lg){ if (lg !== first && lg.warm && !lg.failed && logoReady(lg) && drawLogo(lg, cr, W, H, s, lmap, top)) moving = true; });
     canvas.classList.add("is-on");
     var t3 = performance.now(); slow.sky = Math.max(slow.sky, t1 - t0); slow.size = Math.max(slow.size, t2 - t1); slow.draw = Math.max(slow.draw, t3 - t2);
     if ((seen && !video.paused && !calm) || moving || first || logos.some(function(lg){ return lg.making || lg.busy; })) ask();   // the video or a logo keeps moving (or a logo is nearly ready): draw again next frame
