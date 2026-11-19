@@ -86,13 +86,29 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
    spaced from it) but lets clicks through, except on its buttons. */
 .site-header{background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-bottom:0!important;box-shadow:none!important;pointer-events:none}
 .site-header .header-inner{position:relative;gap:10px}
-.site-header .wordmark,.site-header .menu-btn,.site-header .header-cta,.site-header .nav{pointer-events:auto}
+.site-header .wordmark,.site-header .menu-btn,.site-header .header-cta,.site-header .hdr-price,.site-header .nav{pointer-events:auto}
 .site-header .wordmark{order:0;margin-right:auto;padding:6px 0;background:none;border:0;box-shadow:none}   /* just the logo, no pill (Jason, 2026-11-12) */
 .site-header .logo-lockup{filter:drop-shadow(0 0 .6px rgba(255,255,255,.95)) drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 1px 8px rgba(255,255,255,.28))}   /* a thin light edge, so the dark letters read over the dark mountain and the street */
-.site-header .header-cta{order:1;display:inline-flex!important;align-items:center;min-height:46px;border-radius:999px;box-shadow:0 6px 20px rgba(14,24,34,.2)}
-.site-header .menu-btn{order:2;display:inline-flex!important;align-items:center;gap:9px;height:46px;padding:0 18px;border-radius:999px;background:rgba(248,249,246,.74);border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 6px 20px rgba(14,24,34,.18);color:var(--text);font:600 15px var(--body);cursor:pointer}
-.site-header .menu-btn::before{content:"";width:16px;height:12px;background:linear-gradient(currentColor 0 0) top/100% 2px no-repeat,linear-gradient(currentColor 0 0) center/100% 2px no-repeat,linear-gradient(currentColor 0 0) bottom/100% 2px no-repeat}
-.site-header .menu-btn:hover{background:rgba(255,255,255,.9)}
+.site-header .header-cta{order:2;display:inline-flex!important;align-items:center;gap:8px;min-height:46px;border-radius:999px;box-shadow:0 6px 20px rgba(14,24,34,.2)}
+.site-header .menu-btn,.site-header .hdr-price{order:3;display:inline-flex!important;align-items:center;gap:8px;height:46px;padding:0 18px;border-radius:999px;background:rgba(248,249,246,.74);border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 6px 20px rgba(14,24,34,.18);color:var(--text);font:600 15px var(--body);text-decoration:none;cursor:pointer}
+.site-header .hdr-price{order:1}
+.site-header .header-cta,.site-header .menu-btn,.site-header .hdr-price{flex:none}   /* the buttons keep their size; on a narrow phone the logo gives way */
+.site-header .wordmark{min-width:0}
+.site-header .logo-lockup{max-width:100%;object-fit:contain;object-position:left center}
+.site-header .menu-btn:hover,.site-header .hdr-price:hover{background:rgba(255,255,255,.9)}
+.site-header .nav a[href$="#pricing"]{display:none!important}   /* Pricing has its own button too */
+/* The three buttons' icons (2026-11-18, Jason): at rest they sit still; pressing one plays its move once ("Header
+   button icons" script). Contact us: the phone rings, as in Why it matters. Menu: the three lines turn into a lightning
+   bolt while the menu is open. Pricing: the dollar sign flips like a tossed coin. */
+.hb-ic{flex:none;width:20px;height:20px;overflow:visible}
+.hb-ic *{transform-box:fill-box;transform-origin:50% 50%}
+.hb-ring{transform-box:view-box;transform-origin:24px 16px;vector-effect:non-scaling-stroke}
+.hb-lines path{transition:transform .18s ease-out,opacity .18s ease-out}
+.hb-bolt{opacity:0;transform:scale(.6);fill:var(--lamp);stroke-width:1.6;transition:transform .18s ease-out,opacity .18s ease-out}
+.menu-btn[aria-expanded="true"] .hb-lines path{opacity:0;transform:scaleX(0)}
+.menu-btn[aria-expanded="true"] .hb-bolt{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.hb-lines path,.hb-bolt{transition:none}}
+.site-header .menu-btn:hover,.site-header .hdr-price:hover{background:rgba(255,255,255,.9)}
 .site-header .nav{position:absolute!important;top:calc(100% + 4px)!important;right:var(--gutter)!important;left:auto!important;width:min(300px,calc(100vw - 32px));display:none!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:8px 18px!important;border-radius:20px;background:rgba(248,249,246,.9)!important;border:1px solid rgba(255,255,255,.85)!important;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 18px 44px rgba(14,24,34,.24)}
 .site-header .nav.open{display:flex!important}
 .site-header .nav a{padding:12px 2px!important;border-bottom:1px solid rgba(204,212,210,.7)!important;font-size:17px!important}
@@ -100,8 +116,10 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 .site-header .nav .nav-contact{display:none!important}   /* Contact us has its own button */
 @media (max-width:520px){
   .site-header .logo-lockup{height:30px!important}
-  .site-header .menu-btn{width:46px;padding:0;justify-content:center;font-size:0;gap:0}   /* just the icon on a phone; its name stays for screen readers */
-  .site-header .header-cta{padding:0 14px;font-size:14px;white-space:nowrap}
+  .site-header .menu-btn,.site-header .hdr-price{width:46px;padding:0;justify-content:center;font-size:0;gap:0}   /* just the icon on a phone; its name stays for screen readers */
+  .site-header .header-cta{padding:0 14px;gap:6px;font-size:14px;white-space:nowrap}
+  .site-header .header-cta .hb-ic{width:18px;height:18px}
+  .site-header .header-inner{gap:8px}
 }
 @media (max-width:380px){
   .site-header .header-inner{gap:8px}
@@ -115,7 +133,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="wordmark" href="index.html"><img class="logo-lockup" src="media/zengers-logo-horizontal.webp" width="561" height="112" alt="ZENGERS Digital Services home"></a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav"><svg class="hb-ic hb-menu" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="hb-lines"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></g><path class="hb-bolt" d="M13.5 2 5 13.5h6.5L10.5 22 19 10.5h-6.5Z"/></svg>Menu</button>
     <nav class="nav" id="site-nav" aria-label="Main">
       <a href="index.html#services">Services</a>
       <a href="index.html#benefits">Why it matters</a>
@@ -125,9 +143,63 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
       <a href="examples.html" aria-current="page">Examples</a>
       <a class="nav-contact" href="index.html#contact">Contact us</a>
     </nav>
-    <a class="btn btn-primary header-cta" href="index.html#contact">Contact us</a>
+    <a class="hdr-price" href="index.html#pricing"><svg class="hb-ic hb-dollar" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><g class="hb-coin"><path class="hb-bar" d="M12 2.5v19"/><path class="hb-s" d="M16.6 7.4C15.9 6 14.2 5.2 12 5.2c-2.7 0-4.5 1.3-4.5 3.2 0 4.3 9.2 2.5 9.2 7.1 0 1.9-2 3.3-4.7 3.3-2.3 0-4.1-.9-4.8-2.5"/></g></svg><span class="hb-name">Pricing</span></a>
+    <a class="btn btn-primary header-cta" href="index.html#contact"><svg class="hb-ic hb-call" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path class="hb-phone" d="M9 6h6l3 8-4 3a18 18 0 0 0 9 9l3-4 8 3v6a3 3 0 0 1-3 3C18 34 6 22 6 9a3 3 0 0 1 3-3Z"/><g stroke-width="3" stroke-linecap="round"><path class="hb-wave" d="M25 6a10 10 0 0 1 9 9" pathLength="1"/><path class="hb-ring" d="M25 6a10 10 0 0 1 9 9" opacity="0"/><path class="hb-ring" d="M25 6a10 10 0 0 1 9 9" opacity="0"/></g></svg>Contact us</a>
   </div>
 </header>
+<script>
+/* Header button icons (2026-11-18, Jason). Each plays once when its button is pressed: Contact us rings twice like the
+   phone in Why it matters, Menu's bolt strikes as the menu opens (closing turns it back into three lines), and Pricing's
+   dollar sign flips like a tossed coin. With reduced motion only Menu's still change of icon happens (by its CSS). */
+(function(){
+  "use strict";
+  if (!Element.prototype.animate || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var DASH = "1 1";
+  function q(s){ return document.querySelector(".site-header " + s); }
+  function move(el, frames, ms, delay, easing){ if (el) el.animate(frames, { duration: ms, delay: delay || 0, easing: easing || "ease-in-out", fill: "backwards" }); }
+  function shake(){ return [0, -14, 12, -11, 9, -6, 4, -2, 0].map(function(d, i, a){ return { transform: "rotate(" + d + "deg)", offset: i / (a.length - 1) }; }); }
+
+  var call = q(".header-cta"), menu = q(".menu-btn"), price = q(".hdr-price");
+  if (call) call.addEventListener("click", function(){                     // the ring from Why it matters: two shakes, the signal goes out and ripples away
+    var phone = call.querySelector(".hb-phone");
+    move(phone, shake(), 560, 0, "linear"); move(phone, shake(), 560, 760, "linear");
+    move(call.querySelector(".hb-wave"), [
+      { strokeDasharray: DASH, strokeDashoffset: 0, offset: 0 },
+      { strokeDasharray: DASH, strokeDashoffset: -1, offset: .16 },
+      { strokeDasharray: DASH, strokeDashoffset: 1, offset: .16 },
+      { strokeDasharray: DASH, strokeDashoffset: 0, offset: .4 },
+      { strokeDasharray: DASH, strokeDashoffset: 0, offset: 1 }
+    ], 1400);
+    [].forEach.call(call.querySelectorAll(".hb-ring"), function(el, i){
+      move(el, [{ opacity: 0, transform: "scale(1)" }, { opacity: .85, transform: "scale(1.08)", offset: .15 }, { opacity: 0, transform: "scale(1.5)" }], 750, 200 + i * 700, "ease-out");
+    });
+  });
+  if (menu) menu.addEventListener("click", function(){                     // after the menu script has set aria-expanded
+    setTimeout(function(){
+      if (menu.getAttribute("aria-expanded") !== "true") return;
+      move(menu.querySelector(".hb-bolt"), [
+        { opacity: 0, transform: "translateY(-9px) scale(.5)", fill: "#fff" },
+        { opacity: 1, transform: "translateY(1px) scale(1.18)", fill: "#fff", offset: .3 },
+        { opacity: .35, transform: "scale(1.05)", offset: .45 },
+        { opacity: 1, transform: "none", offset: .6 },
+        { opacity: .5, offset: .72 },
+        { opacity: 1, transform: "none" }
+      ], 620, 60, "ease-out");
+    }, 0);
+  });
+  if (price) price.addEventListener("click", function(){                   // tossed: up, two flips, down with a small bounce
+    move(price.querySelector(".hb-coin"), [
+      { transform: "translateY(0) scaleX(1)" },
+      { transform: "translateY(-5px) scaleX(0)", offset: .2 },
+      { transform: "translateY(-7px) scaleX(-1)", offset: .35 },
+      { transform: "translateY(-5px) scaleX(0)", offset: .5 },
+      { transform: "translateY(0) scaleX(1)", offset: .7, easing: "ease-out" },
+      { transform: "translateY(-1.5px) scaleY(.92)", offset: .82 },
+      { transform: "translateY(0) scaleX(1)" }
+    ], 760, 0, "ease-in-out");
+  });
+})();
+</script>
 <script>/* The menu panel closes on a click outside it, or Escape (2026-11-12) */(function(){var b=document.querySelector(".site-header .menu-btn"),n=document.getElementById("site-nav");if(!b||!n)return;function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false");}document.addEventListener("click",function(e){if(n.classList.contains("open")&&!n.contains(e.target)&&!b.contains(e.target))close();});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&n.classList.contains("open")){close();b.focus();}});})();</script>
 
 <main id="main">
