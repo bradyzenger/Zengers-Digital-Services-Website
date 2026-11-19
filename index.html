@@ -1187,8 +1187,8 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
      frosted (the clouds behind blurred, whiter, a stronger shadow); the headings and the 3D pieces stay as they are.
      A native range input under the pill's look, so keys and screen readers work; the "About" script does the rest.
      Reading (Jason, 2026-11-17): each block's words are split, unchanged, into a lead sentence (.ab-lead, larger) and
-     short paragraphs, with one phrase a block in <strong> (gold glass; dark gold on the plain words). The glass words
-     condense out of the cloud line by line as they reach the screen, in reading order (REVEAL in the "About" script). -->
+     short paragraphs, with one phrase a block in <strong> (gold glass; dark gold on the plain words). The glass words are simply there
+     as they come up the screen (the line-by-line condense-in was taken out, Jason, 2026-11-19). -->
 <section class="about" id="about" aria-labelledby="about-title">
   <div class="ab-stage" aria-hidden="true">
     <video class="ab-video" muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback></video>
@@ -5155,13 +5155,6 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     light: 30,             // degrees: where the light comes from (top left), as in Glisse
     gold: [1.1, .8, .38]   // the <strong> phrase's glass: the clouds through it multiplied by this (one phrase a block, Jason, 2026-11-17)
   };
-  var REVEAL = {           // the words condense out of the cloud as they reach the screen (Jason, 2026-11-17): each heading and paragraph in reading order, line by line down it; off with reduced motion
-    line: .12,             // seconds from one line starting to the next
-    dur: .7,               // seconds one line takes, from nothing to sharp
-    next: .08,              // seconds after a paragraph's last line starts before the next paragraph starts
-    wait: 1.2,             // at most this long behind the one before (so fast scrolling never leaves words waiting)
-    rise: 10               // px the words rise into place
-  };
   var LOGO = {             // the ZENGERS Z beside the first heading, in 3D glass (see "the logo" below)
     depth: .088,           // its thickness, as a share of its width (a little under one stroke)
     bevel: .04,            // how round its edges are: nearly all of the half-stroke, so it looks poured, not cut
@@ -5317,12 +5310,9 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     "uniform float uDpr, uTop, uBezel, uThick, uDisp, uTint, uShadow, uSoft, uBand, uEdge, uBlur, uBright;   // uBlur: how far the clouds behind are blurred (px; frosted glass, the paragraphs only)",
     "uniform sampler2D uEm;       // where the <strong> phrase is (1), over the same box as the field",
     "uniform vec3 uGold;          // its glass's colour (LENS.gold), and uEmOn 0 where there's none",
-    "uniform float uEmOn, uTextY; // uTextY: the text's top, stage px",
-    "uniform vec4 uReveal;        // seconds since it started condensing (-1: not yet), line height px, seconds a line after the one above, seconds a line takes",
-    "uniform float uRise;",
+    "uniform float uEmOn;",
     "in vec2 vPx; out vec4 o;",
-    "float er = 0.;               // how much thinner the letters are while they condense",
-    "float sd(vec2 p){ return texture(uSdf, (p - uRect.xy) / uRect.zw).r - er; }      // px inside a letter (+) or outside (-)",
+    "float sd(vec2 p){ return texture(uSdf, (p - uRect.xy) / uRect.zw).r; }      // px inside a letter (+) or outside (-)",
     "vec3 sky(vec2 p){ return texture(uSky, p * uMap.xy + uMap.zw).rgb; }",
     "float bend(float d){                                                    // Glisse's lens profile: how far the rim shifts what's behind",
     "  float t = clamp(d / uBezel, .001, 1.);",
@@ -5332,15 +5322,10 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     "  return tan(incident - refracted) * (uThick + surface * uBezel);",
     "}",
     "void main(){",
-    "  float li = (vPx.y - uTextY) / max(uReveal.y, 1.) - .5;                 // which line, as a smooth number, so a line's tall letters don't tear",
-    "  float k = clamp((uReveal.x - max(li, 0.) * uReveal.z) / max(uReveal.w, 1e-3), 0., 1.);",
-    "  if (uReveal.x < 0. || k <= 0.) { o = vec4(0.); return; }",
-    "  k = k * k * (3. - 2. * k); float un = 1. - k;                          // condensing: thin, soft and a little low, to whole, sharp and in place",
-    "  er = un * (uBand * 7. + 1.5);",
-    "  vec2 p = vPx - vec2(0., un * uRise);",
+    "  vec2 p = vPx;",
     "  float d = sd(p);",
-    "  float cov = clamp(d * uDpr / (1. + un * 6.) + .5, 0., 1.);             // the letter's own antialiased edge (soft while it condenses)",
-    "  float fade = k * smoothstep(uTop, uTop + .12 * uView.y, p.y) * smoothstep(uView.y, .86 * uView.y, p.y);   // words dissolve below the header and at the bottom",
+    "  float cov = clamp(d * uDpr + .5, 0., 1.);                              // the letter's own antialiased edge",
+    "  float fade = smoothstep(uTop, uTop + .12 * uView.y, p.y) * smoothstep(uView.y, .86 * uView.y, p.y);   // words dissolve below the header and at the bottom",
     "  float ds = sd(p - vec2(0., uSoft * .3));                               // the shadow: a little below, soft and warm",
     "  float bl = dot(sky(p), vec3(.2126, .7152, .0722));                    // how bright the clouds are here: deeper shadow where they'd wash the clear glass out",
     "  float sh = min(.8, uShadow * (1. + uBright * smoothstep(.6, .92, bl))) * pow(smoothstep(-uSoft, .5, ds), 2.) * (1. - cov);",
@@ -6358,8 +6343,6 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     for (var i = 0; i < n; i++) alpha[i] = px[i * 4 + 3];
     var emk = null;
     if (ex) { var ep = ex.getImageData(0, 0, W, H).data; emk = new Uint8Array(n); for (i = 0; i < n; i++) emk[i] = ep[i * 4 + 3]; }
-    var lh = parseFloat(cs.lineHeight) || fs * 1.3;
-    it.lh = lh; it.lines = Math.max(1, Math.round(r.height / lh));
     var g = gen, w = r.width;
     function use(field, half){                         // the field is ready: on to the graphics chip
       it.busy = false;
@@ -6872,7 +6855,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       scene.w = cw; scene.h = ch; return scene;
     } catch(e){ scene = false; return null; }
   }
-  var chain = 0, emBlank = null;                       // chain: when the next words may start condensing (REVEAL)
+  var emBlank = null;
   function blankEm(){ if (!emBlank) { emBlank = texture(gl.NEAREST); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array(1)); } return emBlank; }
   function ask(){ if (!asked) { asked = true; requestAnimationFrame(draw); } }
   function draw(){
@@ -6903,22 +6886,14 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     gl.useProgram(g.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.uniform1i(U.uSky, 0); gl.uniform1i(U.uSdf, 1); gl.uniform2f(U.uView, W, H); gl.uniform4fv(U.uMap, map); gl.uniform1f(U.uDpr, s); gl.uniform1f(U.uTop, top);
     gl.uniform2f(U.uLight, Math.cos(ang), Math.sin(ang)); gl.uniform1f(U.uDisp, LENS.dispersion);
-    gl.uniform1i(U.uEm, 2); gl.uniform3fv(U.uGold, LENS.gold); gl.uniform1f(U.uRise, REVEAL.rise);
-    var now = performance.now(), revealing = false;
+    gl.uniform1i(U.uEm, 2); gl.uniform3fv(U.uGold, LENS.gold);
     items.forEach(function(it){
       if (!it.tex) return;
       var r = it.el.getBoundingClientRect(), y = r.top - cr.top;
       if (Math.abs(r.width - it.w) > 1) { if (queue.indexOf(it) < 0) queue.push(it); return; }   // laid out again (the window changed): drawn again soon
       if (y + r.height + it.m < 0 || y - it.m > H) return;
-      if (!it.t0 && !still && y + it.lh < H * .86 && y + r.height > top && (+veil.style.opacity || 0) < .5) {   // its first line is in the clear band: it starts to condense, after the one before
-        it.t0 = Math.min(Math.max(now, chain), now + REVEAL.wait * 1000);
-        chain = it.t0 + ((it.lines - 1) * REVEAL.line + REVEAL.next) * 1000;
-      }
-      var rt = still ? 99 : it.t0 ? (now - it.t0) / 1000 : -1;
-      if (!still && (rt < 0 ? it.t0 : rt < (it.lines - 1) * REVEAL.line + REVEAL.dur)) revealing = true;
       var k = it.para ? 1 : 0, half = Math.max(1, it.half);
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, it.em || blankEm()); gl.uniform1f(U.uEmOn, it.em ? 1 : 0);
-      gl.uniform4f(U.uReveal, rt, it.lh, REVEAL.line, REVEAL.dur); gl.uniform1f(U.uTextY, y);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, it.tex);
       gl.uniform4f(U.uRect, r.left - cr.left - it.m, y - it.m, it.tw, it.th);
       gl.uniform1f(U.uBezel, Math.max(.8, half * LENS.bezel)); gl.uniform1f(U.uThick, half * LENS.thickness);
@@ -6928,7 +6903,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (!it.shown) { it.shown = true; it.el.classList.add("is-glass"); }   // now the glass shows it, hide the plain words
     });
-    var moving = revealing, lmap = map;
+    var moving = false, lmap = map;
     gl.activeTexture(gl.TEXTURE0);
     if (sb) {                                            // onto the screen, and the objects see it (the off-screen picture: y up)
       gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.disable(gl.BLEND);
