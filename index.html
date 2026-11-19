@@ -349,19 +349,19 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 .st-ui.is-on .st-title{opacity:1}
 @keyframes stSpray{0%{opacity:0;transform:translateY(.12em) scale(1.4) rotate(-6deg)}55%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes stMist{0%{opacity:0;transform:scale(.5)}30%{opacity:1}100%{opacity:0;transform:scale(1.3)}}
-.st-hint{margin:0;padding:7px 16px;border-radius:999px;background:rgba(14,24,34,.78);color:var(--on-dark);font:600 var(--fs-md)/1.3 var(--body);opacity:0;transition:opacity .4s}
+.st-hint{margin:0;padding:8px 16px;border-radius:999px;background:rgba(14,24,34,.78);color:var(--on-dark);font:600 var(--fs-md)/1.3 var(--body);opacity:0;transition:opacity .4s}
 .st-ui.is-on .st-hint{opacity:1;transition:opacity .6s 1.4s}
 .st-ui.is-on.sprayed .st-hint{transition-delay:.2s}
 .st-hint-touch{display:none}
 @media (hover:none){.st-hint-mouse{display:none}.st-hint-touch{display:inline}}
 .st-nav{position:absolute;inset:0}
-.st-house{position:absolute;left:0;top:0;translate:-50% calc(-100% - 12px);display:flex;align-items:center;gap:7px;padding:7px 13px 7px 10px;border-radius:999px;border:1px solid rgba(242,181,68,.55);background:rgba(14,24,34,.88);color:var(--on-dark);font:600 var(--fs-md)/1.15 var(--body);text-decoration:none;white-space:nowrap;box-shadow:0 8px 20px rgba(14,24,34,.3);opacity:0;pointer-events:none;transition:opacity .3s,background-color .2s,color .2s,border-color .2s}   /* see-through, not hidden, so the keyboard reaches them from the film or About us: focused, the page goes to the street (the "Street" script) */
+.st-house{position:absolute;left:0;top:0;translate:-50% calc(-100% - 12px);display:flex;align-items:center;gap:8px;padding:8px 14px 8px 10px;border-radius:999px;border:1px solid rgba(242,181,68,.55);background:rgba(14,24,34,.88);color:var(--on-dark);font:600 var(--fs-md)/1.15 var(--body);text-decoration:none;white-space:nowrap;box-shadow:0 8px 20px rgba(14,24,34,.3);opacity:0;pointer-events:none;transition:opacity .3s,background-color .2s,color .2s,border-color .2s}   /* see-through, not hidden, so the keyboard reaches them from the film or About us: focused, the page goes to the street (the "Street" script) */
 .st-house::after{content:"";position:absolute;left:50%;top:100%;width:2px;height:12px;margin-left:-1px;background:linear-gradient(rgba(242,181,68,.95),rgba(242,181,68,0))}   /* a stem down to the roof */
 .st-num{font-family:var(--display);font-weight:800;font-size:var(--fs-base);letter-spacing:.02em;color:var(--lamp)}   /* each house's street number, as on a real house (not 01-06: Claude test, 2026-11-17) */
 .st-ui.is-on.is-street .st-house:not(.is-off){opacity:1;pointer-events:auto;transition:opacity .5s calc(1.6s + var(--n) * .08s),background-color .2s,color .2s,border-color .2s}
 .st-ui.is-on.is-street .st-house:focus-visible{opacity:1;transition:none}
 .st-ui.is-on.is-street.sprayed .st-house:not(.is-off){transition:opacity .4s .25s,background-color .2s,color .2s,border-color .2s}
-@media (max-width:1240px){.st-house{font-size:var(--fs-sm);gap:5px;padding:6px 10px 6px 8px}.st-num{font-size:var(--fs-2xs)}}
+@media (max-width:1240px){.st-house{font-size:var(--fs-sm);gap:6px;padding:6px 10px 6px 8px}.st-num{font-size:var(--fs-2xs)}}
 .st-house:hover,.st-house.is-hot,.st-house:focus-visible{background:var(--lamp);border-color:var(--lamp);color:var(--ink)}
 .st-house:hover .st-num,.st-house.is-hot .st-num,.st-house:focus-visible .st-num{color:var(--ink)}
 .st-pager{position:absolute;left:0;right:0;top:calc(100svh - 62px);display:none;justify-content:center;align-items:center;gap:16px;opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
@@ -446,15 +446,15 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
    site's gold; the thumb a white capsule that grows and turns to clear glass while it's held (.is-held). The native
    range input lies over the track, invisible, its thumb the same size as the one drawn, so a press lands where it
    shows. Narrow enough on a phone to sit beside "I don't want to read". */
-.ab-glassctl{position:fixed;left:max(16px,var(--gutter));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:9px;box-sizing:border-box;width:min(220px,calc(100vw - 220px));height:40px;padding:0 12px;border:1px solid rgba(255,255,255,.75);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(255,255,255,.26));-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.3),0 6px 20px rgba(80,40,30,.14);color:var(--ink);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
+.ab-glassctl{position:fixed;left:max(16px,var(--gutter));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:8px;box-sizing:border-box;width:min(220px,calc(100vw - 220px));height:40px;padding:0 12px;border:1px solid rgba(255,255,255,.75);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(255,255,255,.26));-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.3),0 6px 20px rgba(80,40,30,.14);color:var(--ink);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
 .ab-glassctl[hidden]{display:none}
 .ab-glassctl.is-on{opacity:1;visibility:visible;transition:opacity .3s ease}
 .about.ab-skipping .ab-glassctl{opacity:0;visibility:hidden}
 .ab-glassctl:has(.ab-gc-in:focus-visible){outline:2px solid var(--ink);outline-offset:3px}
 .ab-gc-ic{flex:none;width:20px;height:20px;opacity:.72;cursor:pointer}
 .ab-gc-track{position:relative;flex:1;min-width:0;height:100%}
-.ab-gc-track::before{content:"";position:absolute;left:0;right:0;top:50%;height:5px;margin-top:-2.5px;border-radius:3px;background:rgba(31,36,48,.16)}
-.ab-gc-fill{position:absolute;left:0;top:50%;width:calc(var(--v,0) * (100% - 30px) + 15px);height:5px;margin-top:-2.5px;border-radius:3px;background:var(--lamp)}
+.ab-gc-track::before{content:"";position:absolute;left:0;right:0;top:calc(50% - 3px);height:6px;border-radius:3px;background:rgba(31,36,48,.16)}
+.ab-gc-fill{position:absolute;left:0;width:calc(var(--v,0) * (100% - 30px) + 15px);top:calc(50% - 3px);height:6px;border-radius:3px;background:var(--lamp)}
 .ab-gc-dots{position:absolute;left:13px;right:13px;top:calc(50% + 12px);display:flex;justify-content:space-between;pointer-events:none}
 .ab-gc-dots i{width:3px;height:3px;border-radius:50%;background:rgba(31,36,48,.32)}
 .ab-gc-thumb{position:absolute;top:50%;left:calc(var(--v,0) * (100% - 30px));width:30px;height:20px;margin-top:-10px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(40,20,10,.22),0 0 0 .5px rgba(0,0,0,.06);pointer-events:none;transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease}
@@ -590,7 +590,7 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .cmp{display:grid;gap:18px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(24px,2.6vw,34px)}
 .cmp .label{color:var(--muted)}
 .cmp h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(30px,2.8vw,38px);line-height:1}
-.cmp-us{background:var(--ink);color:var(--paper);border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp) inset,0 24px 60px rgba(14,24,34,.22);margin-top:-14px}
+.cmp-us{background:var(--ink);color:var(--paper);border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp) inset,0 12px 24px -12px rgba(14,24,34,.4);margin-top:-14px}
 .cmp-us .label{color:var(--lamp)}
 .cmp-us .btn{justify-self:start;margin-top:6px}
 .cmp-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
@@ -698,7 +698,7 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .plan-top{display:grid;gap:6px;min-height:84px}
 .plan-name{font-family:var(--display);font-weight:800;font-size:var(--fs-h3);text-transform:uppercase;line-height:1}
 .plan-for{color:var(--mist);font-size:var(--fs-md)}
-.badge{position:absolute;top:-13px;left:clamp(24px,2.6vw,34px);background:var(--lamp);color:var(--ink);font-family:var(--body);font-weight:600;font-size:var(--fs-sm);letter-spacing:.01em;padding:5px 10px;border-radius:999px;font-weight:500}
+.badge{position:absolute;top:-13px;left:clamp(24px,2.6vw,34px);background:var(--lamp);color:var(--ink);font-family:var(--body);font-weight:600;font-size:var(--fs-sm);letter-spacing:.01em;padding:4px 10px;border-radius:999px;font-weight:500}
 .price{display:grid;gap:6px;padding-block:18px;border-block:1px solid var(--line-dark)}
 .price-main{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
 .price-amount{font-family:var(--display);font-weight:800;font-size:var(--fs-price);line-height:1}
@@ -738,9 +738,9 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .field label,.field legend{font-weight:600;font-size:var(--fs-md);color:var(--text)}
 .field .opt{font-weight:400;color:var(--muted)}
 .field .hint{font-size:var(--fs-sm);color:var(--muted)}
-.field input,.field textarea{width:100%;font:inherit;font-size:var(--fs-base);color:var(--text);background:#fff;border:1.5px solid #B9C3C1;border-radius:10px;padding:11px 13px;min-height:48px}
+.field input,.field textarea{width:100%;font:inherit;font-size:var(--fs-base);color:var(--text);background:#fff;border:1.5px solid #B9C3C1;border-radius:10px;padding:12px 14px;min-height:48px}
 .field textarea{min-height:110px;resize:vertical}
-.field input[type=file]{padding:9px;min-height:0;background:var(--card)}
+.field input[type=file]{padding:10px;min-height:0;background:var(--card)}
 .field input:focus-visible,.field textarea:focus-visible{outline:3px solid var(--lamp);outline-offset:1px;border-color:var(--text)}
 .field [aria-invalid=true]{border-color:var(--error)}
 .field-error{color:var(--error);font-size:var(--fs-sm);font-weight:500}
@@ -966,7 +966,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
 .site-header .wordmark{order:0;margin-right:auto;padding:6px 0;background:none;border:0;box-shadow:none}   /* just the logo, no pill (Jason, 2026-11-12) */
 .site-header .logo-lockup{filter:drop-shadow(0 0 .6px rgba(255,255,255,.95)) drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 1px 8px rgba(255,255,255,.28))}   /* a thin light edge, so the dark letters read over the dark mountain and the street */
 .site-header .header-cta{order:1;display:inline-flex!important;align-items:center;min-height:46px;border-radius:999px;box-shadow:0 6px 20px rgba(14,24,34,.2)}
-.site-header .menu-btn{order:2;display:inline-flex!important;align-items:center;gap:9px;height:46px;padding:0 18px;border-radius:999px;background:rgba(248,249,246,.74);border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 6px 20px rgba(14,24,34,.18);color:var(--text);font:600 var(--fs-md) var(--body);cursor:pointer}
+.site-header .menu-btn{order:2;display:inline-flex!important;align-items:center;gap:8px;height:46px;padding:0 18px;border-radius:999px;background:rgba(248,249,246,.74);border:1px solid rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 6px 20px rgba(14,24,34,.18);color:var(--text);font:600 var(--fs-md) var(--body);cursor:pointer}
 .site-header .menu-btn::before{content:"";width:16px;height:12px;background:linear-gradient(currentColor 0 0) top/100% 2px no-repeat,linear-gradient(currentColor 0 0) center/100% 2px no-repeat,linear-gradient(currentColor 0 0) bottom/100% 2px no-repeat}
 .site-header .menu-btn:hover{background:rgba(255,255,255,.9)}
 .site-header .nav{position:absolute!important;top:calc(100% + 4px)!important;right:var(--gutter)!important;left:auto!important;width:min(300px,calc(100vw - 32px));display:none!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:8px 18px!important;border-radius:20px;background:rgba(248,249,246,.9)!important;border:1px solid rgba(255,255,255,.85)!important;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 18px 44px rgba(14,24,34,.24)}
