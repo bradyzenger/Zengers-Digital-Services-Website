@@ -1060,6 +1060,14 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     held.forEach(function(el){ el.inert = false; }); held = [];
     document.removeEventListener("keydown", onKey, true); window.removeEventListener("resize", onResize);
     if (intro.parentNode) intro.parentNode.removeChild(intro);
+    // Safari (Jason's screen recordings, 2026-11-19): after the page's overflow lock comes off, its pinned screens
+    // (position: sticky, the film's above all) scroll away with the page on the first scrolls, showing the film's bare
+    // background, until the page's layout next changes (about a second later, when the devices lengthen the film). A
+    // change inside one frame isn't enough; Safari's scrolling has to see them unpinned in a drawn frame. So they're
+    // unpinned for two frames and pinned again: at the page's top, where the opening leaves it, that looks the same.
+    var pinned = [].filter.call(document.querySelectorAll("main *"), function(el){ return getComputedStyle(el).position === "sticky"; });
+    pinned.forEach(function(el){ el.style.position = "relative"; });
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ pinned.forEach(function(el){ el.style.position = ""; }); }); });
   }
   function skip(){                                       // a plain fade: the page is in place underneath
     if (done || leaving) return; leaving = true; root.classList.remove("intro-logo-hidden"); intro.style.pointerEvents = "none";
