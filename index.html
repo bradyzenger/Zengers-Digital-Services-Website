@@ -182,6 +182,7 @@ p{margin:0}
    squarer windows). Timings and amounts are in CFG in the script. */
 .intro{display:none}
 html.intro-on{overflow:hidden;background:#000}   /* the page waits underneath, at its top; black also where a classic scrollbar keeps its gutter */
+html.intro-on:not(.intro-open){scrollbar-gutter:auto}   /* the opening has the whole window (no strip kept for a scrollbar, which would cut the Earth short); the strip comes back once the digits cover the screen, so the page is already at its own width when the plexus opens it */
 html.intro-on .intro{display:block;position:fixed;inset:0;z-index:200;overflow:hidden;background:#000;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none;
   --iz:clamp(160px,26vmin,260px);                /* the Z's width on the loading screen */
   --et:.6;--eh:1;--eo:60%}                       /* the Earth's picture: how far above its centre it starts and how tall it is (in radii), and its centre's height in it */
@@ -191,7 +192,10 @@ html.intro-logo-hidden .site-header .logo-lockup{opacity:0}   /* the header's ow
 .in-plex{pointer-events:none}
 .in-space{position:absolute;inset:0;opacity:0}   /* the stars and the Earth: there from the push forward on */
 .in-earth{position:absolute;left:calc(var(--ex,100vw) - 1.07*var(--eR,100vh));top:calc(var(--ey,50vh) - var(--et)*var(--eR,100vh));width:calc(.73*var(--eR,100vh));height:calc(var(--eh)*var(--eR,100vh));will-change:transform}
-.in-earth img{display:block;width:100%;height:100%;max-width:none;transform-origin:146.6% var(--eo);animation:inRoll 46s ease-in-out infinite alternate}   /* it turns a little about its own centre, as from an orbit */
+.in-globe{position:absolute;inset:0;transform-origin:146.6% var(--eo);animation:inRoll 46s ease-in-out infinite alternate}   /* it tips a little about its own centre, as from an orbit */
+.in-globe img,.in-live{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;transition:opacity .6s ease}
+.in-live{opacity:0}                              /* the same Earth drawn live, turning (the "globe" part of the script): it takes over from the still picture once its maps have arrived */
+.in-globe.is-live .in-live{opacity:1}.in-globe.is-live img{opacity:0}
 @keyframes inRoll{from{transform:rotate(-1.1deg)}to{transform:rotate(1.1deg)}}
 /* The Z. Its box is the site's small Z picture's (686 x 463 in the full logo); the opening's own picture of it
    (intro-z.webp) reaches a little past the box for its glow, and the turning frames (intro-z-turn.webp, 8 x 5 of them,
@@ -199,7 +203,10 @@ html.intro-logo-hidden .site-header .logo-lockup{opacity:0}   /* the header's ow
 .in-z{position:absolute;left:50%;top:50%;width:var(--iz);aspect-ratio:686/463;transform:translate(-50%,-50%);transform-origin:0 0;pointer-events:none}
 .in-mark{position:absolute;left:-6.414%;top:-2.16%;width:112.83%;max-width:none;height:auto;opacity:0}
 .in-mark.is-in{opacity:1}
-.in-turn{position:absolute;left:50%;top:50.216%;width:126.37%;height:117.32%;transform:translate(-50%,-50%);overflow:hidden;opacity:0}
+.in-glow{position:absolute;left:-6.414%;top:-2.16%;width:112.83%;max-width:none;height:auto;opacity:0;filter:blur(calc(var(--iz)*.11)) brightness(2.4) saturate(1.5);transform:scale(1.2);pointer-events:none}   /* the Z's own picture, blurred and brightened behind it: its light on the black (Jason, 2026-11-19) */
+.in-glow.is-in{animation:inGlow 3.4s ease-in-out infinite alternate}
+@keyframes inGlow{from{opacity:.62}to{opacity:1}}
+.in-turn{position:absolute;left:50%;top:50.216%;width:126.37%;height:117.32%;transform:translate(-50%,-50%);overflow:hidden;opacity:0;mix-blend-mode:screen}   /* (screen: the frames' black lets the glow behind show) */
 .in-turn.is-warm{opacity:.01}                     /* drawn, so its first turn doesn't wait for the picture; unseen (its first frame is the Z as it stands) */
 .in-rows,.in-cols{position:absolute;inset:0;will-change:transform}
 .in-sheet{position:absolute;left:0;top:0;width:800%;height:500%;background-size:100% 100%}
@@ -985,11 +992,12 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
 <div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="ZENGERS Digital Services, opening">
   <div class="in-space" aria-hidden="true">
     <canvas class="in-stars"></canvas>
-    <div class="in-earth"><img alt="" decoding="async"></div>
+    <div class="in-earth"><div class="in-globe"><img alt="" decoding="async"><canvas class="in-live"></canvas></div></div>
   </div>
   <canvas class="in-code" aria-hidden="true"></canvas>
   <canvas class="in-plex" aria-hidden="true"></canvas>
   <div class="in-z" aria-hidden="true">
+    <img class="in-glow" alt="" width="774" height="485">
     <img class="in-mark" data-src="media/intro-z.webp" alt="" width="774" height="485">
     <div class="in-turn"><div class="in-rows"><div class="in-cols"><div class="in-sheet"></div></div></div></div>
   </div>
@@ -1022,6 +1030,8 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     wait: 9000,          // ms on the loading screen at most, loaded or not
     turn: 1300,          // ms one turn of the Z takes
     rest: 170,           // ms it rests between turns
+    spin: .7,            // degrees a second the Earth turns
+    web: { gap: 74, reach: 290, drift: 9 },   // the space screen's plexus round the pointer: px between its points, how far from the pointer it shows, px a second the points drift
     cell: [11, 16],      // px a binary digit's cell is wide, smallest and largest (about 1% of the window between)
     reach: 150,          // px round the pointer where the digits come up
     fade: 950,           // ms they take to sink back into the black
@@ -1034,7 +1044,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
   var SHEET = { src: "media/intro-z-turn.webp", cols: 8, frames: 40 };
   var $ = function(s){ return intro.querySelector(s); };
   var space = $(".in-space"), starsC = $(".in-stars"), earth = $(".in-earth"), earthImg = earth.querySelector("img"), codeC = $(".in-code"), plexC = $(".in-plex"),
-      zbox = $(".in-z"), mark = $(".in-mark"), turnBox = $(".in-turn"), colsEl = $(".in-cols"), rowsEl = $(".in-rows"), sheet = $(".in-sheet"),
+      zbox = $(".in-z"), mark = $(".in-mark"), glow = $(".in-glow"), globe = $(".in-globe"), liveC = $(".in-live"), turnBox = $(".in-turn"), colsEl = $(".in-cols"), rowsEl = $(".in-rows"), sheet = $(".in-sheet"),
       logo = $(".in-logo"), start = $(".in-start"), skipBtn = $(".in-skip");
   var sx = starsC.getContext("2d"), cx = codeC.getContext("2d"), px = plexC.getContext("2d");
   var done = false, leaving = false, phase = "load", raf = 0, last = 0, W = 0, H = 0, DPR = 1, t0 = window.__zwdIntroT0 || performance.now(), shownAt = 0;
@@ -1046,7 +1056,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
 
   function finish(){
     if (done) return; done = true; cancelAnimationFrame(raf); clearTimeout(window.__zwdIntroSafe);
-    root.classList.remove("intro-on", "intro-logo-hidden", "intro-busy");
+    root.classList.remove("intro-on", "intro-logo-hidden", "intro-busy", "intro-open");
     held.forEach(function(el){ el.inert = false; }); held = [];
     document.removeEventListener("keydown", onKey, true); window.removeEventListener("resize", onResize);
     if (intro.parentNode) intro.parentNode.removeChild(intro);
@@ -1077,7 +1087,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     var src = tall ? EARTH.tall : (window.devicePixelRatio || 1) > 1.3 || geo.R > 1000 ? EARTH.wide2 : EARTH.wide;   // (the smaller one is 950 px a radius)
     if (src !== earthSrc) {
       earthSrc = src; earthReady = false; earthImg.src = src;
-      (earthImg.decode ? earthImg.decode() : new Promise(function(ok, no){ earthImg.onload = ok; earthImg.onerror = no; })).then(function(){ if (earthSrc === src) earthReady = true; }, function(){ if (earthSrc === src) { earthReady = "none"; earth.style.display = "none"; } });   // (without it: the stars alone)
+      (earthImg.decode ? earthImg.decode() : new Promise(function(ok, no){ earthImg.onload = ok; earthImg.onerror = no; })).then(function(){ if (earthSrc === src) { earthReady = true; globeStart(); } }, function(){ if (earthSrc === src) { earthReady = "none"; earth.style.display = "none"; } });   // (without it: the stars alone)
     }
     [starsC, codeC, plexC].forEach(function(c){ c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); });
     cw = Math.max(CFG.cell[0], Math.min(CFG.cell[1], Math.round(W * .0105))); chh = Math.round(cw * 1.6); cols = Math.ceil(W / cw); rows = Math.ceil(H / chh);
@@ -1140,6 +1150,101 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     cx.globalAlpha = 1; lit = any;
   }
 
+  // ---------- the Earth, turning: the still picture's own view, drawn live from two maps (NASA's land with NASA's clouds on it, baked by
+  // resources/test-tools/earthmap.py). One flat shape and one small program: for each pixel, where its line of sight meets the globe,
+  // what's on the map there once the globe has turned, lit by the sun, with the air's glow worked out as Blender's still has it
+  // (the numbers below are build_intro_earth.py's). Without WebGL, or until the maps arrive, the still picture stays. ----------
+  var GL = { ok: false, live: false, at: 0, near: null, far: null, gl: null, u: {} };
+  var VIEWG = { lat: 30, lon: -64, dist: 1.7, roll: -14, sun: [-.75, .4, .45], air: 1.03, box: [-170, -50, -10, 70] };
+  function globeStart(){                                 // fetch the maps (after the still picture has come, never in its way)
+    if (GL.near || !window.WebGLRenderingContext) return;
+    var small = geo.R * DPR < 1150, left = 2, got = function(){ if (!--left) GL.ok = true; };
+    GL.near = new Image(); GL.far = new Image(); GL.near.onload = GL.far.onload = got;
+    GL.near.src = small ? "media/intro-globe-near-small.webp" : "media/intro-globe-near.webp"; GL.far.src = "media/intro-globe-far.webp";
+  }
+  function globeMake(){                                  // the program and the maps onto the graphics chip: only between the opening's moves
+    GL.ok = false;
+    try {
+      var gl = liveC.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: true }); if (!gl) return;
+      var hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT); if (!hp || !hp.precision) return;
+      var vs = "attribute vec2 a; varying vec2 v; void main(){ v = a * .5 + .5; gl_Position = vec4(a, 0., 1.); }";
+      var fs = [
+        "precision highp float; varying vec2 v;",
+        "uniform vec4 uBox, uMap; uniform vec3 uR, uU, uB, uSun; uniform float uD, uSpin, uAir, uPos[10], uVal[10]; uniform sampler2D uNear, uFar;",
+        "vec3 lin(vec3 c){ return pow(c, vec3(2.2)); }",
+        "void main(){",
+        "  vec2 p = vec2(mix(uBox.x, uBox.y, v.x), mix(uBox.z, uBox.w, v.y)) / sqrt(uD * uD - 1.);",     // the picture's place, in globe radii, to a slope of the line of sight
+        "  vec3 C = uB * uD, d = normalize(uR * p.x + uU * p.y - uB); float b = dot(C, d), cc = dot(C, C), h = b * b - cc + 1.;",
+        "  vec3 col = vec3(0.); float on = smoothstep(0., .0012, h);",
+        "  if (h > 0.) {",
+        "    vec3 P = C + d * (-b - sqrt(h)); float lon = degrees(atan(P.y, P.x)) - uSpin, lat = degrees(asin(clamp(P.z, -1., 1.)));",
+        "    lon = mod(lon + 180., 360.) - 180.;",
+        "    vec2 q = vec2((lon - uMap.x) / (uMap.y - uMap.x), (uMap.w - lat) / (uMap.w - uMap.z));",
+        "    float k = smoothstep(0., .03, q.x) * smoothstep(1., .97, q.x) * smoothstep(0., .03, q.y) * smoothstep(1., .97, q.y);",
+        "    vec3 alb = mix(lin(texture2D(uFar, vec2((lon + 180.) / 360., (90. - lat) / 180.)).rgb), lin(texture2D(uNear, clamp(q, 0., 1.)).rgb), k);",
+        "    col = alb * 1.146 * max(dot(P, uSun), 0.);",                                                  // the sun: Blender's 3.6, spread over a matt surface
+        "  }",
+        "  float ha = b * b - cc + uAir * uAir;",
+        "  if (ha > 0.) {",                                                                                // the shell of air: light only, most along the globe's edge and toward the sun
+        "    vec3 N = normalize(C + d * (-b - sqrt(ha))); float s = abs(dot(N, d)), r = uVal[9];",
+        "    for (int i = 0; i < 9; i++) if (s >= uPos[i] && s < uPos[i + 1]) r = mix(uVal[i], uVal[i + 1], (s - uPos[i]) / (uPos[i + 1] - uPos[i]));",
+        "    col += mix(vec3(.05, .2, 1.), vec3(.3, .58, 1.), r) * r * smoothstep(-.28, .42, dot(N, uSun)) * 1.5;",
+        "  }",
+        "  col *= 1.5; col = col * (1. + col / 9.) / (1. + col); col = pow(clamp(col, 0., 1.), vec3(1. / 2.2));",   // the still's exposure and soft shoulder, then to screen values
+        "  float a = max(on, max(col.r, max(col.g, col.b))); gl_FragColor = vec4(col, a);",
+        "}"].join("\n");
+      var mk = function(type, src){ var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      var pr = gl.createProgram(); gl.attachShader(pr, mk(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, mk(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error("link"); gl.useProgram(pr);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.bindAttribLocation(pr, 0, "a"); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      var tex = function(unit, img, wrap){ gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, gl.createTexture()); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); };
+      tex(0, GL.near, gl.CLAMP_TO_EDGE); tex(1, GL.far, gl.REPEAT);
+      var U = function(n){ return gl.getUniformLocation(pr, n); }, rad = Math.PI / 180, V = VIEWG, la = V.lat * rad, lo = V.lon * rad;
+      var B = [Math.cos(la) * Math.cos(lo), Math.cos(la) * Math.sin(lo), Math.sin(la)], R = [-B[1], B[0], 0], n = Math.hypot(R[0], R[1]); R = [R[0] / n, R[1] / n, 0];   // toward the camera; east (north crossed with it)
+      var Up = [B[1] * R[2] - B[2] * R[1], B[2] * R[0] - B[0] * R[2], B[0] * R[1] - B[1] * R[0]], c = Math.cos(V.roll * rad), sn = Math.sin(V.roll * rad);
+      var cross = function(a, b){ return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }, rot = function(x){ var k = cross(B, x); return [x[0] * c + k[0] * sn, x[1] * c + k[1] * sn, x[2] * c + k[2] * sn]; };   // leaned about the line of sight
+      R = rot(R); Up = rot(Up);
+      var S = [0, 1, 2].map(function(i){ return R[i] * V.sun[0] + Up[i] * V.sun[1] + B[i] * V.sun[2]; }), sl = Math.hypot(S[0], S[1], S[2]);
+      gl.uniform3fv(U("uR"), R); gl.uniform3fv(U("uU"), Up); gl.uniform3fv(U("uB"), B); gl.uniform3fv(U("uSun"), [S[0] / sl, S[1] / sl, S[2] / sl]); gl.uniform1f(U("uD"), V.dist); gl.uniform1f(U("uAir"), V.air);
+      gl.uniform4fv(U("uMap"), V.box); gl.uniform1i(U("uNear"), 0); gl.uniform1i(U("uFar"), 1);
+      var s0 = Math.sqrt(1 - 1 / (V.air * V.air));
+      gl.uniform1fv(U("uPos[0]"), [0, .45 * s0, .75 * s0, .94 * s0, s0, s0 + .02, s0 + .07, s0 + .16, s0 + .32, 1]); gl.uniform1fv(U("uVal[0]"), [0, .035, .2, .7, 1, .6, .3, .15, .07, .02]);
+      GL.gl = gl; GL.u = { box: U("uBox"), spin: U("uSpin") }; GL.live = true; GL.at = performance.now(); globeDraw(GL.at); globe.classList.add("is-live");
+    } catch(e){ if (window.console) console.warn("Opening: the still Earth stays,", e); GL.live = false; }
+  }
+  function globeDraw(now){
+    var gl = GL.gl, k = Math.min(DPR, 1.5), w = Math.max(2, Math.round(liveC.clientWidth * k)), h = Math.max(2, Math.round(liveC.clientHeight * k)), tall = intro.classList.contains("in-tall");
+    if (liveC.width !== w || liveC.height !== h) { liveC.width = w; liveC.height = h; }
+    gl.viewport(0, 0, w, h); gl.uniform4f(GL.u.box, -1.07, -.34, tall ? -.95 : -.4, tall ? .95 : .6); gl.uniform1f(GL.u.spin, CFG.spin * (now - GL.at) / 1000); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  // ---------- the space screen's plexus: points drifting slowly everywhere, seen only round the pointer, joined to each other and to it ----------
+  var web = null, ptr = { x: -1e4, y: -1e4, on: 0 };
+  function webMake(){
+    var g = CFG.web.gap, nx = Math.ceil(W / g) + 1, ny = Math.ceil(H / g) + 1, r = rng(4242); web = [];
+    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) { var a = r() * 6.283; web.push({ x: (i + r()) * g - g / 2, y: (j + r()) * g - g / 2, vx: Math.cos(a) * CFG.web.drift * (.4 + r()), vy: Math.sin(a) * CFG.web.drift * (.4 + r()) }); }
+  }
+  function webDraw(dt, fade){
+    px.setTransform(DPR, 0, 0, DPR, 0, 0); px.clearRect(0, 0, W, H);
+    if (!web) webMake();
+    var R = Math.min(CFG.web.reach, W * .45), near = [], i, j, p, q, d;
+    ptr.on += ((ptr.x > -1e3 ? 1 : 0) - ptr.on) * .08;
+    for (i = 0; i < web.length; i++) {
+      p = web[i]; p.x += p.vx * dt / 1000; p.y += p.vy * dt / 1000;
+      if (p.x < -60) p.x += W + 120; else if (p.x > W + 60) p.x -= W + 120; if (p.y < -60) p.y += H + 120; else if (p.y > H + 60) p.y -= H + 120;
+      d = Math.hypot(p.x - ptr.x, p.y - ptr.y); if (d < R) { p.k = Math.pow(1 - d / R, .8) * ptr.on * fade; near.push(p); }
+    }
+    if (!near.length) return;
+    px.lineWidth = 1; px.lineCap = "round";
+    for (i = 0; i < near.length; i++) {
+      p = near[i];
+      px.strokeStyle = "rgba(228,232,237," + (p.k * p.k * .7).toFixed(3) + ")"; px.beginPath(); px.moveTo(ptr.x, ptr.y); px.lineTo(p.x, p.y); px.stroke();          // to the pointer
+      for (j = i + 1; j < near.length; j++) { q = near[j]; d = Math.hypot(p.x - q.x, p.y - q.y); if (d > CFG.web.gap * 1.7) continue;
+        px.strokeStyle = "rgba(228,232,237," + (Math.min(p.k, q.k) * (1 - d / (CFG.web.gap * 1.7)) * .9).toFixed(3) + ")"; px.beginPath(); px.moveTo(p.x, p.y); px.lineTo(q.x, q.y); px.stroke(); }
+      px.strokeStyle = "rgba(255,255,255," + Math.min(1, p.k * 1.5).toFixed(3) + ")"; px.beginPath(); px.moveTo(p.x - 4.5, p.y); px.lineTo(p.x + 4.5, p.y); px.moveTo(p.x, p.y - 4.5); px.lineTo(p.x, p.y + 4.5); px.stroke();   // each point a small cross
+    }
+  }
+
   // ---------- 1. load ----------
   var pageLoaded = document.readyState === "complete", logoReady = false, fontReady = false, sheetReady = false, turning = false, nextTurn = 0;
   function allReady(){ return pageLoaded && !!earthReady && logoReady && fontReady && (!!window.__zwdFilmUp || !root.classList.contains("film-pic")); }
@@ -1180,6 +1285,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     var zr = zbox.getBoundingClientRect(), lr = logo.getBoundingClientRect(), s = lr.width * 166 / 561 / zr.width;   // the Z's place in the logo: its left 166 of 561
     logo.style.visibility = "visible";
     var fly = zbox.animate([{ transform: "translate(-50%,-50%)" }, { transform: "translate(-50%,-50%) translate(" + (lr.left - zr.left).toFixed(2) + "px," + (lr.top - zr.top).toFixed(2) + "px) scale(" + s.toFixed(5) + ")" }], { duration: 1150, delay: 520, easing: "cubic-bezier(.65,0,.35,1)", fill: "forwards" });
+    glow.animate([{ opacity: getComputedStyle(glow).opacity }, { opacity: 0 }], { duration: 700, delay: 300, easing: "ease-out", fill: "forwards" }); glow.style.animation = "none";
     fly.onfinish = function(){                           // landed: the logo's own Z takes over under a short cross-fade, and its lettering wipes out to the right
       logo.animate([{ clipPath: "inset(0 70.4% 0 0)", opacity: 0 }, { clipPath: "inset(0 46% 0 0)", opacity: 1, offset: .4 }, { clipPath: "inset(0 0 0 0)", opacity: 1 }], { duration: 660, easing: "cubic-bezier(.3,.6,.3,1)", fill: "forwards" });
       zbox.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280, easing: "ease-out", fill: "forwards" });
@@ -1211,7 +1317,8 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     var n = cols * rows, lum = new Float32Array(n), i;
     try {
       var c = document.createElement("canvas"); c.width = cols; c.height = rows; var x = c.getContext("2d"), er = earth.getBoundingClientRect(), ir = intro.getBoundingClientRect();
-      if (earthReady === true) x.drawImage(earthImg, (er.left - ir.left) / cw, (er.top - ir.top) / chh, er.width / cw, er.height / chh);
+      if (GL.live) { globeDraw(performance.now()); x.drawImage(liveC, (er.left - ir.left) / cw, (er.top - ir.top) / chh, er.width / cw, er.height / chh); }   // (drawn this instant, so the canvas still holds it)
+      else if (earthReady === true) x.drawImage(earthImg, (er.left - ir.left) / cw, (er.top - ir.top) / chh, er.width / cw, er.height / chh);
       var d = x.getImageData(0, 0, cols, rows).data;
       for (i = 0; i < n; i++) lum[i] = clamp01(((.2126 * d[i * 4] + .7152 * d[i * 4 + 1] + .0722 * d[i * 4 + 2]) / 255 * d[i * 4 + 3] / 255 - .04) * 1.3);
     } catch(e){}
@@ -1223,7 +1330,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     if (done || leaving || phase === "decode" || start.style.visibility !== "visible") return;
     phase = "decode"; root.classList.add("intro-busy"); earth.style.transform = "";
     start.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: "ease-out", fill: "forwards" }); start.style.pointerEvents = "none";
-    if (codeAnim) codeAnim.cancel(); cx.clearRect(0, 0, W, H);
+    if (codeAnim) codeAnim.cancel(); cx.clearRect(0, 0, W, H); px.setTransform(DPR, 0, 0, DPR, 0, 0); px.clearRect(0, 0, W, H);
     var now = performance.now(), br = start.getBoundingClientRect(), ir = intro.getBoundingClientRect(), ox = br.left - ir.left + br.width / 2, oy = br.top - ir.top + br.height / 2;
     var lum = sample(), n = cols * rows, at = new Float32Array(n), far = 1, i;
     for (i = 0; i < n; i++) { var x = (i % cols + .5) * cw - ox, y = (Math.floor(i / cols) + .5) * chh - oy; at[i] = Math.sqrt(x * x + y * y); if (at[i] > far) far = at[i]; }
@@ -1238,7 +1345,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
         if (s === 0) { if (t >= d.at[i]) { d.state[i] = 1; cell(i, "#fff"); } }                 // the front: white for a moment
         else if (t >= d.at[i] + 70) { d.state[i] = 2; d.left--; glyph[i] ^= Math.random() < .5 ? 1 : 0; cell(i, gray(d.lum[i])); }
       }
-    } else if (!d.covered) { d.covered = true; spaceOn = false; space.style.display = "none"; intro.style.background = "none"; d.plexAt = now + 280; }   // all digits now: the stars, the Earth and the opening's own black can go (the digits' canvas is all that covers the page)
+    } else if (!d.covered) { d.covered = true; spaceOn = false; space.style.display = "none"; intro.style.background = "none"; root.classList.add("intro-open"); d.plexAt = now + 280; }   // all digits now: the stars, the Earth and the opening's own black can go (the digits' canvas is all that covers the page)
     if (plex) return;
     for (var k = Math.max(6, Math.round(n / 160)); k > 0; k--) { i = Math.floor(Math.random() * n); if (d.state[i] === 2) { glyph[i] ^= 1; cell(i, gray(d.lum[i])); } }   // a few keep changing
     if (d.covered && now >= d.plexAt) startPlexus(now);
@@ -1296,17 +1403,21 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     try {
       var dt = Math.min(64, now - (last || now)); last = now;
       par.x += (par.tx - par.x) * .06; par.y += (par.ty - par.y) * .06;
+      if (GL.ok && (phase === "load" || phase === "space")) globeMake();          // (never during a move: the maps' upload takes a moment)
+      if (GL.live && spaceOnOrLoad()) globeDraw(now);
       if (phase === "load") { drawCode(dt); tick(now); }
       else if (phase === "push") { var t = now - pushAt; if (t < 600) { flare(now); drawCode(dt); } warp = 1 - ease3(clamp01((t - 300) / 1800)); drawStars(now); }
-      else if (phase === "space") { par.k = clamp01((now - spaceAt) / 700); drawStars(now); earth.style.transform = "translate(" + (-par.x * par.k * 18).toFixed(2) + "px," + (-par.y * par.k * 12).toFixed(2) + "px)"; }
+      else if (phase === "space") { par.k = clamp01((now - spaceAt) / 700); drawStars(now); webDraw(dt, par.k); earth.style.transform = "translate(" + (-par.x * par.k * 18).toFixed(2) + "px," + (-par.y * par.k * 12).toFixed(2) + "px)"; }
       else if (phase === "decode") { if (spaceOn) drawStars(now); stepDecode(now); stepPlexus(now); }
     } catch(e){ if (window.console) console.warn("Opening: stopped,", e); skip(); }
   }
+  function spaceOnOrLoad(){ return phase === "load" || phase === "push" || phase === "space" || (phase === "decode" && spaceOn); }
   function onResize(){
     if (done) return;
     var dw = Math.abs(intro.clientWidth - W), dh = Math.abs(intro.clientHeight - H); if (dw < 1 && dh < 1) return;
+    if (phase === "decode" && root.classList.contains("intro-open") && dw < 40 && dh < 2) return;   // (the scrollbar's strip coming back)
     if (phase === "push" || phase === "decode") { if (dw > 2 || dh > 160) skip(); return; }       // mid-move: the page instead (a phone's toolbars coming and going don't count)
-    layout(); if (phase === "space") place();
+    layout(); web = null; if (phase === "space") place();
   }
 
   // ---------- start ----------
@@ -1315,11 +1426,13 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", hold); else hold();
     window.addEventListener("load", function(){ pageLoaded = true; });
     mark.onload = function(){ shownAt = performance.now(); mark.classList.add("is-in"); try { mark.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: "ease-out" }); } catch(e){} }; mark.onerror = skip; mark.src = mark.getAttribute("data-src");
+    glow.onload = function(){ glow.classList.add("is-in"); }; glow.src = mark.getAttribute("data-src");
     logo.onload = logo.onerror = function(){ logoReady = true; }; logo.src = logo.getAttribute("data-src");
     var si = new Image(); si.onload = function(){ sheet.style.backgroundImage = "url(" + SHEET.src + ")"; turnBox.classList.add("is-warm"); (si.decode ? si.decode() : Promise.resolve()).then(function(){ sheetReady = true; }, function(){ sheetReady = true; }); }; si.src = SHEET.src;
     try { Promise.all([document.fonts.load("400 14px Michroma"), document.fonts.load("500 14px 'IBM Plex Mono'")]).then(function(){ fontReady = true; stamps(); }, function(){ fontReady = true; }); } catch(e){ fontReady = true; }
     setTimeout(function(){ fontReady = true; }, 2600);   // (the fonts come from another server: never wait long for them)
-    intro.addEventListener("pointermove", function(e){ var r = intro.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; par.tx = x / W - .5; par.ty = y / H - .5; if (phase === "load") energize(x, y); });
+    intro.addEventListener("pointermove", function(e){ var r = intro.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; par.tx = x / W - .5; par.ty = y / H - .5; ptr.x = x; ptr.y = y; if (phase === "load") energize(x, y); });
+    intro.addEventListener("pointerleave", function(){ ptr.x = ptr.y = -1e4; });
     intro.addEventListener("pointerdown", function(e){ if (phase === "load") { var r = intro.getBoundingClientRect(); energize(e.clientX - r.left, e.clientY - r.top); } });
     intro.addEventListener("wheel", function(e){ e.preventDefault(); }, { passive: false }); intro.addEventListener("touchmove", function(e){ e.preventDefault(); }, { passive: false });
     start.addEventListener("click", decode); skipBtn.addEventListener("click", skip);
