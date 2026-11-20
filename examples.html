@@ -94,7 +94,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 .site-header .hdr-price{order:1}
 .site-header .header-cta,.site-header .menu-btn,.site-header .hdr-price{flex:none}   /* the buttons keep their size; on a narrow phone the logo gives way */
 .site-header .wordmark{min-width:0}
-.site-header .logo-lockup{max-width:100%;object-fit:contain;object-position:left center}
+.site-header .logo-lockup{max-width:100%;height:auto!important;max-height:44px}   /* scales down whole: its box stays the picture */
 .site-header .menu-btn:hover,.site-header .hdr-price:hover{background:rgba(255,255,255,.9)}
 .site-header .nav a[href$="#pricing"]{display:none!important}   /* Pricing has its own button too */
 /* The three buttons' icons (2026-11-18, Jason): at rest they sit still; pressing one plays its move once ("Header
@@ -115,7 +115,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 .site-header .nav a:nth-last-child(2){border-bottom:0!important}
 .site-header .nav .nav-contact{display:none!important}   /* Contact us has its own button */
 @media (max-width:520px){
-  .site-header .logo-lockup{height:30px!important}
+  .site-header .logo-lockup{max-height:30px}
   .site-header .menu-btn,.site-header .hdr-price{width:46px;padding:0;justify-content:center;font-size:0;gap:0}   /* just the icon on a phone; its name stays for screen readers */
   .site-header .header-cta{padding:0 14px;gap:6px;font-size:14px;white-space:nowrap}
   .site-header .header-cta .hb-ic{width:18px;height:18px}
@@ -123,7 +123,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 }
 @media (max-width:380px){
   .site-header .header-inner{gap:8px}
-  .site-header .logo-lockup{height:26px!important}
+  .site-header .logo-lockup{max-height:26px}
   .site-header .header-cta{padding:0 12px}
 }
 </style>
