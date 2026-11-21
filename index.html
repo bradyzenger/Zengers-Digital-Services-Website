@@ -7974,12 +7974,14 @@ var SITE = {
     }).then(function(){ bBtn.disabled = false; bBtn.firstChild.textContent = "Continue to checkout "; });
   });
 
-  // Back from checkout. Set each payment link's "after payment" redirect to:
+  // Back from checkout. Each payment link's "after payment" redirect is:
   //   <your site>/index.html?checkout=success&session_id={CHECKOUT_SESSION_ID}
-  // The checkout provider only sends people here after a completed payment.
+  // The checkout provider only sends people here after a completed payment. Stripe's Payment Links sent it back with the
+  // placeholder unfilled (Jason's test, 2026-11-21), so the ID isn't required: a real one (cs_...), the placeholder, or
+  // none. (The ID never proved a payment anyway; the record is in Stripe.)
   (function(){
-    var q = new URLSearchParams(location.search);
-    if (q.get("checkout") === "success" && /^cs_(test|live)_[A-Za-z0-9]+$/.test(q.get("session_id") || "")) {
+    var q = new URLSearchParams(location.search), sid = q.get("session_id") || "";
+    if (q.get("checkout") === "success" && (!sid || sid === "{CHECKOUT_SESSION_ID}" || /^cs_(test|live)_[A-Za-z0-9]+$/.test(sid))) {
       doc.getElementById("buy-title").textContent = "You’re all set";
       showStep("done"); openDialog();
       if (history.replaceState) history.replaceState(null, "", location.pathname + location.hash);
