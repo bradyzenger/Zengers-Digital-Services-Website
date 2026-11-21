@@ -737,10 +737,11 @@ section.block{padding-block:clamp(72px,11vw,140px)}
 .field .hint{font-size:var(--fs-sm);color:var(--muted)}
 .field input,.field textarea{width:100%;font:inherit;font-size:var(--fs-base);color:var(--text);background:#fff;border:1.5px solid #B9C3C1;border-radius:10px;padding:12px 14px;min-height:48px}
 .field textarea{min-height:110px;resize:vertical}
-.field input[type=file]{padding:10px;min-height:0;background:var(--card)}
 .field input:focus-visible,.field textarea:focus-visible{outline:3px solid var(--lamp);outline-offset:1px;border-color:var(--text)}
 .field [aria-invalid=true]{border-color:var(--error)}
 .field-error{color:var(--error);font-size:var(--fs-sm);font-weight:500}
+.agree .check{display:flex;align-items:flex-start;gap:12px;font-size:var(--fs-base);line-height:1.45;color:var(--text);cursor:pointer}   /* the Buy form's agreement: a real checkbox, 24 px */
+.field.agree input[type=checkbox]{flex:none;width:24px;height:24px;min-height:0;margin:0;padding:0;accent-color:var(--ink);cursor:pointer}
 .form-status{border-radius:10px;padding:14px 16px;font-size:var(--fs-md)}
 .form-status.is-ok{background:#E3F1E7;border:1px solid #2E7D4A;color:#17462A}
 .form-status.is-error{background:#FBE9E7;border:1px solid var(--error);color:#7A1A14}
@@ -2079,13 +2080,10 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
       </fieldset>
 
       <fieldset class="group">
-        <legend>Files and notes</legend>
-        <div class="form-row">
-          <div class="field"><label for="b-logo">Logo <span class="opt">(optional)</span></label><input id="b-logo" name="logo" type="file" accept="image/*,.svg,.pdf"></div>
-          <div class="field"><label for="b-photos">Photos <span class="opt">(optional)</span></label><input id="b-photos" name="photos" type="file" accept="image/*" multiple><span class="hint">Up to 10 files, 25 MB in total.</span><p class="field-error" id="b-photos-err" hidden></p></div>
-        </div>
-        <div class="field"><label for="b-notes">Anything else <span class="opt">(optional)</span></label><textarea id="b-notes" name="notes"></textarea></div>
+        <legend>Notes</legend>
+        <div class="field"><label for="b-notes">Anything else <span class="opt">(optional)</span></label><textarea id="b-notes" name="notes"></textarea><span class="hint">Your logo and photos: we’ll ask for them after you sign up.</span></div>
       </fieldset>
+      <div class="field agree"><label class="check" for="b-agree"><input id="b-agree" name="agreed_to_terms" type="checkbox" value="yes" required><span>I agree to the 3-month minimum, then month-to-month, and the <a href="terms.html" target="_blank" rel="noopener">terms of service</a>.</span></label><p class="field-error" id="b-agree-err" hidden></p></div>
       <div class="hp" aria-hidden="true"><label for="b-website">Leave this empty</label><input id="b-website" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></div>
 
       <div class="form-actions">
@@ -2145,6 +2143,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
           <li><a href="websites-for-landscapers.html">Websites for landscapers</a></li>
           <li><a href="websites-for-contractors.html">Websites for contractors</a></li>
           <li><a href="faq.html">Questions and answers</a></li>
+          <li><a href="terms.html">Terms of service</a></li>
           <li><a href="#contact">Ask a question</a></li>
         </ul>
       </nav>
@@ -7805,15 +7804,15 @@ var SITE = {
 
   // Purchase onboarding. The customer's details and uploads POST here before checkout.
   // Must store them privately and notify you. "" = not connected.
-  ONBOARDING_ENDPOINT: "",
+  ONBOARDING_ENDPOINT: "https://formspree.io/f/xdegwoeq",   // Jason's sign-up form (Formspree, free plan: no file uploads, so the Buy form has none; 2026-11-21)
 
   // Checkout. One Stripe Payment Link (or similar hosted checkout) per plan.
   // Use TEST-mode links until live charges are approved.
   CHECKOUT_MODE: "test",   // "test" shows a "Test mode" banner; change to "live" only after approval
   CHECKOUT_LINKS: {
-    Starter: "",           // e.g. "https://buy.stripe.com/test_..."
-    Pro: "",
-    Premier: ""
+    Starter: "https://buy.stripe.com/test_4gM14n4Mof0R0WA6aq8N200",   // Stripe sandbox (test) links, Jason 2026-11-21
+    Pro: "https://buy.stripe.com/test_3cI4gzbaMcSJ5cQ7eu8N201",
+    Premier: "https://buy.stripe.com/test_cNibJ1ceQ4mdfRudCS8N202"
   }
 };
 </script>
@@ -7849,6 +7848,7 @@ var SITE = {
     return !msg;
   }
   function checkField(input){
+    if (input.type === "checkbox") return setError(input, input.required && !input.checked ? "Please agree to the 3-month minimum and the terms of service to continue." : "");   // the Buy form's agreement (2026-11-21)
     var v = (input.value || "").trim(), label = (doc.querySelector('label[for="'+input.id+'"]') || {}).firstChild;
     var name = label ? String(label.textContent).trim().toLowerCase().replace(/^your /, "") : "details";
     if (input.required && !v) return setError(input, "Please enter your " + name + ".");
@@ -7935,19 +7935,12 @@ var SITE = {
   doc.getElementById("rv-back").addEventListener("click", function(){ bStatus.hidden = true; showStep("form"); });
   dlg.addEventListener("click", function(e){ if (e.target === dlg) closeDialog(); });
 
-  function filesProblem(){
-    var logo = doc.getElementById("b-logo").files, photos = doc.getElementById("b-photos"), total = 0, n = 0;
-    [logo, photos.files].forEach(function(list){ for (var i=0;i<list.length;i++){ total += list[i].size; n++; } });
-    if (n > 11) return setError(photos, "Please send 10 photos or fewer.") ? null : photos;
-    if (total > 25*1024*1024) return setError(photos, "Your files add up to more than 25 MB. Send fewer or smaller photos.") ? null : photos;
-    setError(photos, ""); return null;
-  }
   function makeRef(){ return "zwd-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7); }
 
   bForm.addEventListener("submit", function(e){
     e.preventDefault();
     bStatus.hidden = true;
-    var bad = validate(bForm) || filesProblem();
+    var bad = validate(bForm);
     if (bad) { bad.focus(); return; }
     if (isSpam(bForm)) return;
     var link = (SITE.CHECKOUT_LINKS || {})[buyState.plan];
