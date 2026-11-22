@@ -382,24 +382,6 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 #examples .ex .btn:hover{background:var(--ink)}
 #examples .ex-cta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:clamp(36px,5cqw,56px);padding:clamp(28px,4cqw,44px);border-radius:16px;background:var(--ink);color:var(--paper)}
 #examples .ex-cta h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(32px,4.4cqw,56px);line-height:.95}
-
-/* AGENT on the arcade's left cabinet (the "Street" script): the game's title screen, a button fitted onto the 3D screen;
-   pressed, the game plays over the whole window. Its colours are the game's own (deep teal, cyan). */
-.arc-game{position:absolute;left:0;top:0;width:360px;height:480px;container-type:inline-size;transform-origin:0 0;display:none;padding:0;border:0;border-radius:18px;overflow:hidden;background:#0B2226 url(media/arcade-agent.jpg) center/cover no-repeat;opacity:0;pointer-events:none;cursor:pointer}
-.arc-game.is-open{display:block}
-.arc-game.is-on{pointer-events:auto}
-.arc-game:hover,.arc-game:focus-visible{outline:none;box-shadow:inset 0 0 0 6px #3FE9FF,inset 0 0 40px rgba(63,233,255,.45)}
-.arc-note{position:absolute;left:0;right:0;bottom:0;padding:6cqw;background:rgba(5,16,19,.94);color:#DDF7F9;font:500 6.4cqw/1.3 var(--mono);text-align:left;opacity:0;transition:opacity .2s ease-out}
-.arc-game.is-note .arc-note{opacity:1}
-.arc-play{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#000;overflow:hidden}
-.arc-play::backdrop{background:#000}
-.arc-play iframe{display:block;width:100%;height:100%;border:0}
-.arc-close{position:absolute;right:16px;top:16px;z-index:1;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(221,247,249,.45);background:rgba(5,16,19,.8);color:#DDF7F9;font:500 var(--fs-sm)/1 var(--body);cursor:pointer}
-.arc-close:hover,.arc-close:focus-visible{background:#DDF7F9;color:#051013;outline:2px solid #3FE9FF;outline-offset:2px}
-@media (prefers-reduced-motion:reduce){.arc-note{transition:none}}
-.st-arc{left:auto;right:var(--gutter);border-color:rgba(63,233,255,.6)}   /* "Play AGENT", across from "Back to the street": the game's cyan */
-.st-arc:hover{background:#3FE9FF;color:#051013}
-@media (max-width:420px){.st-arc{font-size:var(--fs-sm);padding:0 14px}.st-arc span{display:none}}   /* clear of "Back to the street" on a narrow phone */
 /* ---------- about us (see the "About" script) ---------- */
 /* About us's own face (Jason, 2026-11-17): Nunito, a rounded sans, so the liquid glass reads as one poured piece, no
    sharp corners or joints to crease the bevel; warm for a family's story, and none of our other sites use it. Static
@@ -3261,9 +3243,7 @@ window.__zwdNashville.steps = function*(THREE, o){
    Each room is built in its own space: the floor at y = 0, the window wall at z = 0 (the room runs back toward -z), the
    window (1.1 × 1.5 m) centred at x = 0, y = WY; the "Street" script moves it in behind its house's window. The low
    morning sun (SUN, as in the city) comes in at each window. Tune each room in its own function (sizes in metres,
-   colours, lights). The devices and the arcade games are look-alikes with no logos, names or characters, except the
-   arcade's left cabinet: AGENT, Brady's own game (Jason, 2026-11-20). Its screen is R.game; the "Street" script lays a
-   real button there (the game's title screen) that opens the game.
+   colours, lights). The devices and the arcade games are look-alikes with no logos, names or characters.
    Each room is built a part at a time (steps) or all at once (build); either way the same room, as long as no other
    room is built while one is part-way (the "Street" script finishes one first): the parts run in the same order with
    the same random numbers. */
@@ -3733,7 +3713,7 @@ window.__zwdRooms = function(THREE, o){
     shell(R, { wall: std(0x231E44, .88), trim: std(0x2E2858, .6), floor: std(0xFFFFFF, .95, 0, { map: carpetTex() }), ceil: std(0x100D22, .95) });
     yield;
     R.screen = cabinet(g, 0, -4.52, 0, ["#FF3FD0", "#3FE9FF", "#F2B544"], { mat: screenMat(R.page) });
-    R.game = cabinet(g, -1.34, -4.36, .34, ["#3FE9FF", "#7A5CFF", "#FF3FD0"], { mat: lit(0x0B2226, 1) });   // AGENT (see the top)
+    cabinet(g, -1.34, -4.36, .34, ["#3FE9FF", "#7A5CFF", "#FF3FD0"], { mat: attract(0) });
     cabinet(g, 1.34, -4.36, -.34, ["#F2B544", "#FF7A3F", "#3FE9FF"], { mat: attract(1) });
     yield;
     // neon: a pink line along the back wall, a blue bolt on the left wall, a gold wave on the right
@@ -4035,23 +4015,6 @@ window.__zwdRooms = function(THREE, o){
     scr.position.set(s.c[0] + s.n[0] * .0005, s.c[1] + s.n[1] * .0005, s.c[2] + s.n[2] * .0005); g.add(scr);
     R.screen = { mesh: scr, w: s.w, h: s.h, rad: s.rad }; R.size = { w: H.size[0], d: H.size[1], h: H.size[2], t: .2 }; R.baked = true;
     var E = H.extras || {};
-    if (E.game) {                                           // the arcade's AGENT cabinet: its screen, for the button the "Street" script lays there
-      var gq = E.game, gs = flat(gq.w, gq.h, gq.rad[0], lit(0x0B2226, 1));
-      gs.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new V3(gq.right[0], gq.right[1], gq.right[2]), new V3(gq.up[0], gq.up[1], gq.up[2]), new V3(gq.n[0], gq.n[1], gq.n[2])));
-      gs.position.set(gq.c[0] + gq.n[0] * .0005, gq.c[1] + gq.n[1] * .0005, gq.c[2] + gq.n[2] * .0005); g.add(gs);
-      R.game = { mesh: gs, w: gq.w, h: gq.h };
-    }                                  // what's drawn here rather than baked: soft halos round lamps, the cinema's stars and its projector's beam
-    (E.glows || []).forEach(function(q){ var sp = glowSprite(q[3]); sp.position.set(q[0], q[1], q[2]); sp.scale.set(q[4], q[5], 1); sp.material.opacity = q[6]; g.add(sp); });
-    if (E.stars) { var sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.Float32BufferAttribute(E.stars, 3)); g.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xFFF2DC, size: 2.2, sizeAttenuation: false, toneMapped: false }))); }
-    if (E.beam) {
-      var bp = [], buv = [], ap = E.beam.apex, cr = E.beam.corners;
-      for (var e = 0; e < 4; e++) { var c0 = cr[e], c1 = cr[(e + 1) % 4]; bp.push(ap[0], ap[1], ap[2], c0[0], c0[1], c0[2], c1[0], c1[1], c1[2]); buv.push(.5, 0, 0, 1, 1, 1); }
-      var bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.Float32BufferAttribute(bp, 3)); bg.setAttribute("uv", new THREE.Float32BufferAttribute(buv, 2));
-      var beam = new THREE.Mesh(bg, new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
-        vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
-        fragmentShader: "varying vec2 vUv;void main(){float e=min(vUv.x,1.0-vUv.x)*2.0,a=.28*(1.0-vUv.y*.65)*smoothstep(0.0,.06,vUv.y)*(.5+.5*smoothstep(0.0,.5,e));gl_FragColor=vec4(vec3(.85,.88,1.0)*a,a);}" }));
-      beam.frustumCulled = false; beam.renderOrder = 5; g.add(beam);
-    }
     return R;
   }
 
@@ -4327,34 +4290,6 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       sc.page.className = "dev-page"; sc.el.appendChild(sc.page); stage.appendChild(sc.el);
       return sc;
     });
-    // AGENT, Brady's own game (Jason, 2026-11-20), on the arcade's left cabinet: a real button fitted onto that screen every
-    // frame, as the pages are, showing the game's title screen (media/arcade-agent.jpg). Pressed, the game (agent.html, its
-    // one file) plays over the whole window in a dialog; "Back to the arcade" or Esc closes it, and its frame goes with it
-    // (the game saves itself in the browser as it goes). It needs a keyboard and mouse: on a touch screen the button says so.
-    var ARC = IDS.indexOf("why-us"), GW = 360, GH = 480, playDlg = null, gamePose = null, arcK = 0, arcAnim = null;   // arcK: 0 at Why choose us?, 1 turned to AGENT
-    var game = document.createElement("button"); game.type = "button"; game.className = "arc-game"; game.setAttribute("aria-label", "Play AGENT, a game (it needs a keyboard and mouse)");
-    game.innerHTML = '<span class="arc-note" aria-hidden="true">AGENT needs a keyboard and mouse.</span>';
-    stage.appendChild(game);
-    var arcBtn = document.createElement("button"); arcBtn.type = "button"; arcBtn.className = "st-back st-arc";   // in the arcade: turn to AGENT's cabinet, and back
-    function arcLabel(k){ arcBtn.innerHTML = k ? '<span aria-hidden="true">\u2190</span> Why choose us?' : 'Play AGENT'; }
-    arcLabel(0);
-    arcBtn.addEventListener("click", function(){ arcTo(arcAnim ? (arcAnim.k1 ? 0 : 1) : (arcK > .5 ? 0 : 1)); });
-    game.addEventListener("click", function(){
-      if (!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches)) {
-        game.classList.add("is-note"); clearTimeout(game.noteT); game.noteT = setTimeout(function(){ game.classList.remove("is-note"); }, 3200); return;
-      }
-      if (!playDlg) {
-        playDlg = document.createElement("dialog"); playDlg.className = "arc-play"; playDlg.setAttribute("aria-label", "AGENT");
-        var close = document.createElement("button"); close.type = "button"; close.className = "arc-close"; close.innerHTML = '<span aria-hidden="true">\u2190</span> Back to the arcade';
-        close.addEventListener("click", function(){ playDlg.close(); });
-        playDlg.addEventListener("close", function(){ var f = playDlg.querySelector("iframe"); if (f) f.remove(); game.focus({ preventScroll: true }); });
-        playDlg.addEventListener("wheel", function(e){ e.preventDefault(); }, { passive: false });   // the page behind stays put
-        playDlg.appendChild(close); document.body.appendChild(playDlg);
-      }
-      var f = document.createElement("iframe"); f.src = "agent.html"; f.title = "AGENT"; f.allow = "autoplay; fullscreen";
-      f.addEventListener("load", function(){ try { f.contentWindow.addEventListener("wheel", function(e){ e.preventDefault(); }, { passive: false }); f.contentWindow.focus(); } catch(e){} });
-      playDlg.appendChild(f); playDlg.showModal(); f.focus();
-    });
     // the pond: the question form lies on its water (a box fitted onto the 3D water every frame, as the screens are)
     var contact = document.getElementById("contact"), pondBox = null, pondQ = null, contactHome = null;
     if (contact) {
@@ -4372,7 +4307,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       footMask = document.createElement("canvas"); footTex = new THREE.CanvasTexture(footMask); footTex.anisotropy = 4; footTex.flipY = false;   // its top row at the footer's top edge
       stage.appendChild(lawnBox);
     }
-    stage.appendChild(back); stage.appendChild(arcBtn);
+    stage.appendChild(back);
     track.appendChild(stage);
     var home = secs.map(function(s){ return { parent: s.parentNode, next: s.nextSibling, hidden: s.hidden }; });
     secs[0].parentNode.insertBefore(track, secs[0]);
@@ -4417,17 +4352,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       sc.el.style.width = sc.W + "px"; sc.el.style.height = sc.H + "px";
       sc.el.style.borderRadius = full ? sc.rad.map(function(x){ return (x * k).toFixed(1) + "px"; }).join(" ") : "0";
       sc.top = q[0][1];
-      if (i === ARC && rooms[ARC] && rooms[ARC].game) {   // AGENT's cabinet: the camera face-on to it, and its button at the size it has there
-        var gs = rooms[ARC].game, gp = gamePose = pose(gs); setPose(gp, FOV); var gq = corners(gs.mesh, gs.w, gs.h);
-        if (gq) { GW = Math.max(120, Math.round(gq[1][0] - gq[0][0])); GH = Math.max(160, Math.round(gq[3][1] - gq[0][1])); game.style.width = GW + "px"; game.style.height = GH + "px"; game.style.borderRadius = (.02 * GW / gs.w).toFixed(1) + "px"; }
-      }
     }
-    function mixPose(a, b, t){ return { pos: a.pos.clone().lerp(b.pos, t), target: a.target.clone().lerp(b.target, t), up: a.up.clone().lerp(b.up, t).normalize() }; }
-    function arcTo(k, then){                              // turn to AGENT's cabinet (1) or back to Why choose us? (0)
-      if (!(mode === "room" && inRoom === ARC && gamePose)) return;
-      arcLabel(k); arcAnim = { t0: performance.now(), d: 700 * Math.abs(k - arcK), k0: arcK, k1: k, then: then || function(){ (k ? game : screens[ARC].el).focus({ preventScroll: true }); } }; kick();
-    }
-    function arcReset(){ arcK = 0; arcAnim = null; arcLabel(0); arcBtn.classList.remove("is-on"); }
     function layout(){
       vpW = stage.clientWidth || window.innerWidth; vpH = filmStage.offsetHeight || window.innerHeight; hdr = header ? header.offsetHeight : 64;
       frameH = Math.min(vpH, svh.offsetHeight || vpH);           // on a phone, the screen less its toolbars: everything is framed in that, and the picture carries on below it
@@ -4619,7 +4544,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     // ---------- what's on screen ----------
     var mode = "scroll", inRoom = -1, move = null, cur = 0, glKey = "", shadowed = {}, near = false, hot = -1;
     function view(){                                    // the camera and what to draw for where things are now
-      if (mode === "room") { var R = poses[inRoom]; if (inRoom === ARC && arcK > 0 && gamePose) R = mixPose(R, gamePose, inOut(arcK)); return { pose: R, fov: FOV, win: inRoom, out: false, open: [inRoom], scr: inRoom, o: 1 }; }
+      if (mode === "room") { var R = poses[inRoom]; return { pose: R, fov: FOV, win: inRoom, out: false, open: [inRoom], scr: inRoom, o: 1 }; }
       if (mode === "move") {
         var mv = move, f = divePath(mv.S, mv.i, mv.k);
         f.open = mv.open; f.scr = mv.i; f.o = smooth(.88, .97, mv.k); f.pose = f; return f;
@@ -4665,11 +4590,8 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       if (v.scr >= 0) {
         var sc = screens[v.scr], q = sc.mesh && corners(sc.mesh, sc.we, sc.he), m = q && fit(sc.W, sc.H, q);
         if (m && v.o > 0) { sc.el.classList.add("is-open"); sc.el.style.transform = m; sc.el.style.opacity = v.o.toFixed(3); } else hide(sc);
-        sc.el.classList.toggle("is-on", mode === "room" && !(v.scr === ARC && arcK > 0));
+        sc.el.classList.toggle("is-on", mode === "room");
       }
-      var gr = rooms[ARC] && rooms[ARC].game, gq = v.scr === ARC && v.o > 0 && gr && corners(gr.mesh, gr.w, gr.h), gm = gq && fit(GW, GH, gq);   // AGENT's button, with the arcade's page
-      if (gm) { game.classList.add("is-open"); game.style.transform = gm; game.style.opacity = v.o.toFixed(3); } else if (game.classList.contains("is-open")) { game.classList.remove("is-open"); game.style.opacity = "0"; }
-      game.classList.toggle("is-on", !!gm && mode === "room" && arcK >= 1);
       placeLabels(v.street);
       if (pondBox) {
         var pq = v.pond > 0 && corners(pondQ, pd.W * POND.k, pd.H * POND.k), pm = pq && fit(pd.W, pd.H, pq);
@@ -4751,7 +4673,6 @@ window.__zwdCalm = window.__zwdCalm || (function(){
           var mt = Math.min(1, (now - move.t0) / move.d); move.k = move.k0 + (move.k1 - move.k0) * inOut(mt);
           if (mt >= 1) { var done = move.then; move.k = move.k1; done(); }
         }
-        if (arcAnim) { var ak = Math.min(1, (now - arcAnim.t0) / Math.max(1, arcAnim.d)); arcK = arcAnim.k0 + (arcAnim.k1 - arcAnim.k0) * ak; if (ak >= 1) { var af = arcAnim.then; arcK = arcAnim.k1; arcAnim = null; af(); } }
         if (Math.abs(panTo - panX) > .002) panX += (panTo - panX) * Math.min(1, dt * 7); else panX = panTo;
         var s = -track.getBoundingClientRect().top, wasStreet = cur >= 1;
         cur = curAt(s);
@@ -4761,7 +4682,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
         ui.classList.toggle("is-on", on);
         draw(now);
         if (focusAfter >= 0 && on) { labels[focusAfter].focus({ preventScroll: true }); focusAfter = -1; }
-        var going = !!auto || !!glideAnim || !!move || !!arcAnim || panX !== panTo;
+        var going = !!auto || !!glideAnim || !!move || panX !== panTo;
         var wet = pondBox && mode === "scroll" && near && pondAt(s) > 0 && now - stirT < 12000;   // the water moves while the pond shows (and stills once nobody has moved for a while)
         if (!wet) waterAt = 0; else if (now - waterAt > 30) { var wdt = waterAt ? Math.min(.1, (now - waterAt) / 1000) : 0; waterT += wdt; waterAt = now; city.pond.tick(wdt, waterT); }   // about 30 times a second: the wind, the waves, the pads and the reeds
         if (wet && !going) { raf = requestAnimationFrame(tick); return; }
@@ -4888,16 +4809,16 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     var deskBack = window.matchMedia ? matchMedia("(min-width:900px) and (pointer:fine)") : null;
     function placeBack(sc){
       var h = back.offsetHeight, below = sc.top + sc.H, room = frameH - below;
-      arcBtn.style.top = back.style.top = (deskBack && deskBack.matches ? Math.round(Math.min(frameH - h - 8, below + Math.max(0, (room - h) / 2))) : Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - h) / 2))) + "px";
+      back.style.top = (deskBack && deskBack.matches ? Math.round(Math.min(frameH - h - 8, below + Math.max(0, (room - h) / 2))) : Math.max(hdr + 6, Math.round(hdr + (sc.top - hdr - h) / 2))) + "px";
     }
     function arrive(i){                                  // in the room: the page is live on its screen
       mode = "room"; inRoom = i; move = null; lock(true); root.classList.remove("dev-moving");
       var sc = screens[i]; sc.el.scrollTop = 0; glKey = ""; draw(performance.now());
-      back.classList.add("is-on"); placeBack(sc); arcReset(); if (i === ARC && gamePose) arcBtn.classList.add("is-on");
+      back.classList.add("is-on"); placeBack(sc);
       sc.el.focus({ preventScroll: true });
     }
     function toStreet(focusLabel){                        // out on the street again: the page scrolls as usual
-      var was = inRoom; mode = "scroll"; inRoom = -1; move = null; lock(false); root.classList.remove("dev-moving"); back.classList.remove("is-on"); arcReset();
+      var was = inRoom; mode = "scroll"; inRoom = -1; move = null; lock(false); root.classList.remove("dev-moving"); back.classList.remove("is-on");
       glKey = ""; kick();
       if (was >= 0) pageFor(was, true);
       if (focusLabel && was >= 0) focusAfter = was;        // once the label shows again (next frame)
@@ -4906,7 +4827,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
     function startMove(kind, S, i, k0, k1, secs, open, then){
       room(i); if (!poses[i]) posesFor(i);
       move = { kind: kind, S: S, i: i, k0: k0, k1: k1, k: k0, t0: performance.now(), d: secs * 1000 * Math.abs(k1 - k0), open: open, then: then };
-      arcReset(); mode = "move"; lock(true); root.classList.add("dev-moving"); back.classList.remove("is-on"); kick();
+      mode = "move"; lock(true); root.classList.add("dev-moving"); back.classList.remove("is-on"); kick();
     }
     var queued = null;
     function enter(i, animate){                           // go into house i: from the street (in at its window), from another house, or straight there
@@ -5010,7 +4931,6 @@ window.__zwdCalm = window.__zwdCalm || (function(){
       }).observe(contact);
     }
     back.addEventListener("click", function(){
-      if (mode === "room" && inRoom === ARC && (arcK > 0 || arcAnim)) { arcTo(0, function(){ back.click(); }); return; }   // at AGENT: turn back to the arcade's page first, then out
       var st = history.state;
       if (st && st.zwd >= 0 && st.from === -1) history.back();   // came in from the street: go back through the history
       else go(-1, true);
