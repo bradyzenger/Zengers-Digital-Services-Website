@@ -307,7 +307,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
   .dev-screen .steps.steps-anim .step:not(:last-child)::after{transform:scaleY(0)}
   .dev-screen .steps.steps-anim.is-in .step:not(:last-child)::after{transform:none}
 }
-@container (max-width:980px){.dev-screen .compare{grid-template-columns:1fr}.dev-screen .cmp-us{order:-1;margin-top:0}#examples .examples{grid-template-columns:1fr}}
+@container (max-width:980px){.dev-screen .compare{grid-template-columns:1fr}.dev-screen .cmp-us{order:-1;margin-top:0}}
 @container (max-width:900px){.dev-screen .plans{grid-template-columns:1fr}.dev-screen .plan-top{min-height:0}}
 @container (max-width:860px){.dev-screen .cards3{grid-template-columns:1fr}}
 @container (max-width:760px){.dev-screen .section-head{grid-template-columns:1fr}}
@@ -380,6 +380,18 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 #examples .ex p{color:var(--muted)}
 #examples .ex .btn{justify-self:start;margin-top:8px;background:var(--text);color:var(--paper)}
 #examples .ex .btn:hover{background:var(--ink)}
+/* Recent work (2026-11-27, Jason): finished client sites under the concept sites, each a thumbnail and the business's name, opening the live site in a new tab */
+#examples .work{margin-top:clamp(48px,7cqw,88px)}
+#examples .work h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5cqw,64px);line-height:.95}
+#examples .work > p{margin-top:12px;color:var(--muted);font-size:clamp(17px,1.5cqw,19px)}
+#examples .work-list{list-style:none;margin:clamp(24px,3cqw,36px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4cqw,28px)}
+#examples .work-item{display:grid;gap:14px;text-decoration:none;color:inherit}
+#examples .work-item .chrome span{display:flex;align-items:center;height:16px;padding:0 10px;font-size:12px;line-height:1;color:var(--muted);overflow:hidden;white-space:nowrap}
+#examples .work-item .shot{transition:border-color .2s ease-out}
+#examples .work-item:hover .shot{border-color:var(--text)}
+#examples .work-name{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:var(--fs-h5);line-height:1.05;padding-inline:4px}
+#examples .work-item:hover .work-name{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px}
+@container (max-width:980px){#examples .examples,#examples .work-list{grid-template-columns:1fr}}   /* after the three-column rules, so it wins on narrow screens */
 #examples .ex-cta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-top:clamp(36px,5cqw,56px);padding:clamp(28px,4cqw,44px);border-radius:16px;background:var(--ink);color:var(--paper)}
 #examples .ex-cta h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(32px,4.4cqw,56px);line-height:.95}
 /* ---------- about us (see the "About" script) ---------- */
@@ -1956,6 +1968,21 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
           <a class="btn" href="examples/retail.html">View example</a>
         </div>
       </article>
+    </div>
+    <div class="work" role="group" aria-labelledby="work-title">
+      <h3 id="work-title">Recent work</h3>
+      <p>Websites we’ve built for real businesses. They open in a new tab.</p>
+      <ul class="work-list">
+        <li>
+          <a class="work-item" href="https://blackindustrial.com/" target="_blank" rel="noopener">
+            <div class="shot">
+              <div class="chrome"><i></i><i></i><i></i><span>blackindustrial.com</span></div>
+              <div class="ex-stage"><img src="media/work/black-industrial.webp" alt="" width="960" height="600" loading="lazy"></div>
+            </div>
+            <span class="work-name">BLACK Industrial &amp; Safety Supply<span class="sr-only"> (opens in a new tab)</span></span>
+          </a>
+        </li>
+      </ul>
     </div>
     <div class="ex-cta">
       <h3>Want one for your business?</h3>
