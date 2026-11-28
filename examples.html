@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Example Websites · ZENGERS Digital Services</title>
-<meta name="description" content="Concept websites by ZENGERS Digital Services for a landscaper, an electrician, and a retail shop.">
+<title>Recent Work and Example Websites · ZENGERS Digital Services</title>
+<meta name="description" content="Websites ZENGERS Digital Services has built for real businesses, and concept websites for a landscaper, an electrician, and a retail shop.">
 <link rel="canonical" href="https://zengersdigital.com/examples.html">
 <meta name="theme-color" content="#EEF1EE">
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
@@ -69,15 +69,16 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 .nm-retail{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:32px!important}
 .ex-body{display:grid;gap:8px;padding-inline:8px}
 .ex .label{color:var(--lamp-text)}
-.ex h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:34px;line-height:1}
+.ex h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:34px;line-height:1}
 .ex p{color:var(--muted)}
 .ex .btn{justify-self:start;margin-top:8px;background:var(--text);color:var(--paper)} .ex .btn:hover{background:var(--ink)}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Recent work (2026-11-27, Jason): finished client sites, each a thumbnail and the business's name, opening the live site in a new tab */
-.work{padding-bottom:clamp(64px,9vw,120px)}
-.work h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5vw,64px);line-height:.95}
-.work > p{margin-top:12px;color:var(--muted)}
-.work-list{list-style:none;margin:clamp(24px,3vw,36px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4vw,28px)}
+.work{padding-bottom:clamp(56px,8vw,104px)}
+.ex-more h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5vw,64px);line-height:.95}
+.ex-more p{margin-top:12px;color:var(--muted);max-width:34em}
+.ex-more{padding-bottom:clamp(28px,4vw,48px)}
+.work-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4vw,28px)}
 @media (max-width:980px){.work-list{grid-template-columns:1fr}}
 .work-item{display:grid;gap:14px;text-decoration:none;color:inherit}
 .work-item .chrome span{display:flex;align-items:center;height:16px;padding:0 10px;font-size:12px;line-height:1;color:var(--muted);overflow:hidden;white-space:nowrap}
@@ -217,7 +218,26 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
 
 <main id="main">
   <div class="wrap intro">
-    <h1>Example websites</h1>
+    <h1>Recent work</h1>
+    <p>Websites we’ve built for real businesses. They open in a new tab.</p>
+  </div>
+
+  <div class="wrap work">
+    <ul class="work-list">
+      <li>
+        <a class="work-item" href="https://blackindustrial.com/" target="_blank" rel="noopener">
+          <div class="shot">
+            <div class="chrome"><i></i><i></i><i></i><span>blackindustrial.com</span></div>
+            <div class="stage"><img src="media/work/black-industrial.webp" alt="" width="960" height="600" loading="lazy"></div>
+          </div>
+          <span class="work-name">BLACK Industrial &amp; Safety Supply<span class="sr-only"> (opens in a new tab)</span></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="wrap ex-more">
+    <h2 id="ex-more-title">Example websites</h2>
     <p>Three concept sites, one for each kind of business we build for. Open one and click around.</p>
     <p class="notice">These are concept websites for made-up businesses, not client projects. Their contact details are fake, and their buttons and forms don’t send anything.</p>
   </div>
@@ -230,7 +250,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
       </a>
       <div class="ex-body">
         <p class="label">Landscaping</p>
-        <h2>Fernhill Landscapes</h2>
+        <h3>Fernhill Landscapes</h3>
         <p>Calm and outdoorsy, with a year of yard care season by season, three stepping-stone steps, service towns, and an estimate form.</p>
         <a class="btn" href="examples/landscaping.html">View example</a>
       </div>
@@ -242,7 +262,7 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
       </a>
       <div class="ex-body">
         <p class="label">Electrical services</p>
-        <h2>Northgate Electric</h2>
+        <h3>Northgate Electric</h3>
         <p>Bold and direct, with an emergency call bar, six services, a visit traced along the wire, and a service-ticket booking form.</p>
         <a class="btn" href="examples/electrical.html">View example</a>
       </div>
@@ -254,28 +274,12 @@ img{max-width:100%;display:block} a{color:inherit} h1,h2,h3{margin:0;text-wrap:b
       </a>
       <div class="ex-body">
         <p class="label">Retail</p>
-        <h2>Marigold &amp; Mill</h2>
+        <h3>Marigold &amp; Mill</h3>
         <p>Warm and boutique, with arched shop categories, new pieces on the shelf, hours and directions, and a class ticket to sign up.</p>
         <a class="btn" href="examples/retail.html">View example</a>
       </div>
     </article>
   </div>
-
-  <section class="wrap work" aria-labelledby="work-title">
-    <h2 id="work-title">Recent work</h2>
-    <p>Websites we’ve built for real businesses. They open in a new tab.</p>
-    <ul class="work-list">
-      <li>
-        <a class="work-item" href="https://blackindustrial.com/" target="_blank" rel="noopener">
-          <div class="shot">
-            <div class="chrome"><i></i><i></i><i></i><span>blackindustrial.com</span></div>
-            <div class="stage"><img src="media/work/black-industrial.webp" alt="" width="960" height="600" loading="lazy"></div>
-          </div>
-          <span class="work-name">BLACK Industrial &amp; Safety Supply<span class="sr-only"> (opens in a new tab)</span></span>
-        </a>
-      </li>
-    </ul>
-  </section>
 
   <section class="cta" aria-labelledby="cta-title">
     <div class="wrap">

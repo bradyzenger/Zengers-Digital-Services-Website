@@ -361,7 +361,7 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 #examples .ex-intro .label{color:var(--lamp-text);margin-bottom:14px}
 #examples .ex-intro h2{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(46px,7cqw,96px);line-height:.92}
 #examples .ex-intro p{margin-top:18px;font-size:clamp(18px,1.7cqw,21px);color:var(--muted);max-width:34em}
-#examples .ex-intro .notice{margin-top:22px;display:inline-block;background:var(--note-bg);border:1px solid var(--note-line);color:var(--note-ink);border-radius:10px;padding:10px 14px;font-size:var(--fs-md)}
+#examples .ex-more .notice{margin-top:22px;display:inline-block;background:var(--note-bg);border:1px solid var(--note-line);color:var(--note-ink);border-radius:10px;padding:10px 14px;font-size:var(--fs-md)}
 #examples .examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4cqw,28px);margin-top:clamp(28px,4cqw,48px)}
 #examples .ex{display:grid;gap:18px;align-content:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 24px}
 #examples .shot{display:block;border-radius:10px;overflow:hidden;border:1px solid #BFC8C6;background:#fff;box-shadow:0 10px 30px rgba(14,24,34,.12)}
@@ -376,15 +376,15 @@ html.dev-moving,html.dev-moving body{touch-action:none}   /* while the camera mo
 #examples .nm-retail{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:var(--fs-h4)}
 #examples .ex-body{display:grid;gap:8px;padding-inline:8px}
 #examples .ex .label{color:var(--lamp-text)}
-#examples .ex h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:var(--fs-h4);line-height:1}
+#examples .ex h4{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:var(--fs-h4);line-height:1}
 #examples .ex p{color:var(--muted)}
 #examples .ex .btn{justify-self:start;margin-top:8px;background:var(--text);color:var(--paper)}
 #examples .ex .btn:hover{background:var(--ink)}
 /* Recent work (2026-11-27, Jason): finished client sites under the concept sites, each a thumbnail and the business's name, opening the live site in a new tab */
-#examples .work{margin-top:clamp(48px,7cqw,88px)}
-#examples .work h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5cqw,64px);line-height:.95}
-#examples .work > p{margin-top:12px;color:var(--muted);font-size:clamp(17px,1.5cqw,19px)}
-#examples .work-list{list-style:none;margin:clamp(24px,3cqw,36px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4cqw,28px)}
+#examples .ex-more{margin-top:clamp(56px,8cqw,104px)}
+#examples .ex-more h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(36px,5cqw,64px);line-height:.95}
+#examples .ex-more p{margin-top:12px;max-width:34em;color:var(--muted);font-size:clamp(17px,1.5cqw,19px)}
+#examples .work-list{list-style:none;margin:clamp(28px,4cqw,48px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4cqw,28px)}
 #examples .work-item{display:grid;gap:14px;text-decoration:none;color:inherit}
 #examples .work-item .chrome span{display:flex;align-items:center;height:16px;padding:0 10px;font-size:12px;line-height:1;color:var(--muted);overflow:hidden;white-space:nowrap}
 #examples .work-item .shot{transition:border-color .2s ease-out}
@@ -1922,12 +1922,27 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
 </section>
 
 <!-- ============================ EXAMPLES ============================
-     Shown only on the projector screen in the Examples house on the street (the "Street" script). Without the street,
+     Recent work (finished client sites, since 2026-11-27) and the example websites. Shown only on the projector screen in the Recent work house (id #examples) on the street (the "Street" script). Without the street,
      it stays hidden and the menu's Examples link opens examples.html, which has the same words: keep the two in step. -->
 <section class="block" id="examples" aria-labelledby="examples-title" hidden>
   <div class="wrap">
     <div class="ex-intro">
-      <h2 id="examples-title">Example websites</h2>
+      <h2 id="examples-title">Recent work</h2>
+      <p>Websites we’ve built for real businesses. They open in a new tab.</p>
+    </div>
+    <ul class="work-list">
+      <li>
+        <a class="work-item" href="https://blackindustrial.com/" target="_blank" rel="noopener">
+          <div class="shot">
+            <div class="chrome"><i></i><i></i><i></i><span>blackindustrial.com</span></div>
+            <div class="ex-stage"><img src="media/work/black-industrial.webp" alt="" width="960" height="600" loading="lazy"></div>
+          </div>
+          <span class="work-name">BLACK Industrial &amp; Safety Supply<span class="sr-only"> (opens in a new tab)</span></span>
+        </a>
+      </li>
+    </ul>
+    <div class="ex-more" role="group" aria-labelledby="ex-more-title">
+      <h3 id="ex-more-title">Example websites</h3>
       <p>Three concept sites, one for each kind of business we build for. Open one and click around.</p>
       <p class="notice">These are concept websites for made-up businesses, not client projects. Their contact details are fake, and their buttons and forms don’t send anything.</p>
     </div>
@@ -1939,7 +1954,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
         </a>
         <div class="ex-body">
           <p class="label">Landscaping</p>
-          <h3>Fernhill Landscapes</h3>
+          <h4>Fernhill Landscapes</h4>
           <p>Calm and outdoorsy, with a year of yard care season by season, three stepping-stone steps, service towns, and an estimate form.</p>
           <a class="btn" href="examples/landscaping.html">View example</a>
         </div>
@@ -1951,7 +1966,7 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
         </a>
         <div class="ex-body">
           <p class="label">Electrical services</p>
-          <h3>Northgate Electric</h3>
+          <h4>Northgate Electric</h4>
           <p>Bold and direct, with an emergency call bar, six services, a visit traced along the wire, and a service-ticket booking form.</p>
           <a class="btn" href="examples/electrical.html">View example</a>
         </div>
@@ -1963,26 +1978,11 @@ fieldset.group > legend{font-family:var(--body);font-weight:600;font-size:var(--
         </a>
         <div class="ex-body">
           <p class="label">Retail</p>
-          <h3>Marigold &amp; Mill</h3>
+          <h4>Marigold &amp; Mill</h4>
           <p>Warm and boutique, with arched shop categories, new pieces on the shelf, hours and directions, and a class ticket to sign up.</p>
           <a class="btn" href="examples/retail.html">View example</a>
         </div>
       </article>
-    </div>
-    <div class="work" role="group" aria-labelledby="work-title">
-      <h3 id="work-title">Recent work</h3>
-      <p>Websites we’ve built for real businesses. They open in a new tab.</p>
-      <ul class="work-list">
-        <li>
-          <a class="work-item" href="https://blackindustrial.com/" target="_blank" rel="noopener">
-            <div class="shot">
-              <div class="chrome"><i></i><i></i><i></i><span>blackindustrial.com</span></div>
-              <div class="ex-stage"><img src="media/work/black-industrial.webp" alt="" width="960" height="600" loading="lazy"></div>
-            </div>
-            <span class="work-name">BLACK Industrial &amp; Safety Supply<span class="sr-only"> (opens in a new tab)</span></span>
-          </a>
-        </li>
-      </ul>
     </div>
     <div class="ex-cta">
       <h3>Want one for your business?</h3>
@@ -4127,7 +4127,7 @@ window.__zwdCalm = window.__zwdCalm || (function(){
   var MIST = 0xF2E6D8;                        // the cloud between the mountain and the city: the film's rise ends in exactly this colour
   var FOV = 28, T = Math.tan(FOV * Math.PI / 360);
   var IDS = ["services", "benefits", "why-us", "process", "pricing", "examples"];
-  var NAMES = ["Services", "Why it matters", "Why choose us?", "Process", "Pricing", "Examples"];
+  var NAMES = ["Services", "Why it matters", "Why choose us?", "Process", "Pricing", "Recent work"];
   var GLASS = [0xFFB070, 0xE4ECF6, 0xC24CE6, 0xFFD08A, 0xFF9A50, 0x7A86FF];   // each room's light, seen from the street
   var root = document.documentElement, dead = false, restore = null, cityModels = null;
   function shown(){ root.classList.remove("dev-arriving"); }   // opened at a house: show the page (see the <head>)
